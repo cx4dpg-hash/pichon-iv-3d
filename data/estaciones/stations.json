@@ -1,0 +1,91 @@
+{
+  "schemaVersion": "1.0",
+  "description": "Estaciones terrestres que participaron en el vuelo PICHÓN IV. Posiciones tal como las reportaron las propias estaciones; no se registra altura de terreno.",
+  "stations": [
+    {
+      "callsign": "CX4DPG-1",
+      "type": "fixed",
+      "role": "GloboGate",
+      "position": {
+        "status": "known",
+        "aprsLatitude": "34°45.56' S",
+        "aprsLongitude": "55°41.06' W",
+        "lat": -34.759333,
+        "lon": -55.684333,
+        "terrainHeightM": null
+      },
+      "source": "APRS.fi, baliza propia de la estación durante el 11/10/2026",
+      "sourceRef": "aprs.fi",
+      "confidence": "high",
+      "comment": "Activo GloboGate"
+    },
+    {
+      "callsign": "CX2TN-1",
+      "type": "fixed",
+      "role": "GloboGate",
+      "position": {
+        "status": "known",
+        "aprsLatitude": "34°12.03' S",
+        "aprsLongitude": "53°51.30' W",
+        "lat": -34.2005,
+        "lon": -53.855,
+        "terrainHeightM": null
+      },
+      "source": "APRS.fi, baliza propia de la estación durante el 11/10/2026",
+      "sourceRef": "aprs.fi",
+      "confidence": "high",
+      "comment": "Activo GloboGate"
+    },
+    {
+      "callsign": "CX2CQ-1",
+      "type": "fixed",
+      "role": "GloboGate",
+      "position": {
+        "status": "known",
+        "aprsLatitude": "34°48.45' S",
+        "aprsLongitude": "56°02.30' W",
+        "lat": -34.8075,
+        "lon": -56.038333,
+        "terrainHeightM": null
+      },
+      "source": "APRS.fi, baliza propia de la estación durante el 11/10/2026",
+      "sourceRef": "aprs.fi",
+      "confidence": "high",
+      "comment": "Activo GloboGate"
+    },
+    {
+      "callsign": "CX2ACB-1",
+      "type": "fixed",
+      "role": "GloboGate",
+      "position": {
+        "status": "known",
+        "aprsLatitude": "34°46.59' S",
+        "aprsLongitude": "55°45.01' W",
+        "lat": -34.7765,
+        "lon": -55.750167,
+        "terrainHeightM": null
+      },
+      "source": "APRS.fi, baliza propia de la estación durante el 11/10/2026",
+      "sourceRef": "aprs.fi",
+      "confidence": "high",
+      "comment": "Activo GloboGate"
+    },
+    {
+      "callsign": "CX3BP-8",
+      "type": "mobile",
+      "role": null,
+      "position": {
+        "status": "unknown",
+        "aprsLatitude": null,
+        "aprsLongitude": null,
+        "lat": null,
+        "lon": null,
+        "terrainHeightM": null
+      },
+      "source": "identificación del proyecto",
+      "sourceRef": "project-identification",
+      "confidence": "not_applicable",
+      "comment": "estación móvil, posición desconocida"
+    }
+  ]
+}

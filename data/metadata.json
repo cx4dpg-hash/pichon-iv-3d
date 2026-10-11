@@ -1,0 +1,78 @@
+{
+  "schemaVersion": "1.0",
+  "description": "Registro de procedencia de los datos del proyecto. Cada fuente indica qué aporta y su nivel general de confianza.",
+  "sources": [
+    {
+      "id": "aprs.fi",
+      "name": "APRS.fi",
+      "type": "aprs_aggregator",
+      "provides": [
+        "tramas APRS del CX1AA-11 (posición, curso/velocidad, altitud GPS, payload de telemetría)",
+        "balizas de posición propias de las estaciones terrestres fijas"
+      ],
+      "generalConfidence": "high",
+      "url": null,
+      "notes": "Datos derivados de logs APRS. Los tiempos de inicio/fin del vuelo principal se derivan de ellos y no son horarios oficiales."
+    },
+    {
+      "id": "pichon-project-pages",
+      "name": "Páginas oficiales/semioficiales del proyecto PICHÓN IV",
+      "type": "project_web_pages",
+      "provides": [
+        "confirmación del significado de los campos de telemetría del payload APRS"
+      ],
+      "generalConfidence": "high",
+      "url": [
+        "https://www.pyagestion.uy/RCU/datos.php",
+        "https://www.pyagestion.uy/RCU/graficas.php",
+        "https://www.pyagestion.uy/RCU/trayectoria.php"
+      ],
+      "notes": "El campo de batería no tiene escala/unidad confirmada inequívocamente. Los significados de los modos G y P no están documentados."
+    },
+    {
+      "id": "rcu-bulletin",
+      "name": "Boletín del Radio Club Uruguayo",
+      "type": "bulletin",
+      "provides": [],
+      "generalConfidence": "unknown",
+      "url": null,
+      "notes": "Fuente registrada. Todavía no se ha cargado ningún dato proveniente de ella; el contenido concreto se definirá cuando se proporcione."
+    },
+    {
+      "id": "visual-estimates",
+      "name": "Estimaciones visuales de imágenes",
+      "type": "visual_estimate",
+      "provides": [
+        "diámetro inicial estimado del globo",
+        "dimensiones estimadas de la carga útil",
+        "disposición de la suspensión de la carga y la antena"
+      ],
+      "generalConfidence": "low_to_medium",
+      "url": null,
+      "notes": "Son estimaciones, no mediciones. Cada valor lleva su propia incertidumbre y nivel de confianza en flight.json."
+    },
+    {
+      "id": "project-identification",
+      "name": "Identificación del proyecto",
+      "type": "project_definition",
+      "provides": [
+        "existencia de la estación móvil CX3BP-8 y condición de posición desconocida",
+        "datos generales del vuelo (misión, indicativo, fecha, lugar de lanzamiento)"
+      ],
+      "generalConfidence": "high",
+      "url": null,
+      "notes": "Datos aportados por Pedro / el equipo del proyecto."
+    },
+    {
+      "id": "user-log-uploads",
+      "name": "Futuras cargas de logs de usuarios",
+      "type": "user_supplied_log",
+      "provides": [
+        "tramas recibidas localmente por cada radioaficionado"
+      ],
+      "generalConfidence": "unknown",
+      "url": null,
+      "notes": "No implementado. Se procesarán localmente en el navegador. La confianza dependerá de cada log y no se mezclarán con los datos maestros."
+    }
+  ]
+}

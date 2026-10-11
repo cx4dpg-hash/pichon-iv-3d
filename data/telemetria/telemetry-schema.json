@@ -1,0 +1,147 @@
+{
+  "schemaVersion": "1.0",
+  "description": "Esquema conocido de los campos de una trama APRS del PICHÓN IV (CX1AA-11). Define campos y su estado de interpretación; no contiene tramas.",
+  "interpretationStatusValues": {
+    "confirmed": "Significado confirmado por las páginas públicas del proyecto.",
+    "probable": "Interpretación probable, pendiente de confirmación.",
+    "unknown": "Significado no conocido."
+  },
+  "aprsPositionFields": [
+    {
+      "name": "lat",
+      "unit": "degrees",
+      "origin": "posición APRS",
+      "interpretationStatus": "confirmed",
+      "notes": "Latitud decimal derivada de la posición APRS."
+    },
+    {
+      "name": "lon",
+      "unit": "degrees",
+      "origin": "posición APRS",
+      "interpretationStatus": "confirmed",
+      "notes": "Longitud decimal derivada de la posición APRS."
+    },
+    {
+      "name": "course",
+      "unit": "degrees",
+      "origin": "parte APRS de curso/velocidad",
+      "interpretationStatus": "confirmed",
+      "notes": "Curso."
+    },
+    {
+      "name": "speed",
+      "unit": "unspecified",
+      "origin": "parte APRS de curso/velocidad",
+      "interpretationStatus": "confirmed",
+      "notes": "Velocidad tal como viene en la parte APRS de curso/velocidad. La unidad con que se almacenará se definirá al cargar telemetría; no se asume aquí."
+    },
+    {
+      "name": "altitudeGpsM",
+      "unit": "m",
+      "origin": "campo APRS A=xxxxxx",
+      "interpretationStatus": "confirmed",
+      "notes": "El campo APRS A= viene en pies; se convierte a metros (1 ft = 0.3048 m)."
+    }
+  ],
+  "payloadFields": [
+    {
+      "order": 1,
+      "name": "frameNumber",
+      "type": "integer",
+      "unit": null,
+      "interpretationStatus": "confirmed",
+      "notes": "Número de trama."
+    },
+    {
+      "order": 2,
+      "name": "mode",
+      "type": "string",
+      "unit": null,
+      "allowedValues": ["G", "P"],
+      "interpretationStatus": "confirmed",
+      "notes": "Valores G o P. El significado textual de cada modo no está documentado; se registra solo el valor."
+    },
+    {
+      "order": 3,
+      "name": "internalTemperatureC",
+      "type": "number",
+      "unit": "°C",
+      "interpretationStatus": "confirmed",
+      "notes": "Temperatura interna."
+    },
+    {
+      "order": 4,
+      "name": "externalTemperatureC",
+      "type": "number",
+      "unit": "°C",
+      "interpretationStatus": "confirmed",
+      "notes": "Temperatura externa."
+    },
+    {
+      "order": 5,
+      "name": "pressureHpa",
+      "type": "number",
+      "unit": "hPa",
+      "interpretationStatus": "confirmed",
+      "notes": "Presión."
+    },
+    {
+      "order": 6,
+      "name": "humidityPercent",
+      "type": "number",
+      "unit": "%",
+      "interpretationStatus": "confirmed",
+      "notes": "Humedad relativa."
+    },
+    {
+      "order": 7,
+      "name": "barometricAltitudeM",
+      "type": "number",
+      "unit": "m",
+      "interpretationStatus": "confirmed",
+      "notes": "Altitud barométrica."
+    },
+    {
+      "order": 8,
+      "name": "batteryMvOrRaw",
+      "type": "number",
+      "unit": null,
+      "interpretationStatus": "probable",
+      "notes": "Batería. Pendiente de confirmar escala/unidad (podría ser milivoltios o un valor crudo). NO interpretar como voltios hasta contar con documentación técnica inequívoca."
+    },
+    {
+      "order": 9,
+      "name": "gpsQuality",
+      "type": "integer",
+      "unit": null,
+      "interpretationStatus": "confirmed",
+      "notes": "Calidad del GPS."
+    },
+    {
+      "order": 10,
+      "name": "satellites",
+      "type": "integer",
+      "unit": null,
+      "interpretationStatus": "confirmed",
+      "notes": "Cantidad de satélites."
+    },
+    {
+      "order": 11,
+      "name": "gpsStatus",
+      "type": "string",
+      "unit": null,
+      "interpretationStatus": "confirmed",
+      "notes": "Estado del GPS."
+    }
+  ],
+  "derivedFields": [
+    {
+      "name": "modeMeaning",
+      "type": "string|null",
+      "value": null,
+      "interpretationStatus": "unknown",
+      "notes": "Significado textual de los modos G y P. Siempre null por ahora; no se debe inventar."
+    }
+  ],
+  "payloadOrderNote": "Los campos de payloadFields aparecen en este orden después de los datos de posición en el payload APRS. La sintaxis exacta del payload (separadores, formato) NO está definida en este esquema y se documentará al recibir el formato oficial."
+}
