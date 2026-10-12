@@ -41,7 +41,10 @@ js/floor.js     corrección visual de altura al terreno (función pura, con prue
 js/terrainfloor.js aplica esa corrección cuando hay relieve activo
 js/clouds.js    infraestructura de la antigua capa satelital 2D (RETIRADA de la UI; no se importa ni se carga). Se conserva como referencia
 js/presentation.js botón de ocultar/mostrar el panel izquierdo y modo presentación (Fullscreen API); solo visibilidad (etapa 14)
-data/clouds/    modelo meteorológico de nubosidad (cloud-model.json) y sus fuentes; aún no lo lee la aplicación
+data/clouds/    modelo meteorológico de nubosidad (cloud-model.json) y sus fuentes; lo lee js/clouds3d.js al activar "Nubes 3D"
+js/clouds3d.js  nubes 3D aproximadas (Cesium.CloudCollection/CumulusCloud) a partir de cloud-model.json; apagado por defecto (etapa 15)
+js/cloudfield.js geometría pura del campo de nubes (elementos, interpolación en zonas y en el tiempo; con pruebas)
+tools/analysis/motion-report.mjs  informe reproducible de velocidades derivadas y de la interpolación
 tools/cloud-model/ script reproducible (Python) que genera el modelo desde GOES-19 L2 y METAR
 js/compass.js   brújula de la cámara (heading/pitch, reset a Norte arriba; etapa 9)
 js/derived.js   datos derivados (velocidad vertical entre transmisiones consecutivas)
@@ -68,13 +71,18 @@ Etapa 10:
 - **Rescate.** `recovery.json` se carga aparte de `transmissions.json`; `recovery.js` dibuja marcador, línea punteada y etiquetas sin tocar la trayectoria principal.
 - **Nubes.** La capa 2D fue retirada deliberadamente (decisión de producto): `app.js` no importa `clouds.js`, no hay botón ni rótulo, y no se descarga `assets/clouds/` en el uso normal. Los fotogramas y el manifiesto se conservan para la futura nube 3D.
 
+Etapa 15:
+- **Nubes 3D.** `clouds3d.js` crea (al primer clic) una `CloudCollection` con 200 `CumulusCloud`; `cloudfield.js` calcula, sin Cesium, la geometría de cada elemento (centro, espesor, visibilidad) desde `cloud-model.json`: zonas con transición suave, interpolación temporal lineal entre los 7 estados, variación determinista entre elementos y cobertura. Solo se actualizan los elementos cuando cambian los parámetros (≥ 5 m) o la elevación de la cámara (≥ 3°). La capa 2D (`clouds.js`) sigue sin importarse.
+- **Movimiento.** `positionAtTime` (`playback.js`) pasó de lineal a Hermite cúbica monótona (PCHIP) por coordenada (lat, lon, altitud), con las pendientes de las transmisiones vecinas; sigue siendo la ÚNICA función geométrica (carga, línea amarilla, marcadores, rescate). El remuestreo de la línea es ahora cada 2 s (antes 5 s) porque el tramo ya no es recto. `positionAtTimeLinear` se conserva solo para comparar.
+- **Paracaídas.** `recovery.json → parachute` (no abrió, confirmado por el usuario) se lee desde `ui.js` en la última transmisión.
+
 Etapa 14:
 - **Presentación.** `presentation.js` no crea estado propio de reproducción: el panel se oculta con el atributo `hidden` y el modo presentación es la clase `presentation` sobre `#app`, que sigue al evento real `fullscreenchange` (Escape, F11, botón o API). Entrar/salir solo cambia la visibilidad (CSS) y pide a Cesium `viewer.resize()`; tiempo, velocidad, cámara y seguimiento no se tocan.
 - **Nubes: modelo meteorológico.** `data/clouds/cloud-model.json` (valores meteorológicos con trazabilidad) está preparado y la representación volumétrica 3D está pendiente; el modelo lo genera `tools/cloud-model/build_cloud_model.py` y se valida con `tests/cloudmodel.test.mjs`. Ver `docs/CLOUD_MODEL.md`.
 
 Brújula e identidad (etapa 9): `compass.js` lee `viewer.camera.heading/pitch` en `scene.preRender` y rota un SVG; el clic rota la cámara alrededor del punto observado (cámara libre) o dentro del marco ENU de la carga (Seguir globo) sin cancelar el seguimiento. Los logos están en `assets/branding/` (ver `docs/BRANDING.md`).
 
-Posición y trayectoria (una sola fuente geométrica): `positionAtTime(flight, times, t)` en `playback.js` es la única interpolación visual de la posición de la carga (lineal en lat, lon y altitudeGpsM entre transmisiones reales). La carga animada (`visualPosition`) y la línea amarilla (`trajectorySamples`, un remuestreo de esa misma función cada 5 s que conserva siempre las 155 transmisiones reales) dependen de ella, así que la carga está siempre sobre la línea. Antes la línea unía solo las 155 posiciones con segmentos rectos en coordenadas cartesianas (cuerdas), mientras la carga seguía una curva (interpolación lineal en lat/lon/altitud): la diferencia llegaba a ≈ 0.42 m en los intervalos de 120 s. Los puntos intermedios son solo geometría de render (no son transmisiones, no se agregan al dataset y no tienen telemetría).
+Posición y trayectoria (una sola fuente geométrica): `positionAtTime(flight, times, t)` en `playback.js` es la única interpolación visual de la posición de la carga (lineal en lat, lon y altitudeGpsM entre transmisiones reales hasta la etapa 14; desde la etapa 15 Hermite cúbica monótona (PCHIP), ver abajo). La carga animada (`visualPosition`) y la línea amarilla (`trajectorySamples`, un remuestreo de esa misma función cada 2 s desde la etapa 15 (antes 5 s) que conserva siempre las 155 transmisiones reales) dependen de ella, así que la carga está siempre sobre la línea. Antes la línea unía solo las 155 posiciones con segmentos rectos en coordenadas cartesianas (cuerdas), mientras la carga seguía una curva (interpolación lineal en lat/lon/altitud): la diferencia llegaba a ≈ 0.42 m en los intervalos de 120 s. Los puntos intermedios son solo geometría de render (no son transmisiones, no se agregan al dataset y no tienen telemetría).
 
 Cartografía (etapa 8): `terrain.js` mantiene OpenStreetMap + elipsoide por defecto y, si `config.local.js` aporta un token válido, cambia a Cesium World Imagery + World Terrain; si falla, conserva el modo básico. El relieve es solo de representación (no toca lat/lon/altitudeGpsM). Las alturas de terreno de las estaciones se consultan en tiempo de ejecución y no se guardan. Ver `docs/MAPPING.md`.
 

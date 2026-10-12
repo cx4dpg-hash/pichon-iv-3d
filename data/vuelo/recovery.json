@@ -100,13 +100,13 @@
     "to": "rescuePoint",
     "notes": "Línea recta de referencia (no es una trayectoria medida): une el último punto telemétrico del vuelo con el punto de recuperación real."
   },
-  "operationalNotes": [
-    {
-      "text": "El paracaídas aparentemente no abrió.",
-      "status": "reported_unconfirmed",
-      "source": "Observación reportada por el usuario; sin soporte en la telemetría disponible. No se afirma como hecho."
-    }
-  ],
+  "parachute": {
+    "opened": false,
+    "text": "Paracaídas: no abrió (confirmado)",
+    "status": "confirmed",
+    "source": "Confirmación del usuario (Pedro). No proviene del log APRS ni de la telemetría: no está derivado de ninguna trama.",
+    "provenanceNote": "La procedencia está separada: el punto de recuperación está respaldado por APRS de CX5RN-5 (rescuePoint); el estado del paracaídas lo confirma el usuario."
+  },
   "additionalReferences": [
     {
       "id": "aprsfi-capture-rescue-sector",

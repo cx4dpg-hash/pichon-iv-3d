@@ -2,11 +2,28 @@
 
 Archivo: [`data/clouds/cloud-model.json`](../data/clouds/cloud-model.json) · Generador: [`tools/cloud-model/build_cloud_model.py`](../tools/cloud-model/build_cloud_model.py) · Prueba: `tests/cloudmodel.test.mjs`.
 
-**Esto no es una nube 3D.** Es la base de evidencia (qué se sabe, con qué método y con qué confianza) sobre la nubosidad que atravesó PICHÓN IV, para decidir después si y cómo representarla en 3D. La aplicación todavía no lee este archivo.
+**Esto no es una nube 3D.** Es la base de evidencia (qué se sabe, con qué método y con qué confianza) sobre la nubosidad que atravesó PICHÓN IV, para decidir después si y cómo representarla en 3D. La aplicación lo lee para la capa "Nubes 3D" (ver abajo).
 
-## Estado de la interfaz: sin nubes visibles
+## Representación 3D (botón "Nubes 3D")
 
-La antigua capa plana "Nubosidad satelital 2D" (imágenes GOES-19 GeoColor sobre el terreno, sin altura ni volumen) fue **retirada deliberadamente** de la interfaz y del modo presentación por decisión de producto: la nubosidad debe ser 3D y meteorológicamente representativa, y hasta entonces no se muestra ninguna nube. Se conservan, sin cargarse en el uso normal, `js/clouds.js` y `assets/clouds/` (22 fotogramas y manifiesto) como material de referencia para la futura implementación. La reconstrucción meteorológica de este documento está preparada; la representación volumétrica 3D está pendiente.
+La aplicación **lee** este modelo y lo dibuja como una capa de nubes 3D **aproximada** (botón "Nubes 3D", apagado por defecto; funciona en el layout normal y en el modo Presentación). Tooltip y rótulo: *"Reconstrucción 3D aproximada basada en GOES-19 + METAR"*. No es una observación ni "nubes reales 3D". La antigua capa plana 2D de GOES-19 sigue **retirada**; `js/clouds.js` y `assets/clouds/` se conservan sin cargarse.
+
+**Técnica.** `Cesium.CloudCollection` / `CumulusCloud` (ray-marching de volumen en cada elemento, con posición 3D, altura y espesor; el globo puede quedar debajo, entrar y atravesar la capa). Nada de láminas planas, billboards ni texturas pegadas al terreno. Código: `js/clouds3d.js` (Cesium) y `js/cloudfield.js` (geometría pura, con pruebas en `tests/cloudfield.test.mjs`). `cloud-model.json` se pide solo al activar el botón.
+
+**Cómo se usan los datos del modelo**
+- **Base y tope** por zona y hora → límites verticales de cada elemento. Base = `cloudBaseM` (techo METAR, tratado como ≈ MSL, igual que en el cálculo del espesor); tope = `cloudTopM`. Cada elemento varía respecto de la media: base ±12 % del espesor y tope ±25 % de (p90 − p10) limitado a ±200 m, con valores aleatorios deterministas (semilla fija). Resultado: centros entre ≈ 680 y 975 m, espesores de ≈ 400 a 1000 m según zona y hora. No hay un plano único.
+- **Zonas:** Centro-oeste (Z1) y Este (Z2), con transición suave en 54,2°O ± 0,15° (≈ 27 km).
+- **Evolución temporal:** los parámetros se interpolan linealmente entre los siete estados según `playback.absoluteMs` (no se reconstruyen objetos: solo se actualizan posición y tamaño de los elementos cuando algún valor cambia ≥ 5 m, o cuando la elevación de la cámara cambia ≥ 3°). No hay viento ni desplazamiento: no está respaldado por los datos.
+- **Cobertura (98–100 %):** el campo son 200 elementos (25 × 8, paso ≈ 6,5 km) de ≈ 16 km de ancho, muy solapados; la fracción visible sigue `cloudCoverage` (un elemento se oculta si su valor aleatorio supera la cobertura) y los bordes del campo se deshilachan. La capa resulta casi cerrada, con textura y huecos pequeños (no una placa).
+- **Tipo:** capa estratiforme baja (stratus/stratocumulus probable): elementos muy anchos y poco altos. No se dibujan cúmulos convectivos aislados.
+
+**Rendimiento.** 200 `CumulusCloud` (≈ 154–157 visibles). No se miden FPS reales de GPU: en el navegador de pruebas con render por software (SwiftShader, 1200 × 800) la vista general pasó de ≈ 6,8 a ≈ 4,5 fps (−34 %) y Seguir globo de ≈ 6 a ≈ 5 fps con terreno, imagery, trayectoria, globo y nubes. Sirve solo como impacto relativo; en una GPU real no se midió.
+
+**Limitaciones de la representación**
+- `CumulusCloud` es un sprite orientado a la cámara cuyo interior es volumétrico; tiende a formas de cúmulo. Para aproximar estratocúmulos se usan sprites muy anchos, bajos y solapados, y su alto aparente se recalcula con la elevación de la cámara (de canto = espesor de la capa; desde arriba = su extensión horizontal). Desde arriba la capa se ve como un conjunto de manchas esponjosas, no como lámina continua.
+- Las nubes solo existen en la franja modelada (lat −34,50…−34,06; lon −55,52…−53,82). Fuera de ella el cielo está despejado en la aplicación, aunque en la realidad no lo estuviera.
+- Con el globo o la cámara dentro de la capa se ve el interior, pero la densidad interna es aproximada. La estructura vertical interna, los huecos y la cobertura por capa **no** están respaldados por datos.
+- El ajuste de tamaños se hizo a ojo sobre capturas, no contra imágenes reales. Las incertidumbres del modelo (base inferida, tope con dispersión) se heredan por completo.
 
 ## Objetivo y periodo
 

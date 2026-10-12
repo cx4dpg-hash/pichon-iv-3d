@@ -107,3 +107,28 @@ No se conocen las longitudes de la línea de suspensión ni de la antena (`suspe
 - Supone que la temperatura del gas es la temperatura externa medida y que la presión interna es igual a la externa.
 - No simula viento, inclinación, balanceo ni dinámica del cordón: el conjunto se mantiene vertical.
 - No debe considerarse una medición.
+
+## Movimiento interpolado de la carga (etapa 15)
+
+El tiempo de reproducción **no cambia**: 1x es tiempo real y las velocidades 1x, 2x, 4x, 8x, 16x, 32x y 64x multiplican ese reloj. Tampoco cambian `packetTimestampUtc`, la duración total ni ningún dato: solo cambia **cómo se dibuja la posición entre dos transmisiones reales**.
+
+**Antes (hasta la etapa 14):** interpolación lineal de lat, lon y altitud → dentro de cada intervalo la carga iba a velocidad constante y la velocidad saltaba en cada transmisión (media del salto ≈ 3,0 m/s, máximo 31,2 m/s en el frame 138, la ruptura estimada).
+
+**Ahora:** Hermite cúbica **monótona** (PCHIP, Fritsch–Carlson) por separado en lat, lon y altitud, con las pendientes calculadas de las transmisiones vecinas (k−1, k, k+1; función `pchipSlope` en `js/playback.js`). Propiedades:
+- Pasa **exactamente** por cada transmisión real (error 0 m en las 148) y no toca los instantes.
+- **Sin sobreimpulso:** en cada intervalo cada coordenada queda entre los valores de sus dos extremos (máx. fuera de rango medido: 8 × 10⁻¹⁰ m). Si la serie cambia de sentido en una transmisión (p. ej. el apogeo), la pendiente es 0 allí.
+- La velocidad es **continua** en cada transmisión: salto medio 0,17 m/s y máximo 2,0 m/s (frame 138), frente a 3,0 y 31,2 m/s con la interpolación lineal. La carga acelera y frena de forma suave dentro de los intervalos.
+- Es la ÚNICA función geométrica `positionAtTime(t)`: la carga, la línea amarilla (remuestreada cada 2 s), los marcadores y el rescate la comparten. La carga queda sobre la línea (separación máxima medida ≈ 0,14 m, error de la polilínea de 2 s).
+- La curva se desvía de la cuerda recta entre dos transmisiones hasta **66 m** (intervalo frames 146→147, de ≈ 1,5 km, un 4 %): es el efecto de suavizar el cambio de rumbo; no se aleja de la trayectoria dibujada porque ambas usan la misma función.
+- Velocidad 3D máxima instantánea: 42,3 m/s (lineal: 40,3 m/s).
+- Es una reconstrucción visual: entre transmisiones no hay datos y la forma exacta del movimiento es desconocida. Alrededor de la ruptura (frames 138–139) la altitud se frena a 0 m/s en el apogeo y luego cae: es la consecuencia de exigir monotonía y no se interpreta como medición.
+
+**Velocidades derivadas por intervalo** (`node tools/analysis/motion-report.mjs`, 147 intervalos; dt de 59 a 121 s, media 74,3 s):
+
+| Magnitud | Mínimo | Máximo | Media |
+|---|---|---|---|
+| Horizontal (km/h) | 1,5 | 140,2 | 57,3 |
+| Vertical (m/s) | −29,7 | +4,2 | 0,07 |
+| 3D (km/h) | 7,4 | 145,0 | 62,6 |
+
+**Comparación con la velocidad y el curso transmitidos** (velocidad APRS de 1 kt de resolución, promedio de los dos extremos): diferencia derivada − transmitida de −13,8 a +10,3 km/h (media −1,3). Mayores diferencias de velocidad: frames 140→141 (−13,8 km/h; descenso casi vertical de 1,6 km en 60 s con 4,7 km/h horizontales derivados), 114→115 (−11,0), 129→130 (−10,9), 146→147 (−10,6) y 145→146 (+10,3). El rumbo derivado difiere del curso transmitido 9,3° de media y más de 30° en 9 intervalos, todos con velocidad horizontal baja (de 3,8 a 17 km/h; por ejemplo 140→141: 171°, 4,7 km/h; 113→114: 75°, 5,7 km/h), donde el curso GPS es ruidoso. Esas diferencias **no se usan** para modificar nada: la velocidad y el curso transmitidos siguen siendo datos crudos, y la interpolación usa solo las posiciones.

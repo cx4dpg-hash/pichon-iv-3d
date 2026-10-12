@@ -150,6 +150,8 @@
         <span id="compassPitch">Incl. 0°</span>
       </button>
 
+      <div id="cloudNote" aria-live="polite" hidden></div>
+
       <div id="mapMode" aria-live="polite">Mapa básico · sin relieve</div>
 
       <div id="status" role="alert" hidden></div>
@@ -166,6 +168,7 @@
         <div class="group">
           <button type="button" id="btnOverview">Vista general</button>
           <button type="button" id="btnFollow">Seguir globo</button>
+          <button type="button" id="btnClouds3d" aria-pressed="false" title="Reconstrucción 3D aproximada basada en GOES-19 + METAR (no son nubes reales ni una observación)">Nubes 3D</button>
         </div>
       </div>
       <div class="timeline">

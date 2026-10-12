@@ -155,8 +155,8 @@ export function initUi({ data, playback, map, diameterModel, verticalSpeeds }) {
       const r = data.recovery.rescuePoint;
       const km = haversineKm(tx.position.lat, tx.position.lon, r.lat, r.lon);
       $("recoveryText").textContent =
-        `Tramo final no telemétrico hasta el punto de rescate reportado (${r.label}), a ≈ ${Math.round(km * 1000)} m del último punto. ` +
-        `Observación reportada, no confirmada: el paracaídas aparentemente no abrió.`;
+        `Tramo final no telemétrico hasta el punto de recuperación (${r.label}; APRS de CX5RN-5), a ≈ ${Math.round(km * 1000)} m del último punto. ` +
+        `${data.recovery.parachute.text}. Fuente: confirmación del usuario (no deriva del log APRS).`;
     }
     renderedIndex = index;
   }

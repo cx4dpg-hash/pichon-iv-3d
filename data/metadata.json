@@ -65,15 +65,15 @@
     },
     {
       "id": "user-reported-rescue-point",
-      "name": "Observación operativa y estimación inicial del rescate reportadas por el usuario",
+      "name": "Confirmación del paracaídas y estimación inicial del rescate aportadas por el usuario",
       "type": "user_reported_location",
       "provides": [
-        "observación operativa no confirmada: el paracaídas aparentemente no abrió",
+        "confirmación del estado del paracaídas: no abrió (confirmado por el usuario; no proviene de APRS)",
         "estimación visual inicial del punto de rescate (34°19.69' S, 53°59.15' W), SUPERADA por la trama APRS de CX5RN-5"
       ],
-      "generalConfidence": "medium",
+      "generalConfidence": "high",
       "url": null,
-      "notes": "El punto de rescate vigente ya no depende de esta fuente: está respaldado por APRS de CX5RN-5 (fuente cx5rn-5-aprsfi-log)."
+      "notes": "El estado del paracaídas (no abrió) es una confirmación del usuario, no un dato APRS. El punto de rescate vigente ya no depende de esta fuente: está respaldado por APRS de CX5RN-5 (fuente cx5rn-5-aprsfi-log)."
     },
     {
       "id": "user-confirmed-project-context",

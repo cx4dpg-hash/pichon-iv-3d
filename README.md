@@ -28,12 +28,18 @@ El proyecto es un sitio web **estático** (HTML, CSS y JavaScript con módulos E
 
 La reproducción empieza en la **liberación** (frame 10, 13:21:39 UTC = 10:21:39 hora local, última posición en tierra antes del ascenso sostenido) y no en la primera posición GPS válida (frame 3, 10:14:41). Las transmisiones anteriores (frames 3 a 9) siguen en `transmissions.json` y en memoria como fase `preLaunch` (en tierra). El punto de lanzamiento (−34.297167, −55.355333) se mantiene como sitio real y se marca en el mapa. El criterio es reproducible y está documentado en [docs/DATA_QUALITY.md](docs/DATA_QUALITY.md).
 
+## Nubes 3D, movimiento suave y paracaídas (etapa 15)
+
+- **Nubes 3D (botón "Nubes 3D", apagado por defecto):** reconstrucción 3D **aproximada** basada en GOES-19 + METAR, dibujada con `Cesium.CloudCollection` a partir de `data/clouds/cloud-model.json` (base, tope, espesor, cobertura y zonas por hora; transiciones suaves). Disponible también en el modo Presentación. No son nubes reales ni una observación. Ver [docs/CLOUD_MODEL.md](docs/CLOUD_MODEL.md).
+- **Movimiento de la carga:** `positionAtTime` usa ahora interpolación Hermite cúbica monótona (PCHIP) en lugar de lineal: la velocidad es continua en cada transmisión (se acelera y frena de forma suave), sin sobreimpulso y pasando exactamente por cada transmisión real; el tiempo de reproducción y las velocidades 1x–64x no cambian. Ver [docs/PHYSICS.md](docs/PHYSICS.md).
+- **Paracaídas:** el estado "no abrió" está **confirmado por el usuario** (no deriva de APRS) y se muestra así en el panel del último punto ([docs/DATA_QUALITY.md](docs/DATA_QUALITY.md)).
+
 ## Modo presentación y modelo meteorológico de nubosidad (etapa 14)
 
 - **Panel ocultable:** el botón "Ocultar panel / Mostrar panel" (arriba a la izquierda del visor) oculta o muestra el panel "PICHÓN IV — CX1AA-11". Es reversible, no persiste entre sesiones y no afecta a la reproducción ni a la cámara.
 - **Modo presentación:** el botón "Presentación" (junto a la brújula) pone la aplicación en pantalla completa real (Fullscreen API) y deja visor, brújula, línea de tiempo y controles (anterior/play/siguiente, 1x–64x, Vista general, Seguir globo y nubosidad); oculta panel, "Mi recepción", gráficos y rótulos auxiliares. Escape (o el botón) sale y restaura todo conservando tiempo, velocidad, cámara y seguimiento.
-- **Nubosidad: sin capa visible (decisión de producto).** La antigua capa plana "Nubosidad satelital 2D" (imagen GOES-19 sobre el terreno) se **retiró deliberadamente** de la interfaz y del modo presentación. No se muestran nubes hasta que exista una representación volumétrica 3D meteorológicamente representativa.
-- **Modelo meteorológico (preparado, borrador):** `data/clouds/cloud-model.json` con cobertura, tope, base, espesor, fase y tipo probable por zona y cada 30 min, cada valor con método, estado (observed/derived/inferred/unknown) y confianza. La representación volumétrica 3D está **pendiente**; la app todavía no lee el modelo. Ver [docs/CLOUD_MODEL.md](docs/CLOUD_MODEL.md).
+- **Capa 2D retirada:** la antigua capa plana "Nubosidad satelital 2D" (imagen GOES-19 sobre el terreno) se **retiró deliberadamente**; el código y los fotogramas se conservan sin cargarse.
+- **Modelo meteorológico (preparado, borrador):** `data/clouds/cloud-model.json` con cobertura, tope, base, espesor, fase y tipo probable por zona y cada 30 min, cada valor con método, estado (observed/derived/inferred/unknown) y confianza. Ver [docs/CLOUD_MODEL.md](docs/CLOUD_MODEL.md).
 
 ## Rescate final, arranque sobre el terreno, nubes y escudo RCU (etapa 10)
 

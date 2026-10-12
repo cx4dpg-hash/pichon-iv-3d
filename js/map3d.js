@@ -77,7 +77,7 @@ export function createMap(containerId, data, playback, diameterModel, config = {
   // Altura mostrada de cada transmisión: bruta, salvo la corrección visual al terreno (solo render).
   const displayAlt = (i) => playback.displayAltM?.[i] ?? flight[i].altitudeGpsM;
   const samplePositions = () =>
-    trajectorySamples(flight, data.times, 5000, playback.displayAltM).map((s) => toCartesian(s.lat, s.lon, s.altM));
+    trajectorySamples(flight, data.times, 2000, playback.displayAltM).map((s) => toCartesian(s.lat, s.lon, s.altM));
   const pathEntity = viewer.entities.add({
     id: "flight-path",
     polyline: {

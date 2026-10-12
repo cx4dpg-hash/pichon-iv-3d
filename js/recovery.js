@@ -4,8 +4,8 @@
 // punteado y de otro color desde el último punto de la trayectoria APRS principal (frame final
 // del vuelo) hasta ese punto. No modifica transmissions.json ni la trayectoria principal: es una
 // capa aparte, una línea recta de referencia que NO es una trayectoria medida.
-// La observación "el paracaídas aparentemente no abrió" es una nota reportada, no confirmada, y
-// no se dibuja ni se afirma en el mapa.
+// El estado del paracaídas (no abrió, confirmado por el usuario; no deriva de APRS) está en
+// recovery.json → parachute y se muestra en el panel de la última transmisión, no en el mapa.
 
 import { positionAtTime } from "./playback.js";
 

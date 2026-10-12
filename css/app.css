@@ -677,3 +677,29 @@ button[aria-pressed="true"] {
     max-height: 45%;
   }
 }
+
+/* ---------- Nubes 3D ---------- */
+#cloudNote {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 36px;
+  max-width: calc(100% - 220px);
+  padding: 2px 8px;
+  font-size: 11px;
+  color: #cfd8f5;
+  background: rgba(11, 16, 32, 0.75);
+  border: 1px solid #2a3558;
+  border-radius: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#cloudNote[hidden] {
+  display: none;
+}
+
+#app.presentation #cloudNote {
+  display: none;
+}
