@@ -61,6 +61,7 @@ export function createMap(containerId, data, playback, diameterModel) {
   viewer.scene.globe.depthTestAgainstTerrain = false;
 
   // --- Trayectoria completa (altitud GPS real, sin exageración vertical) ---
+  // La posición APRS/GPS es la de la carga útil: esta trayectoria es la de la carga.
   const pathCartesians = flight.map((tx) => toCartesian(tx.position.lat, tx.position.lon, tx.altitudeGpsM));
   viewer.entities.add({
     id: "flight-path",
@@ -97,7 +98,7 @@ export function createMap(containerId, data, playback, diameterModel) {
   // --- Estaciones terrestres fijas ---
   addStationEntities(viewer, stations);
 
-  // --- Globo (marcador simple; la posición se interpola solo visualmente) ---
+  // --- Marcador de la posición GPS (carga útil); se interpola solo visualmente ---
   const balloonPosition = () => {
     const p = visualPosition(flight, playback);
     return toCartesian(p.lat, p.lon, p.altM);
@@ -128,7 +129,7 @@ export function createMap(containerId, data, playback, diameterModel) {
     },
   });
 
-  // Conjunto físico aproximado (globo, suspensión, carga útil, antena).
+  // Conjunto aproximado: carga útil en la posición GPS, antena debajo y globo encima (en ascenso).
   const assembly = createBalloonAssembly(viewer, {
     flight,
     playback,

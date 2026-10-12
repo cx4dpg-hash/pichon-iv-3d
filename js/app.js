@@ -18,7 +18,7 @@ async function main() {
   }
   const data = await loadData();
   const playback = new Playback(data.times);
-  const diameterModel = buildDiameterModel(data.flight, data.initialBalloonDiameterM);
+  const diameterModel = buildDiameterModel(data.flight, data.initialBalloonDiameterM, data.maxIndex);
   const map = createMap("cesiumContainer", data, playback, diameterModel);
   initUi({ data, playback, map, diameterModel });
   // Acceso para depuración desde la consola del navegador.

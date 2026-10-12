@@ -38,6 +38,12 @@ js/ui.js        panel de información, controles y timeline
 
 La física (`physics.js`) está separada de la representación (`balloon.js`). Ver `docs/PHYSICS.md`.
 
+Decisiones del modelo del conjunto de vuelo:
+
+- La posición GPS es la de la **carga útil**: la carga se dibuja en esa posición, la antena debajo y el globo encima (solo en ascenso).
+- La fórmula de expansión se aplica solo hasta la transmisión de máxima altitud (determinada desde los datos). Desde la siguiente se considera la **transición estimada de ruptura/descenso** (inferida del perfil de vuelo; no se conoce el instante exacto): no se calcula diámetro ni se dibuja la esfera.
+- Suspensión y antena no tienen longitudes físicas conocidas; sus separaciones son offsets solo visuales (`visualSuspensionOffset`, `visualAntennaOffset`). El factor ×20 es solo de renderizado y está separado del diámetro estimado.
+
 ## 6. Importador futuro de logs externos
 Carga local, en el navegador, de logs de radioaficionados para resaltar las tramas recibidas por cada uno. Sin envío al servidor. Los archivos de ejemplo/trabajo irían en `imports/`.
 

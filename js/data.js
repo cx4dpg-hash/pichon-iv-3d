@@ -36,7 +36,7 @@ export async function loadData() {
     }
   }
 
-  // Altitud máxima calculada desde los datos (no se asume ningún valor).
+  // Transmisión de máxima altitud GPS, calculada desde los datos (no se asume ningún frame).
   let maxIndex = 0;
   for (let i = 1; i < flight.length; i++) {
     if (flight[i].altitudeGpsM > flight[maxIndex].altitudeGpsM) maxIndex = i;

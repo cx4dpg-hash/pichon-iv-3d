@@ -26,7 +26,7 @@ El proyecto es un sitio web **estático** (HTML, CSS y JavaScript con módulos E
 
 ## Modelo físico del globo (etapa 5)
 
-El marcador simple se reemplazó por un conjunto aproximado (globo, suspensión, carga útil, antena) cuyo diámetro estimado crece con la presión y temperatura reales (gas ideal). Es una estimación visual/física, no una medición, y se dibuja con tamaño exagerado ×20 solo para que sea visible. Detalles y limitaciones en [docs/PHYSICS.md](docs/PHYSICS.md).
+El marcador simple se reemplazó por un conjunto aproximado (carga útil en la posición GPS, antena debajo y globo encima durante el ascenso). El diámetro estimado del globo crece con la presión y temperatura reales (gas ideal) solo hasta la altitud máxima; después se considera una transición estimada de ruptura/descenso y no se calcula ni se dibuja el globo. Es una estimación visual/física, no una medición, y se dibuja con tamaño exagerado ×20 solo para que sea visible. Detalles y limitaciones en [docs/PHYSICS.md](docs/PHYSICS.md).
 
 ## Decisiones técnicas de la etapa 4
 

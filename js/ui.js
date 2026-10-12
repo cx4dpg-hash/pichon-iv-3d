@@ -2,7 +2,7 @@
 
 import { SPEEDS } from "./playback.js";
 import { describeFirstIgate } from "./stations.js";
-import { currentEstimate } from "./physics.js";
+import { currentEstimate, isAscentPhase } from "./physics.js";
 import { VISUAL } from "./balloon.js";
 
 const TIME_ZONE = "America/Montevideo";
@@ -22,6 +22,19 @@ const $ = (id) => document.getElementById(id);
 
 function fmt(value, decimals) {
   return Number.isFinite(value) ? value.toFixed(decimals) : "—";
+}
+
+// Estado del globo según el perfil de vuelo. La ruptura es una INFERENCIA, no un hecho medido.
+function balloonStateText(model, index) {
+  if (isAscentPhase(model, index)) {
+    return index === model.apogeeIndex
+      ? "Ascenso; máxima altitud (última transmisión antes de la transición estimada)"
+      : "Fase de ascenso; modelo de expansión aplicable";
+  }
+  const transition = model.estimatedBurstTransition;
+  return transition && index === transition.firstDescentIndex
+    ? "Transición de ruptura estimada (inferida del perfil de vuelo); fase de descenso; modelo de expansión no aplicable"
+    : "Fase de descenso; modelo de expansión no aplicable";
 }
 
 export function initUi({ data, playback, map, diameterModel }) {
@@ -95,8 +108,13 @@ export function initUi({ data, playback, map, diameterModel }) {
     $("pIntTemp").textContent = `${fmt(tx.telemetry.internalTemperatureC, 0)} °C`;
     $("pBaroAlt").textContent = `${fmt(tx.telemetry.barometricAltitudeM, 0)} m`;
     const estimate = currentEstimate(diameterModel, index);
-    $("pDiameter").textContent =
-      `${fmt(estimate.diameterM, 1)} m` + (estimate.status === "computed" ? "" : ` (${estimate.status})`);
+    if (estimate.diameterM === null) {
+      $("pDiameter").textContent = "—";
+    } else {
+      $("pDiameter").textContent =
+        `${fmt(estimate.diameterM, 1)} m` + (estimate.status === "computed" ? "" : ` (${estimate.status})`);
+    }
+    $("pBalloonState").textContent = balloonStateText(diameterModel, index);
 
     const igate = describeFirstIgate(tx.firstIgate, stationByCallsign);
     $("pIgate").textContent = igate.text;
