@@ -199,7 +199,9 @@ export function createMap(containerId, data, playback, diameterModel, config = {
       width: 2,
       material: new Cesium.PolylineDashMaterialProperty({ color: Cesium.Color.CYAN, dashLength: 16 }),
       arcType: Cesium.ArcType.NONE,
-      show: new Cesium.CallbackProperty(() => currentLinkStation() !== null, false),
+      // La línea es una recepción APRS real de una transmisión real: se oculta en la fase visual
+      // final no telemétrica (no hay transmisión ni recepción en ese tramo).
+      show: new Cesium.CallbackProperty(() => !playback.inFinalPhase && currentLinkStation() !== null, false),
     },
   });
 

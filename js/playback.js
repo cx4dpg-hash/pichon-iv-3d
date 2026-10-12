@@ -7,8 +7,9 @@ export const SPEEDS = [1, 2, 4, 8, 16, 32, 64];
  * Duración (ms de reproducción) de la fase visual final "Descenso final no telemétrico": desde la
  * última transmisión (frame 157) hasta el punto de recuperación. NO es un tiempo medido ni un
  * timestamp APRS: es una duración elegida para la presentación: ≈ los 151 m de recta divididos
- * por la última velocidad GPS transmitida (29,6 km/h ≈ 8,2 m/s) ≈ 18 s. Siempre corre a velocidad 1x, sea cual sea la
- * velocidad elegida, para que se vea.
+ * por la última velocidad GPS transmitida (29,6 km/h ≈ 8,2 m/s) ≈ 18 s a 1x (duración reconstruida
+ * para presentación, no una medición). Respeta la velocidad de reproducción: 18 s / velocidad
+ * (2x = 9 s, 4x = 4,5 s, … 64x ≈ 0,28 s).
  */
 export const FINAL_PHASE_MS = 18000;
 
@@ -153,11 +154,9 @@ export class Playback {
     const dt = Math.min(now - this._last, 1000);
     this._last = now;
     // Velocidad = multiplicador del tiempo real del vuelo.
-    if (this.offset >= this.duration) {
-      this.offset += dt; // fase visual final: siempre a 1x
-    } else {
-      this.offset += dt * this.speed;
-      if (this.offset > this.duration) this.offset = this.duration; // termina la fase telemétrica
+    this.offset += dt * this.speed; // también en la fase visual final (18 s / velocidad)
+    if (this.offset > this.duration && this.offset - dt * this.speed < this.duration) {
+      this.offset = this.duration; // termina la fase telemétrica (un fotograma en el frame 157)
     }
     if (this.offset >= this.totalDuration) {
       this.offset = this.totalDuration;

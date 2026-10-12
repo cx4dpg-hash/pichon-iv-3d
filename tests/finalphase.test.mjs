@@ -55,23 +55,39 @@ test("la fase final recorre la recta hasta el punto de recuperación y termina s
   assert.equal(end.altM, 124.4); // terreno + 1 m de apoyo visual; sin altitud GPS inventada
 });
 
-test("la reproducción llega al final y se detiene; la fase final corre a 1x aunque la velocidad sea 64x", async () => {
+test("la fase final respeta la velocidad: 18 s / velocidad", async () => {
+  const real = { raf: global.requestAnimationFrame, now: performance.now };
+  for (const speed of [1, 2, 4, 8, 16, 32, 64]) {
+    const p = make();
+    p.setSpeed(speed);
+    p.seek(p.duration); // ya en el frame 157
+    let t = 0, steps = 0;
+    global.requestAnimationFrame = (cb) => { setImmediate(() => { steps++; cb((t += 10)); }); return 1; };
+    performance.now = () => 0;
+    p.play();
+    await new Promise((r) => { const iv = setInterval(() => { if (!p.playing) { clearInterval(iv); r(); } }, 5); });
+    // pasos de 10 ms de reloj simulado: tiempo de pared simulado = t; debe ser ≈ 18 000 / velocidad
+    const expected = FINAL_PHASE_MS / speed;
+    assert.ok(Math.abs(t - expected) <= 10 + 1e-9, `x${speed}: ${t} ms vs ${expected}`);
+    assert.equal(p.offset, p.totalDuration);
+  }
+  global.requestAnimationFrame = real.raf;
+  performance.now = real.now;
+});
+
+test("al cruzar el final de la telemetría la reproducción se detiene un fotograma en el frame 157", async () => {
   const p = make();
-  p.setSpeed(64);
+  p.setSpeed(8);
   p.seek(p.duration - 100);
   let t = 0;
-  const realNow = performance.now;
-  let calls = 0;
-  global.requestAnimationFrame = (cb) => { if (++calls <= 20) setImmediate(() => cb((t += 50))); return calls; };
-  global.cancelAnimationFrame = () => {};
+  let n = 0;
+  global.requestAnimationFrame = (cb) => { if (n++ < 1) setImmediate(() => cb((t += 50))); return 1; }; // un solo fotograma
   performance.now = () => 0;
   p.play();
-  await new Promise((r) => setTimeout(r, 200));
-  // tras cruzar el final de la telemetría se queda en la fase final avanzando 50 ms por paso (1x)
-  assert.ok(p.offset >= p.duration);
-  assert.ok(p.offset - p.duration <= 50 * 20 + 1 && p.offset - p.duration >= 50 * 15, `offset ${p.offset - p.duration}`);
+  await new Promise((r) => setTimeout(r, 20));
+  assert.equal(p.offset, p.duration);
+  global.cancelAnimationFrame = () => {};
   p.pause();
-  performance.now = realNow;
 });
 
 test("recovery.json no cambia el punto de recuperación y transmissions.json no tiene tramas extra", () => {

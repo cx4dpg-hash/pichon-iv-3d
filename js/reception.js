@@ -127,7 +127,7 @@ export function initReception({ data, playback, map }) {
       }),
       arcType: Cesium.ArcType.NONE,
       show: new Cesium.CallbackProperty(
-        () => state.showMine && state.type === "fixed" && !!state.station && receivedNow(),
+        () => !playback.inFinalPhase && state.showMine && state.type === "fixed" && !!state.station && receivedNow(),
         false,
       ),
     },
