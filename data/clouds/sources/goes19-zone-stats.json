@@ -1,0 +1,401 @@
+{
+  "description": "Extracto de estadística por zona y escena GOES-19 L2 (derivado de NetCDF no versionados).",
+  "zones": {
+    "Z1-centro-oeste": {
+      "13:20": {
+        "scan": "13:20Z",
+        "files": {
+          "ACHA2KMF": "OR_ABI-L2-ACHA2KMF-M6_G19_s20262841320216_e20262841329524_c20262841332284.nc",
+          "ACTPF": "OR_ABI-L2-ACTPF-M6_G19_s20262841320216_e20262841329524_c20262841330479.nc",
+          "ACHTF": "OR_ABI-L2-ACHTF-M6_G19_s20262841320216_e20262841329524_c20262841332281.nc"
+        },
+        "pixelsInZone": 1701,
+        "topPixels": 1689,
+        "topMedianM": 1219.2888055741787,
+        "topP10M": 970.7309073865414,
+        "topP90M": 2259.42303571105,
+        "topMaxM": 2575.30887144804,
+        "phaseValidPixels": 1701,
+        "cloudyPixels": 1701,
+        "cloudFraction": 1.0,
+        "phaseCounts": {
+          "0": 0,
+          "1": 1701,
+          "2": 0,
+          "3": 0,
+          "4": 0,
+          "5": 0
+        },
+        "topTempMedianC": 4.19046321990902,
+        "topTempP10C": 3.4452777438331736,
+        "topTempP90C": 5.7208769040648235
+      },
+      "13:50": {
+        "scan": "13:50Z",
+        "files": {
+          "ACHA2KMF": "OR_ABI-L2-ACHA2KMF-M6_G19_s20262841350216_e20262841359524_c20262841402280.nc",
+          "ACTPF": "OR_ABI-L2-ACTPF-M6_G19_s20262841350216_e20262841359524_c20262841400483.nc",
+          "ACHTF": "OR_ABI-L2-ACHTF-M6_G19_s20262841350216_e20262841359524_c20262841402277.nc"
+        },
+        "pixelsInZone": 1701,
+        "topPixels": 1693,
+        "topMedianM": 1252.5560095310211,
+        "topP10M": 994.8420001626015,
+        "topP90M": 2298.794313788414,
+        "topMaxM": 2571.341223269701,
+        "phaseValidPixels": 1701,
+        "cloudyPixels": 1700,
+        "cloudFraction": 0.9994121105232217,
+        "phaseCounts": {
+          "0": 1,
+          "1": 1700,
+          "2": 0,
+          "3": 0,
+          "4": 0,
+          "5": 0
+        },
+        "topTempMedianC": 4.007340969890379,
+        "topTempP10C": 3.287060119817056,
+        "topTempP90C": 5.717458622064441
+      },
+      "14:20": {
+        "scan": "14:20Z",
+        "files": {
+          "ACHA2KMF": "OR_ABI-L2-ACHA2KMF-M6_G19_s20262841420216_e20262841429524_c20262841432258.nc",
+          "ACTPF": "OR_ABI-L2-ACTPF-M6_G19_s20262841420216_e20262841429524_c20262841430457.nc",
+          "ACHTF": "OR_ABI-L2-ACHTF-M6_G19_s20262841420216_e20262841429524_c20262841432255.nc"
+        },
+        "pixelsInZone": 1701,
+        "topPixels": 1697,
+        "topMedianM": 1275.751491189003,
+        "topP10M": 1036.7769893705845,
+        "topP90M": 1950.862088918686,
+        "topMaxM": 2558.5226676166058,
+        "phaseValidPixels": 1701,
+        "cloudyPixels": 1701,
+        "cloudFraction": 1.0,
+        "phaseCounts": {
+          "0": 0,
+          "1": 1701,
+          "2": 0,
+          "3": 0,
+          "4": 0,
+          "5": 0
+        },
+        "topTempMedianC": 3.892584359878697,
+        "topTempP10C": 3.233344259811588,
+        "topTempP90C": 5.497711922042072
+      },
+      "14:50": {
+        "scan": "14:50Z",
+        "files": {
+          "ACHA2KMF": "OR_ABI-L2-ACHA2KMF-M6_G19_s20262841450216_e20262841459524_c20262841502268.nc",
+          "ACTPF": "OR_ABI-L2-ACTPF-M6_G19_s20262841450216_e20262841459524_c20262841500458.nc",
+          "ACHTF": "OR_ABI-L2-ACHTF-M6_G19_s20262841450216_e20262841459524_c20262841502265.nc"
+        },
+        "pixelsInZone": 1701,
+        "topPixels": 1701,
+        "topMedianM": 1298.6417691409588,
+        "topP10M": 1036.1665819585323,
+        "topP90M": 1623.9889197647572,
+        "topMaxM": 2529.5283155441284,
+        "phaseValidPixels": 1701,
+        "cloudyPixels": 1701,
+        "cloudFraction": 1.0,
+        "phaseCounts": {
+          "0": 0,
+          "1": 1701,
+          "2": 0,
+          "3": 0,
+          "4": 0,
+          "5": 0
+        },
+        "topTempMedianC": 3.794919159868755,
+        "topTempP10C": 2.9867396297864843,
+        "topTempP90C": 5.565100910048955
+      },
+      "15:20": {
+        "scan": "15:20Z",
+        "files": {
+          "ACHA2KMF": "OR_ABI-L2-ACHA2KMF-M6_G19_s20262841520216_e20262841529524_c20262841532311.nc",
+          "ACTPF": "OR_ABI-L2-ACTPF-M6_G19_s20262841520216_e20262841529524_c20262841530487.nc",
+          "ACHTF": "OR_ABI-L2-ACHTF-M6_G19_s20262841520216_e20262841529524_c20262841532309.nc"
+        },
+        "pixelsInZone": 1701,
+        "topPixels": 1700,
+        "topMedianM": 1350.2211954593658,
+        "topP10M": 1009.2170947164298,
+        "topP90M": 2039.9815710783005,
+        "topMaxM": 2511.826500594616,
+        "phaseValidPixels": 1701,
+        "cloudyPixels": 1700,
+        "cloudFraction": 0.9994121105232217,
+        "phaseCounts": {
+          "0": 1,
+          "1": 1700,
+          "2": 0,
+          "3": 0,
+          "4": 0,
+          "5": 0
+        },
+        "topTempMedianC": 3.6557462498545874,
+        "topTempP10C": 2.9842979997862358,
+        "topTempP90C": 5.7931491520721465
+      },
+      "15:50": {
+        "scan": "15:50Z",
+        "files": {
+          "ACHA2KMF": "OR_ABI-L2-ACHA2KMF-M6_G19_s20262841550216_e20262841559524_c20262841602278.nc",
+          "ACTPF": "OR_ABI-L2-ACTPF-M6_G19_s20262841550216_e20262841559524_c20262841600478.nc",
+          "ACHTF": "OR_ABI-L2-ACHTF-M6_G19_s20262841550216_e20262841559524_c20262841602276.nc"
+        },
+        "pixelsInZone": 1701,
+        "topPixels": 1700,
+        "topMedianM": 1429.879362732172,
+        "topP10M": 1024.2636374235153,
+        "topP90M": 2379.398612549901,
+        "topMaxM": 2582.938964098692,
+        "phaseValidPixels": 1701,
+        "cloudyPixels": 1701,
+        "cloudFraction": 1.0,
+        "phaseCounts": {
+          "0": 0,
+          "1": 1701,
+          "2": 0,
+          "3": 0,
+          "4": 0,
+          "5": 0
+        },
+        "topTempMedianC": 3.423791399830975,
+        "topTempP10C": 2.9562192547833774,
+        "topTempP90C": 5.680834172060713
+      },
+      "16:20": {
+        "scan": "16:20Z",
+        "files": {
+          "ACHA2KMF": "OR_ABI-L2-ACHA2KMF-M6_G19_s20262841620216_e20262841629525_c20262841632286.nc",
+          "ACTPF": "OR_ABI-L2-ACTPF-M6_G19_s20262841620216_e20262841629525_c20262841630489.nc",
+          "ACHTF": "OR_ABI-L2-ACHTF-M6_G19_s20262841620216_e20262841629525_c20262841632283.nc"
+        },
+        "pixelsInZone": 1701,
+        "topPixels": 1700,
+        "topMedianM": 1451.8540295660496,
+        "topP10M": 1199.5726461648942,
+        "topP90M": 2477.4910836666822,
+        "topMaxM": 2575.003667742014,
+        "phaseValidPixels": 1701,
+        "cloudyPixels": 1701,
+        "cloudFraction": 1.0,
+        "phaseCounts": {
+          "0": 0,
+          "1": 1701,
+          "2": 0,
+          "3": 0,
+          "4": 0,
+          "5": 0
+        },
+        "topTempMedianC": 3.428674659831472,
+        "topTempP10C": 2.9525568097830046,
+        "topTempP90C": 4.9336953919846565
+      }
+    },
+    "Z2-este": {
+      "13:20": {
+        "scan": "13:20Z",
+        "files": {
+          "ACHA2KMF": "OR_ABI-L2-ACHA2KMF-M6_G19_s20262841320216_e20262841329524_c20262841332284.nc",
+          "ACTPF": "OR_ABI-L2-ACTPF-M6_G19_s20262841320216_e20262841329524_c20262841330479.nc",
+          "ACHTF": "OR_ABI-L2-ACHTF-M6_G19_s20262841320216_e20262841329524_c20262841332281.nc"
+        },
+        "pixelsInZone": 458,
+        "topPixels": 425,
+        "topMedianM": 1054.784008026123,
+        "topP10M": 590.5691711604595,
+        "topP90M": 1242.4842872321606,
+        "topMaxM": 1325.8048989772797,
+        "phaseValidPixels": 458,
+        "cloudyPixels": 447,
+        "cloudFraction": 0.9759825327510917,
+        "phaseCounts": {
+          "0": 11,
+          "1": 447,
+          "2": 0,
+          "3": 0,
+          "4": 0,
+          "5": 0
+        },
+        "topTempMedianC": 5.447902670037024,
+        "topTempP10C": 4.520083269942575,
+        "topTempP90C": 8.028705580299743
+      },
+      "13:50": {
+        "scan": "13:50Z",
+        "files": {
+          "ACHA2KMF": "OR_ABI-L2-ACHA2KMF-M6_G19_s20262841350216_e20262841359524_c20262841402280.nc",
+          "ACTPF": "OR_ABI-L2-ACTPF-M6_G19_s20262841350216_e20262841359524_c20262841400483.nc",
+          "ACHTF": "OR_ABI-L2-ACHTF-M6_G19_s20262841350216_e20262841359524_c20262841402277.nc"
+        },
+        "pixelsInZone": 458,
+        "topPixels": 446,
+        "topMedianM": 1065.4661377370358,
+        "topP10M": 692.8124126791954,
+        "topP90M": 1219.2888055741787,
+        "topMaxM": 1305.9666580855846,
+        "phaseValidPixels": 458,
+        "cloudyPixels": 457,
+        "cloudFraction": 0.9978165938864629,
+        "phaseCounts": {
+          "0": 1,
+          "1": 457,
+          "2": 0,
+          "3": 0,
+          "4": 0,
+          "5": 0
+        },
+        "topTempMedianC": 5.419823925034166,
+        "topTempP10C": 4.686114109959476,
+        "topTempP90C": 7.379232000233628
+      },
+      "14:20": {
+        "scan": "14:20Z",
+        "files": {
+          "ACHA2KMF": "OR_ABI-L2-ACHA2KMF-M6_G19_s20262841420216_e20262841429524_c20262841432258.nc",
+          "ACTPF": "OR_ABI-L2-ACTPF-M6_G19_s20262841420216_e20262841429524_c20262841430457.nc",
+          "ACHTF": "OR_ABI-L2-ACHTF-M6_G19_s20262841420216_e20262841429524_c20262841432255.nc"
+        },
+        "pixelsInZone": 458,
+        "topPixels": 452,
+        "topMedianM": 1041.6602486670017,
+        "topP10M": 674.5001903176308,
+        "topP90M": 1220.814824104309,
+        "topMaxM": 1290.7064727842808,
+        "phaseValidPixels": 458,
+        "cloudyPixels": 458,
+        "cloudFraction": 1.0,
+        "phaseCounts": {
+          "0": 0,
+          "1": 458,
+          "2": 0,
+          "3": 0,
+          "4": 0,
+          "5": 0
+        },
+        "topTempMedianC": 5.662766110058897,
+        "topTempP10C": 4.737388339964696,
+        "topTempP90C": 7.572120770253264
+      },
+      "14:50": {
+        "scan": "14:50Z",
+        "files": {
+          "ACHA2KMF": "OR_ABI-L2-ACHA2KMF-M6_G19_s20262841450216_e20262841459524_c20262841502268.nc",
+          "ACTPF": "OR_ABI-L2-ACTPF-M6_G19_s20262841450216_e20262841459524_c20262841500458.nc",
+          "ACHTF": "OR_ABI-L2-ACHTF-M6_G19_s20262841450216_e20262841459524_c20262841502265.nc"
+        },
+        "pixelsInZone": 458,
+        "topPixels": 458,
+        "topMedianM": 1002.8993780016899,
+        "topP10M": 627.4988195896149,
+        "topP90M": 1265.6797688901424,
+        "topMaxM": 1367.6178067028522,
+        "phaseValidPixels": 458,
+        "cloudyPixels": 458,
+        "cloudFraction": 1.0,
+        "phaseCounts": {
+          "0": 0,
+          "1": 458,
+          "2": 0,
+          "3": 0,
+          "4": 0,
+          "5": 0
+        },
+        "topTempMedianC": 5.634687365056038,
+        "topTempP10C": 4.507875119941332,
+        "topTempP90C": 8.001847650297009
+      },
+      "15:20": {
+        "scan": "15:20Z",
+        "files": {
+          "ACHA2KMF": "OR_ABI-L2-ACHA2KMF-M6_G19_s20262841520216_e20262841529524_c20262841532311.nc",
+          "ACTPF": "OR_ABI-L2-ACTPF-M6_G19_s20262841520216_e20262841529524_c20262841530487.nc",
+          "ACHTF": "OR_ABI-L2-ACHTF-M6_G19_s20262841520216_e20262841529524_c20262841532309.nc"
+        },
+        "pixelsInZone": 458,
+        "topPixels": 455,
+        "topMedianM": 940.9430256783962,
+        "topP10M": 623.5311714112759,
+        "topP90M": 1387.1508438885212,
+        "topMaxM": 1471.3870667517185,
+        "phaseValidPixels": 458,
+        "cloudyPixels": 458,
+        "cloudFraction": 1.0,
+        "phaseCounts": {
+          "0": 0,
+          "1": 458,
+          "2": 0,
+          "3": 0,
+          "4": 0,
+          "5": 0
+        },
+        "topTempMedianC": 6.058310170099162,
+        "topTempP10C": 3.750969819864281,
+        "topTempP90C": 8.047750294301693
+      },
+      "15:50": {
+        "scan": "15:50Z",
+        "files": {
+          "ACHA2KMF": "OR_ABI-L2-ACHA2KMF-M6_G19_s20262841550216_e20262841559524_c20262841602278.nc",
+          "ACTPF": "OR_ABI-L2-ACTPF-M6_G19_s20262841550216_e20262841559524_c20262841600478.nc",
+          "ACHTF": "OR_ABI-L2-ACHTF-M6_G19_s20262841550216_e20262841559524_c20262841602276.nc"
+        },
+        "pixelsInZone": 458,
+        "topPixels": 455,
+        "topMedianM": 915.6111180782318,
+        "topP10M": 603.0825231075287,
+        "topP90M": 1391.1184920668602,
+        "topMaxM": 2281.0924988389015,
+        "phaseValidPixels": 458,
+        "cloudyPixels": 458,
+        "cloudFraction": 1.0,
+        "phaseCounts": {
+          "0": 0,
+          "1": 458,
+          "2": 0,
+          "3": 0,
+          "4": 0,
+          "5": 0
+        },
+        "topTempMedianC": 6.226782640116312,
+        "topTempP10C": 3.772944489866518,
+        "topTempP90C": 8.145903820311673
+      },
+      "16:20": {
+        "scan": "16:20Z",
+        "files": {
+          "ACHA2KMF": "OR_ABI-L2-ACHA2KMF-M6_G19_s20262841620216_e20262841629525_c20262841632286.nc",
+          "ACTPF": "OR_ABI-L2-ACTPF-M6_G19_s20262841620216_e20262841629525_c20262841630489.nc",
+          "ACHTF": "OR_ABI-L2-ACHTF-M6_G19_s20262841620216_e20262841629525_c20262841632283.nc"
+        },
+        "pixelsInZone": 458,
+        "topPixels": 458,
+        "topMedianM": 1195.0251109451056,
+        "topP10M": 729.7420611083508,
+        "topP90M": 1394.170529127121,
+        "topMaxM": 1471.6922704577446,
+        "phaseValidPixels": 458,
+        "cloudyPixels": 458,
+        "cloudFraction": 1.0,
+        "phaseCounts": {
+          "0": 0,
+          "1": 458,
+          "2": 0,
+          "3": 0,
+          "4": 0,
+          "5": 0
+        },
+        "topTempMedianC": 5.30384650002236,
+        "topTempP10C": 4.124539209902309,
+        "topTempP90C": 7.569679140253015
+      }
+    }
+  }
+}

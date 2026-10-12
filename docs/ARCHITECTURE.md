@@ -39,7 +39,10 @@ js/phases.js    fases (preLaunch / vuelo efectivo) y detección de la liberació
 js/recovery.js  punto de rescate y tramo final no telemétrico (anotación complementaria; etapa 10)
 js/floor.js     corrección visual de altura al terreno (función pura, con pruebas)
 js/terrainfloor.js aplica esa corrección cuando hay relieve activo
-js/clouds.js    nubosidad histórica real (GOES-19 GeoColor, NASA GIBS), opcional y apagada por defecto
+js/clouds.js    "Nubosidad satelital 2D": capa de referencia (GOES-19 GeoColor, NASA GIBS), sin altura, opcional y apagada por defecto
+js/presentation.js botón de ocultar/mostrar el panel izquierdo y modo presentación (Fullscreen API); solo visibilidad (etapa 14)
+data/clouds/    modelo meteorológico de nubosidad (cloud-model.json) y sus fuentes; aún no lo lee la aplicación
+tools/cloud-model/ script reproducible (Python) que genera el modelo desde GOES-19 L2 y METAR
 js/compass.js   brújula de la cámara (heading/pitch, reset a Norte arriba; etapa 9)
 js/derived.js   datos derivados (velocidad vertical entre transmisiones consecutivas)
 js/terrain.js   base cartográfica: mapa básico u, opcionalmente, Cesium Ion (satélite + relieve)
@@ -64,6 +67,10 @@ Etapa 10:
 - **Altura de render.** `positionAtTime(flight, times, t, altitudes)` acepta altitudes de render por transmisión (`playback.displayAltM`); sin ellas usa `altitudeGpsM` tal cual. La corrección visual al terreno (`floor.js`, aplicada por `terrainfloor.js` solo con relieve) rellena ese arreglo; la carga, la línea amarilla, los marcadores y los puntos de "Mi recepción" leen la misma fuente, así que siguen coincidiendo. El dataset y los gráficos usan siempre el valor bruto.
 - **Rescate.** `recovery.json` se carga aparte de `transmissions.json`; `recovery.js` dibuja marcador, línea punteada y etiquetas sin tocar la trayectoria principal.
 - **Nubes.** `clouds.js` carga `assets/clouds/manifest.json` solo al activar el botón, mantiene como máximo ~5 capas `SingleTileImageryProvider` y las mezcla según `playback.absoluteMs`.
+
+Etapa 14:
+- **Presentación.** `presentation.js` no crea estado propio de reproducción: el panel se oculta con el atributo `hidden` y el modo presentación es la clase `presentation` sobre `#app`, que sigue al evento real `fullscreenchange` (Escape, F11, botón o API). Entrar/salir solo cambia la visibilidad (CSS) y pide a Cesium `viewer.resize()`; tiempo, velocidad, cámara y seguimiento no se tocan.
+- **Nubes: 2D vs modelo.** `clouds.js` (capa satelital 2D) y `data/clouds/cloud-model.json` (valores meteorológicos con trazabilidad) son independientes; el modelo lo genera `tools/cloud-model/build_cloud_model.py` y se valida con `tests/cloudmodel.test.mjs`. Ver `docs/CLOUD_MODEL.md`.
 
 Brújula e identidad (etapa 9): `compass.js` lee `viewer.camera.heading/pitch` en `scene.preRender` y rota un SVG; el clic rota la cámara alrededor del punto observado (cámara libre) o dentro del marco ENU de la carga (Seguir globo) sin cancelar el seguimiento. Los logos están en `assets/branding/` (ver `docs/BRANDING.md`).
 

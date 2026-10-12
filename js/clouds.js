@@ -1,5 +1,7 @@
-// Nubosidad histórica REAL: fotogramas satelitales GOES-19 (GeoColor, NASA GIBS) del vuelo del
-// 2026-10-11, empaquetados como activos estáticos (assets/clouds/). NO es una simulación.
+// "Nubosidad satelital 2D": capa de REFERENCIA con fotogramas satelitales GOES-19 (GeoColor, NASA GIBS)
+// del vuelo del 2026-10-11, empaquetados como activos estáticos (assets/clouds/). Es una imagen real
+// dibujada sobre el terreno: NO tiene altura ni volumen y NO son nubes 3D. NO es una simulación.
+// El modelo meteorológico (base, tope, espesor) está en data/clouds/cloud-model.json.
 //
 // - Desactivada por defecto. No se descarga nada hasta que el usuario pulsa "Nubes".
 // - Cada fotograma es una imagen georreferenciada (EPSG:4326) dibujada sobre el terreno
@@ -105,7 +107,7 @@ export function initClouds({ viewer, playback }) {
     }
     const t = formatLocalTimeShort(frames[k].obsMs);
     const tn = formatLocalTimeShort(frames[next].obsMs);
-    info.textContent = `Nubes · GOES-19 GeoColor (imagen real) · ${t} → ${tn} hora local · ${manifest.credit.replace("Nubes: ", "")}`;
+    info.textContent = `Nubosidad satelital 2D (referencia, sin altura) · GOES-19 GeoColor · ${t} → ${tn} hora local · ${manifest.credit.replace("Nubes: ", "")}`;
   }
 
   async function setEnabled(value) {
@@ -115,7 +117,7 @@ export function initClouds({ viewer, playback }) {
       try {
         await loadManifest();
       } catch {
-        info.textContent = "No se pudo cargar la nubosidad (assets/clouds).";
+        info.textContent = "No se pudo cargar la nubosidad satelital 2D (assets/clouds).";
         info.hidden = false;
         button.disabled = false;
         return;

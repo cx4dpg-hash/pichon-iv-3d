@@ -1,0 +1,2349 @@
+{
+  "schemaVersion": "1.0",
+  "status": "draft-for-review",
+  "description": "Modelo meteorológico documentado de la nubosidad sobre la trayectoria de PICHÓN IV (CX1AA-11). NO es una representación 3D: es la base de evidencia para una futura nube volumétrica. Cada valor lleva method, status (observed|derived|inferred|unknown) y confidence (high|medium|low).",
+  "statusLegend": {
+    "observed": "Valor tomado tal cual de una observación directa en el punto/zona.",
+    "derived": "Calculado con una regla explícita a partir de productos satelitales (resultado de algoritmo de recuperación, no medición directa) o de otros valores.",
+    "inferred": "Transferido o estimado con un supuesto (p. ej. observación de una estación a 70–120 km aplicada a la zona; regla cualitativa).",
+    "unknown": "Los datos disponibles no lo sustentan."
+  },
+  "period": {
+    "startUtc": "2026-10-11T13:21:39Z",
+    "endUtc": "2026-10-11T16:23:46Z",
+    "startLocal": "2026-10-11T10:21:39-03:00",
+    "endLocal": "2026-10-11T13:23:46-03:00",
+    "timezone": "America/Montevideo (UTC-3)",
+    "note": "Vuelo efectivo (frames 10–157). El fin local coincide con la última transmisión del dataset maestro."
+  },
+  "extent": {
+    "minLat": -34.7,
+    "maxLat": -33.9,
+    "minLon": -55.5,
+    "maxLon": -53.85,
+    "note": "Franja alrededor de la trayectoria (lat −34.38…−34.17, lon −55.36…−53.99). No se modela fuera de ella."
+  },
+  "zoning": {
+    "rule": "Se separan zonas solo si las medianas de tope ACHA difieren más de 150 m. El corte (~54,2°W) sale de un ajuste por tramos constantes de la media temporal del tope por bandas de 0,2° de longitud (3 tramos: <55,8°W ≈2,1 km; 55,8–54,2°W ≈1,4 km; >54,2°W ≈0,9 km); el tramo occidental queda fuera de la trayectoria.",
+    "separationByStateM": {
+      "13:20": 165,
+      "13:50": 187,
+      "14:20": 234,
+      "14:50": 296,
+      "15:20": 409,
+      "15:50": 514,
+      "16:20": 257
+    },
+    "ruleSatisfiedInAllStates": true,
+    "caveat": "El borde real es gradual (≈0,2° ≈ 19 km); el corte de 54,2°W es aproximado."
+  },
+  "temporalResolution": {
+    "stepMinutes": 30,
+    "nStates": 7,
+    "nZones": 2,
+    "justification": "Los METAR (única fuente de la base) son horarios; el tope y la temperatura de 2 km se tomaron en las escenas de :20 y :50, la primera de las cuales coincide con el inicio del vuelo (13:21Z), y cubren los 3 h 02 min con 7 estados. La serie de 10 min del tope de 10 km (ACHAF, 22 escenas) varía como máximo ~80 m entre escenas consecutivas (ver evidence10min), muy por debajo de la dispersión entre píxeles (cientos de m), y no aporta información independiente sobre base ni tipo; un paso de 10 min no estaría sustentado por los datos de base.",
+    "evidence10min": {
+      "Z1-centro-oeste": {
+        "scans": 22,
+        "maxStepMedianTop10kmM": 83.16800989210606,
+        "rangeMedianTop10kmM": [
+          1103.3113972842693,
+          1443.1557239443064
+        ]
+      },
+      "Z2-este": {
+        "scans": 22,
+        "maxStepMedianTop10kmM": 79.65816727280617,
+        "rangeMedianTop10kmM": [
+          683.8089033514261,
+          922.9360070228577
+        ]
+      }
+    }
+  },
+  "sources": [
+    {
+      "id": "goes19-acha2kmf",
+      "name": "GOES-19 ABI L2 Cloud Top Height (ACHA, 2 km, disco completo)",
+      "type": "satellite-retrieval",
+      "provider": "NOAA/NESDIS vía AWS Open Data",
+      "url": "https://noaa-goes19.s3.amazonaws.com/ABI-L2-ACHA2KMF/2026/284/",
+      "usedFor": "cloudTopM",
+      "cadenceMin": 30
+    },
+    {
+      "id": "goes19-actpf",
+      "name": "GOES-19 ABI L2 Cloud Top Phase (ACTP, 2 km)",
+      "type": "satellite-retrieval",
+      "provider": "NOAA/NESDIS vía AWS Open Data",
+      "url": "https://noaa-goes19.s3.amazonaws.com/ABI-L2-ACTPF/2026/284/",
+      "usedFor": "cloudCoverage, cloudPhase",
+      "cadenceMin": 10
+    },
+    {
+      "id": "goes19-achtf",
+      "name": "GOES-19 ABI L2 Cloud Top Temperature (ACHT, 2 km)",
+      "type": "satellite-retrieval",
+      "provider": "NOAA/NESDIS vía AWS Open Data",
+      "url": "https://noaa-goes19.s3.amazonaws.com/ABI-L2-ACHTF/2026/284/",
+      "usedFor": "cloudTopM (temperatura del tope)",
+      "cadenceMin": 30
+    },
+    {
+      "id": "goes19-achaf",
+      "name": "GOES-19 ABI L2 Cloud Top Height (ACHA, 10 km)",
+      "type": "satellite-retrieval",
+      "provider": "NOAA/NESDIS vía AWS Open Data",
+      "url": "https://noaa-goes19.s3.amazonaws.com/ABI-L2-ACHAF/2026/284/",
+      "usedFor": "resolución temporal (serie de 10 min)",
+      "cadenceMin": 10
+    },
+    {
+      "id": "balloon-telemetry-insitu",
+      "name": "Telemetría del propio globo (humedad, temperatura, altitud barométrica)",
+      "type": "in-situ",
+      "provider": "data/vuelo/transmissions.json",
+      "usedFor": "verificación cruzada solamente",
+      "caveat": "Sensores sin calibración documentada; la humedad no llegó a saturación."
+    },
+    {
+      "id": "metar-SUCA",
+      "name": "METAR SUCA",
+      "type": "surface-observation",
+      "provider": "Iowa Environmental Mesonet (asos.py), METAR de DINACIA/INUMET",
+      "url": "https://mesonet.agron.iastate.edu/cgi-bin/request/asos.py",
+      "usedFor": "cloudBaseM (techo)",
+      "cadenceMin": 60,
+      "location": {
+        "lat": -34.4517,
+        "lon": -57.7667
+      },
+      "file": "data/clouds/sources/metar/SUCA.csv"
+    },
+    {
+      "id": "metar-SUDU",
+      "name": "METAR SUDU",
+      "type": "surface-observation",
+      "provider": "Iowa Environmental Mesonet (asos.py), METAR de DINACIA/INUMET",
+      "url": "https://mesonet.agron.iastate.edu/cgi-bin/request/asos.py",
+      "usedFor": "cloudBaseM (techo)",
+      "cadenceMin": 60,
+      "location": {
+        "lat": -33.35,
+        "lon": -56.5
+      },
+      "file": "data/clouds/sources/metar/SUDU.csv"
+    },
+    {
+      "id": "metar-SULS",
+      "name": "METAR SULS",
+      "type": "surface-observation",
+      "provider": "Iowa Environmental Mesonet (asos.py), METAR de DINACIA/INUMET",
+      "url": "https://mesonet.agron.iastate.edu/cgi-bin/request/asos.py",
+      "usedFor": "cloudBaseM (techo)",
+      "cadenceMin": 60,
+      "location": {
+        "lat": -34.8551,
+        "lon": -55.0943
+      },
+      "file": "data/clouds/sources/metar/SULS.csv"
+    },
+    {
+      "id": "metar-SUMO",
+      "name": "METAR SUMO",
+      "type": "surface-observation",
+      "provider": "Iowa Environmental Mesonet (asos.py), METAR de DINACIA/INUMET",
+      "url": "https://mesonet.agron.iastate.edu/cgi-bin/request/asos.py",
+      "usedFor": "cloudBaseM (techo)",
+      "cadenceMin": 60,
+      "location": {
+        "lat": -32.337,
+        "lon": -54.2167
+      },
+      "file": "data/clouds/sources/metar/SUMO.csv"
+    },
+    {
+      "id": "metar-SUMU",
+      "name": "METAR SUMU",
+      "type": "surface-observation",
+      "provider": "Iowa Environmental Mesonet (asos.py), METAR de DINACIA/INUMET",
+      "url": "https://mesonet.agron.iastate.edu/cgi-bin/request/asos.py",
+      "usedFor": "cloudBaseM (techo)",
+      "cadenceMin": 60,
+      "location": {
+        "lat": -34.8333,
+        "lon": -56.0117
+      },
+      "file": "data/clouds/sources/metar/SUMU.csv"
+    },
+    {
+      "id": "metar-SURV",
+      "name": "METAR SURV",
+      "type": "surface-observation",
+      "provider": "Iowa Environmental Mesonet (asos.py), METAR de DINACIA/INUMET",
+      "url": "https://mesonet.agron.iastate.edu/cgi-bin/request/asos.py",
+      "usedFor": "cloudBaseM (techo)",
+      "cadenceMin": 60,
+      "location": {
+        "lat": -30.8967,
+        "lon": -55.5433
+      },
+      "file": "data/clouds/sources/metar/SURV.csv"
+    },
+    {
+      "id": "metar-SUSO",
+      "name": "METAR SUSO",
+      "type": "surface-observation",
+      "provider": "Iowa Environmental Mesonet (asos.py), METAR de DINACIA/INUMET",
+      "url": "https://mesonet.agron.iastate.edu/cgi-bin/request/asos.py",
+      "usedFor": "cloudBaseM (techo)",
+      "cadenceMin": 60,
+      "location": {
+        "lat": -31.4367,
+        "lon": -57.98
+      },
+      "file": "data/clouds/sources/metar/SUSO.csv"
+    }
+  ],
+  "states": [
+    {
+      "id": "S1320",
+      "timestampUtc": "2026-10-11T13:20:00Z",
+      "timestampLocal": "2026-10-11T10:20:00-03:00",
+      "satelliteScanStartUtc": "2026-10-11T13:20:00Z",
+      "timeNote": "Hora nominal = inicio del escaneo GOES-19; la zona (≈34°S) se observa unos minutos después (≈6 min estimados, ver docs/CLOUDS_FEASIBILITY.md).",
+      "zones": [
+        {
+          "zoneId": "Z1-centro-oeste",
+          "zoneName": "Centro-oeste (desde el lanzamiento hasta ~54.2°W)",
+          "area": {
+            "type": "bbox",
+            "minLat": -34.7,
+            "maxLat": -33.9,
+            "minLon": -55.5,
+            "maxLon": -54.2
+          },
+          "cloudCoverage": {
+            "value": 100.0,
+            "method": "Fracción de píxeles de 2 km clasificados como nube por ACTP (fase ≠ cielo despejado) dentro de la zona; es cobertura de columna, no por capa",
+            "status": "derived",
+            "confidence": "high",
+            "unit": "%"
+          },
+          "cloudTypeProbable": {
+            "value": "stratus/stratocumulus (capa estratiforme baja, probable)",
+            "method": "Regla cualitativa: fase líquida + tope < 2,5 km + techo METAR < 1 km + cobertura ≥ BKN; no hay clasificación automática de género disponible en los datos usados",
+            "status": "inferred",
+            "confidence": "medium",
+            "fragmentsBelowM": 152
+          },
+          "cloudBaseM": {
+            "value": 457,
+            "method": "Techo (capa BKN/OVC más baja) del METAR de SULS (68 km) a las 13:00Z, desplazado a la zona sin interpolar; metros AGL de estación (elevación no aplicada)",
+            "status": "inferred",
+            "confidence": "medium",
+            "unit": "m",
+            "range": [
+              457,
+              701
+            ],
+            "reference": "AGL en la estación METAR (no MSL)",
+            "stationObservations": [
+              {
+                "station": "SULS",
+                "distanceKm": 68,
+                "obsUtc": "2026-10-11T13:00:00Z",
+                "obsOffsetMin": 20,
+                "metar": "SULS 111300Z 21012KT 9999 SCT005 BKN015 13/10 Q1021",
+                "ceilingM": 457,
+                "ceilingLayersM": [
+                  457
+                ],
+                "allLayersM": [
+                  [
+                    "SCT",
+                    152
+                  ],
+                  [
+                    "BKN",
+                    457
+                  ]
+                ],
+                "drizzle": false
+              },
+              {
+                "station": "SUMU",
+                "distanceKm": 123,
+                "obsUtc": "2026-10-11T13:00:00Z",
+                "obsOffsetMin": 20,
+                "metar": "SUMU 111300Z 18012KT 9999 SCT013 BKN023 13/09 Q1023 NOSIG",
+                "ceilingM": 701,
+                "ceilingLayersM": [
+                  701
+                ],
+                "allLayersM": [
+                  [
+                    "SCT",
+                    396
+                  ],
+                  [
+                    "BKN",
+                    701
+                  ]
+                ],
+                "drizzle": false
+              }
+            ]
+          },
+          "cloudTopM": {
+            "value": 1219,
+            "method": "Mediana del tope de nube ACHA (2 km) dentro de la zona; rango = percentiles 10–90 de los píxeles",
+            "status": "derived",
+            "confidence": "low",
+            "unit": "m",
+            "range": [
+              971,
+              2259
+            ],
+            "topTemperatureC": {
+              "median": 4.2,
+              "range": [
+                3.4,
+                5.7
+              ]
+            }
+          },
+          "cloudThicknessM": {
+            "value": 762,
+            "method": "Tope ACHA (mediana) − techo METAR; asume base ≈ MSL (sin corregir elevación de la estación) y que el techo METAR representa la base de la misma capa",
+            "status": "inferred",
+            "confidence": "low",
+            "unit": "m",
+            "range": [
+              518,
+              762
+            ]
+          },
+          "cloudPhase": {
+            "value": "liquid",
+            "method": "Moda de la fase ACTP en la zona (líquida si ≥90 % de los píxeles nublados son agua líquida o líquida superenfriada)",
+            "status": "derived",
+            "confidence": "medium",
+            "fractions": {
+              "liquid": 1.0,
+              "supercooledLiquid": 0.0,
+              "mixed": 0.0,
+              "ice": 0.0,
+              "unknown": 0.0
+            }
+          },
+          "sourceRefs": [
+            "goes19-acha2kmf",
+            "goes19-actpf",
+            "goes19-achtf",
+            "metar-SULS",
+            "metar-SUMU",
+            "balloon-telemetry-insitu"
+          ],
+          "confidence": "low",
+          "notes": [
+            "Dispersión del tope entre píxeles > 500 m: capa heterogénea o varias capas.",
+            "METAR a 20 min del estado (sin interpolación).",
+            "Sin radiosondeo ni ceilómetro a lo largo de la trayectoria: la base no está medida en la zona.",
+            "Verificación cruzada in situ (no usada en los valores): en el ascenso inicial la humedad del sensor del globo cae de 39 % a 11 % entre 1512 y 1677 m barométricos (13:28:39–13:29:39Z), compatible con el tope de una capa húmeda cerca de esa altura (ACHA da ~1,2–1,5 km); el sensor nunca superó 61 % (no se observó saturación), por lo que no confirma ni descarta nube dentro de la capa."
+          ],
+          "evidence": {
+            "goes19": {
+              "scan": "13:20Z",
+              "pixelsInZone": 1701,
+              "topPixels": 1689,
+              "phaseValidPixels": 1701,
+              "cloudyPixels": 1701,
+              "phaseCounts": {
+                "0": 0,
+                "1": 1701,
+                "2": 0,
+                "3": 0,
+                "4": 0,
+                "5": 0
+              }
+            }
+          }
+        },
+        {
+          "zoneId": "Z2-este",
+          "zoneName": "Este (desde ~54.2°W hasta la zona de caída)",
+          "area": {
+            "type": "bbox",
+            "minLat": -34.7,
+            "maxLat": -33.9,
+            "minLon": -54.2,
+            "maxLon": -53.85
+          },
+          "cloudCoverage": {
+            "value": 97.6,
+            "method": "Fracción de píxeles de 2 km clasificados como nube por ACTP (fase ≠ cielo despejado) dentro de la zona; es cobertura de columna, no por capa",
+            "status": "derived",
+            "confidence": "high",
+            "unit": "%"
+          },
+          "cloudTypeProbable": {
+            "value": "stratus/stratocumulus (capa estratiforme baja, probable)",
+            "method": "Regla cualitativa: fase líquida + tope < 2,5 km + techo METAR < 1 km + cobertura ≥ BKN; no hay clasificación automática de género disponible en los datos usados",
+            "status": "inferred",
+            "confidence": "low",
+            "fragmentsBelowM": 152
+          },
+          "cloudBaseM": {
+            "value": 457,
+            "method": "Techo (capa BKN/OVC más baja) del METAR de SULS (117 km) a las 13:00Z, desplazado a la zona sin interpolar; metros AGL de estación (elevación no aplicada)",
+            "status": "inferred",
+            "confidence": "low",
+            "unit": "m",
+            "range": [
+              457,
+              457
+            ],
+            "reference": "AGL en la estación METAR (no MSL)",
+            "stationObservations": [
+              {
+                "station": "SULS",
+                "distanceKm": 117,
+                "obsUtc": "2026-10-11T13:00:00Z",
+                "obsOffsetMin": 20,
+                "metar": "SULS 111300Z 21012KT 9999 SCT005 BKN015 13/10 Q1021",
+                "ceilingM": 457,
+                "ceilingLayersM": [
+                  457
+                ],
+                "allLayersM": [
+                  [
+                    "SCT",
+                    152
+                  ],
+                  [
+                    "BKN",
+                    457
+                  ]
+                ],
+                "drizzle": false
+              }
+            ]
+          },
+          "cloudTopM": {
+            "value": 1055,
+            "method": "Mediana del tope de nube ACHA (2 km) dentro de la zona; rango = percentiles 10–90 de los píxeles",
+            "status": "derived",
+            "confidence": "low",
+            "unit": "m",
+            "range": [
+              591,
+              1242
+            ],
+            "topTemperatureC": {
+              "median": 5.4,
+              "range": [
+                4.5,
+                8.0
+              ]
+            }
+          },
+          "cloudThicknessM": {
+            "value": 598,
+            "method": "Tope ACHA (mediana) − techo METAR; asume base ≈ MSL (sin corregir elevación de la estación) y que el techo METAR representa la base de la misma capa",
+            "status": "inferred",
+            "confidence": "low",
+            "unit": "m",
+            "range": [
+              598,
+              598
+            ]
+          },
+          "cloudPhase": {
+            "value": "liquid",
+            "method": "Moda de la fase ACTP en la zona (líquida si ≥90 % de los píxeles nublados son agua líquida o líquida superenfriada)",
+            "status": "derived",
+            "confidence": "medium",
+            "fractions": {
+              "liquid": 1.0,
+              "supercooledLiquid": 0.0,
+              "mixed": 0.0,
+              "ice": 0.0,
+              "unknown": 0.0
+            }
+          },
+          "sourceRefs": [
+            "goes19-acha2kmf",
+            "goes19-actpf",
+            "goes19-achtf",
+            "metar-SULS"
+          ],
+          "confidence": "low",
+          "notes": [
+            "Dispersión del tope entre píxeles > 500 m: capa heterogénea o varias capas.",
+            "METAR a 20 min del estado (sin interpolación).",
+            "Sin radiosondeo ni ceilómetro a lo largo de la trayectoria: la base no está medida en la zona."
+          ],
+          "evidence": {
+            "goes19": {
+              "scan": "13:20Z",
+              "pixelsInZone": 458,
+              "topPixels": 425,
+              "phaseValidPixels": 458,
+              "cloudyPixels": 447,
+              "phaseCounts": {
+                "0": 11,
+                "1": 447,
+                "2": 0,
+                "3": 0,
+                "4": 0,
+                "5": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "S1350",
+      "timestampUtc": "2026-10-11T13:50:00Z",
+      "timestampLocal": "2026-10-11T10:50:00-03:00",
+      "satelliteScanStartUtc": "2026-10-11T13:50:00Z",
+      "timeNote": "Hora nominal = inicio del escaneo GOES-19; la zona (≈34°S) se observa unos minutos después (≈6 min estimados, ver docs/CLOUDS_FEASIBILITY.md).",
+      "zones": [
+        {
+          "zoneId": "Z1-centro-oeste",
+          "zoneName": "Centro-oeste (desde el lanzamiento hasta ~54.2°W)",
+          "area": {
+            "type": "bbox",
+            "minLat": -34.7,
+            "maxLat": -33.9,
+            "minLon": -55.5,
+            "maxLon": -54.2
+          },
+          "cloudCoverage": {
+            "value": 99.9,
+            "method": "Fracción de píxeles de 2 km clasificados como nube por ACTP (fase ≠ cielo despejado) dentro de la zona; es cobertura de columna, no por capa",
+            "status": "derived",
+            "confidence": "high",
+            "unit": "%"
+          },
+          "cloudTypeProbable": {
+            "value": "stratus/stratocumulus (capa estratiforme baja, probable)",
+            "method": "Regla cualitativa: fase líquida + tope < 2,5 km + techo METAR < 1 km + cobertura ≥ BKN; no hay clasificación automática de género disponible en los datos usados",
+            "status": "inferred",
+            "confidence": "low",
+            "fragmentsBelowM": null
+          },
+          "cloudBaseM": {
+            "value": 244,
+            "method": "Techo (capa BKN/OVC más baja) del METAR de SULS (68 km) a las 14:00Z, desplazado a la zona sin interpolar; metros AGL de estación (elevación no aplicada)",
+            "status": "inferred",
+            "confidence": "low",
+            "unit": "m",
+            "range": [
+              244,
+              732
+            ],
+            "reference": "AGL en la estación METAR (no MSL)",
+            "stationObservations": [
+              {
+                "station": "SULS",
+                "distanceKm": 68,
+                "obsUtc": "2026-10-11T14:00:00Z",
+                "obsOffsetMin": 10,
+                "metar": "SULS 111400Z 20013KT 9999 BKN008 BKN017 14/11 Q1021",
+                "ceilingM": 244,
+                "ceilingLayersM": [
+                  244,
+                  518
+                ],
+                "allLayersM": [
+                  [
+                    "BKN",
+                    244
+                  ],
+                  [
+                    "BKN",
+                    518
+                  ]
+                ],
+                "drizzle": false
+              },
+              {
+                "station": "SUMU",
+                "distanceKm": 123,
+                "obsUtc": "2026-10-11T14:00:00Z",
+                "obsOffsetMin": 10,
+                "metar": "SUMU 111400Z 18011KT 9999 BKN011 OVC024 13/10 Q1023 NOSIG",
+                "ceilingM": 335,
+                "ceilingLayersM": [
+                  335,
+                  732
+                ],
+                "allLayersM": [
+                  [
+                    "BKN",
+                    335
+                  ],
+                  [
+                    "OVC",
+                    732
+                  ]
+                ],
+                "drizzle": false
+              }
+            ]
+          },
+          "cloudTopM": {
+            "value": 1253,
+            "method": "Mediana del tope de nube ACHA (2 km) dentro de la zona; rango = percentiles 10–90 de los píxeles",
+            "status": "derived",
+            "confidence": "low",
+            "unit": "m",
+            "range": [
+              995,
+              2299
+            ],
+            "topTemperatureC": {
+              "median": 4.0,
+              "range": [
+                3.3,
+                5.7
+              ]
+            }
+          },
+          "cloudThicknessM": {
+            "value": 1009,
+            "method": "Tope ACHA (mediana) − techo METAR; asume base ≈ MSL (sin corregir elevación de la estación) y que el techo METAR representa la base de la misma capa",
+            "status": "inferred",
+            "confidence": "low",
+            "unit": "m",
+            "range": [
+              521,
+              1009
+            ]
+          },
+          "cloudPhase": {
+            "value": "liquid",
+            "method": "Moda de la fase ACTP en la zona (líquida si ≥90 % de los píxeles nublados son agua líquida o líquida superenfriada)",
+            "status": "derived",
+            "confidence": "medium",
+            "fractions": {
+              "liquid": 1.0,
+              "supercooledLiquid": 0.0,
+              "mixed": 0.0,
+              "ice": 0.0,
+              "unknown": 0.0
+            }
+          },
+          "sourceRefs": [
+            "goes19-acha2kmf",
+            "goes19-actpf",
+            "goes19-achtf",
+            "metar-SULS",
+            "metar-SUMU"
+          ],
+          "confidence": "low",
+          "notes": [
+            "Dispersión del tope entre píxeles > 500 m: capa heterogénea o varias capas.",
+            "Sin radiosondeo ni ceilómetro a lo largo de la trayectoria: la base no está medida en la zona."
+          ],
+          "evidence": {
+            "goes19": {
+              "scan": "13:50Z",
+              "pixelsInZone": 1701,
+              "topPixels": 1693,
+              "phaseValidPixels": 1701,
+              "cloudyPixels": 1700,
+              "phaseCounts": {
+                "0": 1,
+                "1": 1700,
+                "2": 0,
+                "3": 0,
+                "4": 0,
+                "5": 0
+              }
+            }
+          }
+        },
+        {
+          "zoneId": "Z2-este",
+          "zoneName": "Este (desde ~54.2°W hasta la zona de caída)",
+          "area": {
+            "type": "bbox",
+            "minLat": -34.7,
+            "maxLat": -33.9,
+            "minLon": -54.2,
+            "maxLon": -53.85
+          },
+          "cloudCoverage": {
+            "value": 99.8,
+            "method": "Fracción de píxeles de 2 km clasificados como nube por ACTP (fase ≠ cielo despejado) dentro de la zona; es cobertura de columna, no por capa",
+            "status": "derived",
+            "confidence": "high",
+            "unit": "%"
+          },
+          "cloudTypeProbable": {
+            "value": "stratus/stratocumulus (capa estratiforme baja, probable)",
+            "method": "Regla cualitativa: fase líquida + tope < 2,5 km + techo METAR < 1 km + cobertura ≥ BKN; no hay clasificación automática de género disponible en los datos usados",
+            "status": "inferred",
+            "confidence": "low",
+            "fragmentsBelowM": null
+          },
+          "cloudBaseM": {
+            "value": 244,
+            "method": "Techo (capa BKN/OVC más baja) del METAR de SULS (117 km) a las 14:00Z, desplazado a la zona sin interpolar; metros AGL de estación (elevación no aplicada)",
+            "status": "inferred",
+            "confidence": "low",
+            "unit": "m",
+            "range": [
+              244,
+              518
+            ],
+            "reference": "AGL en la estación METAR (no MSL)",
+            "stationObservations": [
+              {
+                "station": "SULS",
+                "distanceKm": 117,
+                "obsUtc": "2026-10-11T14:00:00Z",
+                "obsOffsetMin": 10,
+                "metar": "SULS 111400Z 20013KT 9999 BKN008 BKN017 14/11 Q1021",
+                "ceilingM": 244,
+                "ceilingLayersM": [
+                  244,
+                  518
+                ],
+                "allLayersM": [
+                  [
+                    "BKN",
+                    244
+                  ],
+                  [
+                    "BKN",
+                    518
+                  ]
+                ],
+                "drizzle": false
+              }
+            ]
+          },
+          "cloudTopM": {
+            "value": 1065,
+            "method": "Mediana del tope de nube ACHA (2 km) dentro de la zona; rango = percentiles 10–90 de los píxeles",
+            "status": "derived",
+            "confidence": "low",
+            "unit": "m",
+            "range": [
+              693,
+              1219
+            ],
+            "topTemperatureC": {
+              "median": 5.4,
+              "range": [
+                4.7,
+                7.4
+              ]
+            }
+          },
+          "cloudThicknessM": {
+            "value": 821,
+            "method": "Tope ACHA (mediana) − techo METAR; asume base ≈ MSL (sin corregir elevación de la estación) y que el techo METAR representa la base de la misma capa",
+            "status": "inferred",
+            "confidence": "low",
+            "unit": "m",
+            "range": [
+              547,
+              821
+            ]
+          },
+          "cloudPhase": {
+            "value": "liquid",
+            "method": "Moda de la fase ACTP en la zona (líquida si ≥90 % de los píxeles nublados son agua líquida o líquida superenfriada)",
+            "status": "derived",
+            "confidence": "medium",
+            "fractions": {
+              "liquid": 1.0,
+              "supercooledLiquid": 0.0,
+              "mixed": 0.0,
+              "ice": 0.0,
+              "unknown": 0.0
+            }
+          },
+          "sourceRefs": [
+            "goes19-acha2kmf",
+            "goes19-actpf",
+            "goes19-achtf",
+            "metar-SULS"
+          ],
+          "confidence": "low",
+          "notes": [
+            "Dispersión del tope entre píxeles > 500 m: capa heterogénea o varias capas.",
+            "Sin radiosondeo ni ceilómetro a lo largo de la trayectoria: la base no está medida en la zona."
+          ],
+          "evidence": {
+            "goes19": {
+              "scan": "13:50Z",
+              "pixelsInZone": 458,
+              "topPixels": 446,
+              "phaseValidPixels": 458,
+              "cloudyPixels": 457,
+              "phaseCounts": {
+                "0": 1,
+                "1": 457,
+                "2": 0,
+                "3": 0,
+                "4": 0,
+                "5": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "S1420",
+      "timestampUtc": "2026-10-11T14:20:00Z",
+      "timestampLocal": "2026-10-11T11:20:00-03:00",
+      "satelliteScanStartUtc": "2026-10-11T14:20:00Z",
+      "timeNote": "Hora nominal = inicio del escaneo GOES-19; la zona (≈34°S) se observa unos minutos después (≈6 min estimados, ver docs/CLOUDS_FEASIBILITY.md).",
+      "zones": [
+        {
+          "zoneId": "Z1-centro-oeste",
+          "zoneName": "Centro-oeste (desde el lanzamiento hasta ~54.2°W)",
+          "area": {
+            "type": "bbox",
+            "minLat": -34.7,
+            "maxLat": -33.9,
+            "minLon": -55.5,
+            "maxLon": -54.2
+          },
+          "cloudCoverage": {
+            "value": 100.0,
+            "method": "Fracción de píxeles de 2 km clasificados como nube por ACTP (fase ≠ cielo despejado) dentro de la zona; es cobertura de columna, no por capa",
+            "status": "derived",
+            "confidence": "high",
+            "unit": "%"
+          },
+          "cloudTypeProbable": {
+            "value": "stratus/stratocumulus (capa estratiforme baja, probable)",
+            "method": "Regla cualitativa: fase líquida + tope < 2,5 km + techo METAR < 1 km + cobertura ≥ BKN; no hay clasificación automática de género disponible en los datos usados",
+            "status": "inferred",
+            "confidence": "low",
+            "fragmentsBelowM": null
+          },
+          "cloudBaseM": {
+            "value": 244,
+            "method": "Techo (capa BKN/OVC más baja) del METAR de SULS (68 km) a las 14:00Z, desplazado a la zona sin interpolar; metros AGL de estación (elevación no aplicada)",
+            "status": "inferred",
+            "confidence": "low",
+            "unit": "m",
+            "range": [
+              244,
+              732
+            ],
+            "reference": "AGL en la estación METAR (no MSL)",
+            "stationObservations": [
+              {
+                "station": "SULS",
+                "distanceKm": 68,
+                "obsUtc": "2026-10-11T14:00:00Z",
+                "obsOffsetMin": 20,
+                "metar": "SULS 111400Z 20013KT 9999 BKN008 BKN017 14/11 Q1021",
+                "ceilingM": 244,
+                "ceilingLayersM": [
+                  244,
+                  518
+                ],
+                "allLayersM": [
+                  [
+                    "BKN",
+                    244
+                  ],
+                  [
+                    "BKN",
+                    518
+                  ]
+                ],
+                "drizzle": false
+              },
+              {
+                "station": "SUMU",
+                "distanceKm": 123,
+                "obsUtc": "2026-10-11T14:00:00Z",
+                "obsOffsetMin": 20,
+                "metar": "SUMU 111400Z 18011KT 9999 BKN011 OVC024 13/10 Q1023 NOSIG",
+                "ceilingM": 335,
+                "ceilingLayersM": [
+                  335,
+                  732
+                ],
+                "allLayersM": [
+                  [
+                    "BKN",
+                    335
+                  ],
+                  [
+                    "OVC",
+                    732
+                  ]
+                ],
+                "drizzle": false
+              }
+            ]
+          },
+          "cloudTopM": {
+            "value": 1276,
+            "method": "Mediana del tope de nube ACHA (2 km) dentro de la zona; rango = percentiles 10–90 de los píxeles",
+            "status": "derived",
+            "confidence": "low",
+            "unit": "m",
+            "range": [
+              1037,
+              1951
+            ],
+            "topTemperatureC": {
+              "median": 3.9,
+              "range": [
+                3.2,
+                5.5
+              ]
+            }
+          },
+          "cloudThicknessM": {
+            "value": 1032,
+            "method": "Tope ACHA (mediana) − techo METAR; asume base ≈ MSL (sin corregir elevación de la estación) y que el techo METAR representa la base de la misma capa",
+            "status": "inferred",
+            "confidence": "low",
+            "unit": "m",
+            "range": [
+              544,
+              1032
+            ]
+          },
+          "cloudPhase": {
+            "value": "liquid",
+            "method": "Moda de la fase ACTP en la zona (líquida si ≥90 % de los píxeles nublados son agua líquida o líquida superenfriada)",
+            "status": "derived",
+            "confidence": "medium",
+            "fractions": {
+              "liquid": 1.0,
+              "supercooledLiquid": 0.0,
+              "mixed": 0.0,
+              "ice": 0.0,
+              "unknown": 0.0
+            }
+          },
+          "sourceRefs": [
+            "goes19-acha2kmf",
+            "goes19-actpf",
+            "goes19-achtf",
+            "metar-SULS",
+            "metar-SUMU"
+          ],
+          "confidence": "low",
+          "notes": [
+            "Dispersión del tope entre píxeles > 500 m: capa heterogénea o varias capas.",
+            "METAR a 20 min del estado (sin interpolación).",
+            "Sin radiosondeo ni ceilómetro a lo largo de la trayectoria: la base no está medida en la zona."
+          ],
+          "evidence": {
+            "goes19": {
+              "scan": "14:20Z",
+              "pixelsInZone": 1701,
+              "topPixels": 1697,
+              "phaseValidPixels": 1701,
+              "cloudyPixels": 1701,
+              "phaseCounts": {
+                "0": 0,
+                "1": 1701,
+                "2": 0,
+                "3": 0,
+                "4": 0,
+                "5": 0
+              }
+            }
+          }
+        },
+        {
+          "zoneId": "Z2-este",
+          "zoneName": "Este (desde ~54.2°W hasta la zona de caída)",
+          "area": {
+            "type": "bbox",
+            "minLat": -34.7,
+            "maxLat": -33.9,
+            "minLon": -54.2,
+            "maxLon": -53.85
+          },
+          "cloudCoverage": {
+            "value": 100.0,
+            "method": "Fracción de píxeles de 2 km clasificados como nube por ACTP (fase ≠ cielo despejado) dentro de la zona; es cobertura de columna, no por capa",
+            "status": "derived",
+            "confidence": "high",
+            "unit": "%"
+          },
+          "cloudTypeProbable": {
+            "value": "stratus/stratocumulus (capa estratiforme baja, probable)",
+            "method": "Regla cualitativa: fase líquida + tope < 2,5 km + techo METAR < 1 km + cobertura ≥ BKN; no hay clasificación automática de género disponible en los datos usados",
+            "status": "inferred",
+            "confidence": "low",
+            "fragmentsBelowM": null
+          },
+          "cloudBaseM": {
+            "value": 244,
+            "method": "Techo (capa BKN/OVC más baja) del METAR de SULS (117 km) a las 14:00Z, desplazado a la zona sin interpolar; metros AGL de estación (elevación no aplicada)",
+            "status": "inferred",
+            "confidence": "low",
+            "unit": "m",
+            "range": [
+              244,
+              518
+            ],
+            "reference": "AGL en la estación METAR (no MSL)",
+            "stationObservations": [
+              {
+                "station": "SULS",
+                "distanceKm": 117,
+                "obsUtc": "2026-10-11T14:00:00Z",
+                "obsOffsetMin": 20,
+                "metar": "SULS 111400Z 20013KT 9999 BKN008 BKN017 14/11 Q1021",
+                "ceilingM": 244,
+                "ceilingLayersM": [
+                  244,
+                  518
+                ],
+                "allLayersM": [
+                  [
+                    "BKN",
+                    244
+                  ],
+                  [
+                    "BKN",
+                    518
+                  ]
+                ],
+                "drizzle": false
+              }
+            ]
+          },
+          "cloudTopM": {
+            "value": 1042,
+            "method": "Mediana del tope de nube ACHA (2 km) dentro de la zona; rango = percentiles 10–90 de los píxeles",
+            "status": "derived",
+            "confidence": "low",
+            "unit": "m",
+            "range": [
+              675,
+              1221
+            ],
+            "topTemperatureC": {
+              "median": 5.7,
+              "range": [
+                4.7,
+                7.6
+              ]
+            }
+          },
+          "cloudThicknessM": {
+            "value": 798,
+            "method": "Tope ACHA (mediana) − techo METAR; asume base ≈ MSL (sin corregir elevación de la estación) y que el techo METAR representa la base de la misma capa",
+            "status": "inferred",
+            "confidence": "low",
+            "unit": "m",
+            "range": [
+              524,
+              798
+            ]
+          },
+          "cloudPhase": {
+            "value": "liquid",
+            "method": "Moda de la fase ACTP en la zona (líquida si ≥90 % de los píxeles nublados son agua líquida o líquida superenfriada)",
+            "status": "derived",
+            "confidence": "medium",
+            "fractions": {
+              "liquid": 1.0,
+              "supercooledLiquid": 0.0,
+              "mixed": 0.0,
+              "ice": 0.0,
+              "unknown": 0.0
+            }
+          },
+          "sourceRefs": [
+            "goes19-acha2kmf",
+            "goes19-actpf",
+            "goes19-achtf",
+            "metar-SULS"
+          ],
+          "confidence": "low",
+          "notes": [
+            "Dispersión del tope entre píxeles > 500 m: capa heterogénea o varias capas.",
+            "METAR a 20 min del estado (sin interpolación).",
+            "Sin radiosondeo ni ceilómetro a lo largo de la trayectoria: la base no está medida en la zona."
+          ],
+          "evidence": {
+            "goes19": {
+              "scan": "14:20Z",
+              "pixelsInZone": 458,
+              "topPixels": 452,
+              "phaseValidPixels": 458,
+              "cloudyPixels": 458,
+              "phaseCounts": {
+                "0": 0,
+                "1": 458,
+                "2": 0,
+                "3": 0,
+                "4": 0,
+                "5": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "S1450",
+      "timestampUtc": "2026-10-11T14:50:00Z",
+      "timestampLocal": "2026-10-11T11:50:00-03:00",
+      "satelliteScanStartUtc": "2026-10-11T14:50:00Z",
+      "timeNote": "Hora nominal = inicio del escaneo GOES-19; la zona (≈34°S) se observa unos minutos después (≈6 min estimados, ver docs/CLOUDS_FEASIBILITY.md).",
+      "zones": [
+        {
+          "zoneId": "Z1-centro-oeste",
+          "zoneName": "Centro-oeste (desde el lanzamiento hasta ~54.2°W)",
+          "area": {
+            "type": "bbox",
+            "minLat": -34.7,
+            "maxLat": -33.9,
+            "minLon": -55.5,
+            "maxLon": -54.2
+          },
+          "cloudCoverage": {
+            "value": 100.0,
+            "method": "Fracción de píxeles de 2 km clasificados como nube por ACTP (fase ≠ cielo despejado) dentro de la zona; es cobertura de columna, no por capa",
+            "status": "derived",
+            "confidence": "high",
+            "unit": "%"
+          },
+          "cloudTypeProbable": {
+            "value": "stratus/stratocumulus (capa estratiforme baja, probable)",
+            "method": "Regla cualitativa: fase líquida + tope < 2,5 km + techo METAR < 1 km + cobertura ≥ BKN; no hay clasificación automática de género disponible en los datos usados",
+            "status": "inferred",
+            "confidence": "medium",
+            "fragmentsBelowM": 244
+          },
+          "cloudBaseM": {
+            "value": 518,
+            "method": "Techo (capa BKN/OVC más baja) del METAR de SULS (68 km) a las 15:00Z, desplazado a la zona sin interpolar; metros AGL de estación (elevación no aplicada)",
+            "status": "inferred",
+            "confidence": "medium",
+            "unit": "m",
+            "range": [
+              427,
+              640
+            ],
+            "reference": "AGL en la estación METAR (no MSL)",
+            "stationObservations": [
+              {
+                "station": "SULS",
+                "distanceKm": 68,
+                "obsUtc": "2026-10-11T15:00:00Z",
+                "obsOffsetMin": 10,
+                "metar": "SULS 111500Z 20012KT 9999 FEW008 SCT012 BKN017 14/11 Q1021",
+                "ceilingM": 518,
+                "ceilingLayersM": [
+                  518
+                ],
+                "allLayersM": [
+                  [
+                    "FEW",
+                    244
+                  ],
+                  [
+                    "SCT",
+                    366
+                  ],
+                  [
+                    "BKN",
+                    518
+                  ]
+                ],
+                "drizzle": false
+              },
+              {
+                "station": "SUMU",
+                "distanceKm": 123,
+                "obsUtc": "2026-10-11T15:00:00Z",
+                "obsOffsetMin": 10,
+                "metar": "SUMU 111500Z 18011KT 150V220 9999 BKN014 BKN021 13/10 Q1023 NOSIG",
+                "ceilingM": 427,
+                "ceilingLayersM": [
+                  427,
+                  640
+                ],
+                "allLayersM": [
+                  [
+                    "BKN",
+                    427
+                  ],
+                  [
+                    "BKN",
+                    640
+                  ]
+                ],
+                "drizzle": false
+              }
+            ]
+          },
+          "cloudTopM": {
+            "value": 1299,
+            "method": "Mediana del tope de nube ACHA (2 km) dentro de la zona; rango = percentiles 10–90 de los píxeles",
+            "status": "derived",
+            "confidence": "low",
+            "unit": "m",
+            "range": [
+              1036,
+              1624
+            ],
+            "topTemperatureC": {
+              "median": 3.8,
+              "range": [
+                3.0,
+                5.6
+              ]
+            }
+          },
+          "cloudThicknessM": {
+            "value": 781,
+            "method": "Tope ACHA (mediana) − techo METAR; asume base ≈ MSL (sin corregir elevación de la estación) y que el techo METAR representa la base de la misma capa",
+            "status": "inferred",
+            "confidence": "low",
+            "unit": "m",
+            "range": [
+              659,
+              872
+            ]
+          },
+          "cloudPhase": {
+            "value": "liquid",
+            "method": "Moda de la fase ACTP en la zona (líquida si ≥90 % de los píxeles nublados son agua líquida o líquida superenfriada)",
+            "status": "derived",
+            "confidence": "medium",
+            "fractions": {
+              "liquid": 1.0,
+              "supercooledLiquid": 0.0,
+              "mixed": 0.0,
+              "ice": 0.0,
+              "unknown": 0.0
+            }
+          },
+          "sourceRefs": [
+            "goes19-acha2kmf",
+            "goes19-actpf",
+            "goes19-achtf",
+            "metar-SULS",
+            "metar-SUMU"
+          ],
+          "confidence": "low",
+          "notes": [
+            "Dispersión del tope entre píxeles > 500 m: capa heterogénea o varias capas.",
+            "Sin radiosondeo ni ceilómetro a lo largo de la trayectoria: la base no está medida en la zona."
+          ],
+          "evidence": {
+            "goes19": {
+              "scan": "14:50Z",
+              "pixelsInZone": 1701,
+              "topPixels": 1701,
+              "phaseValidPixels": 1701,
+              "cloudyPixels": 1701,
+              "phaseCounts": {
+                "0": 0,
+                "1": 1701,
+                "2": 0,
+                "3": 0,
+                "4": 0,
+                "5": 0
+              }
+            }
+          }
+        },
+        {
+          "zoneId": "Z2-este",
+          "zoneName": "Este (desde ~54.2°W hasta la zona de caída)",
+          "area": {
+            "type": "bbox",
+            "minLat": -34.7,
+            "maxLat": -33.9,
+            "minLon": -54.2,
+            "maxLon": -53.85
+          },
+          "cloudCoverage": {
+            "value": 100.0,
+            "method": "Fracción de píxeles de 2 km clasificados como nube por ACTP (fase ≠ cielo despejado) dentro de la zona; es cobertura de columna, no por capa",
+            "status": "derived",
+            "confidence": "high",
+            "unit": "%"
+          },
+          "cloudTypeProbable": {
+            "value": "stratus/stratocumulus (capa estratiforme baja, probable)",
+            "method": "Regla cualitativa: fase líquida + tope < 2,5 km + techo METAR < 1 km + cobertura ≥ BKN; no hay clasificación automática de género disponible en los datos usados",
+            "status": "inferred",
+            "confidence": "low",
+            "fragmentsBelowM": 244
+          },
+          "cloudBaseM": {
+            "value": 518,
+            "method": "Techo (capa BKN/OVC más baja) del METAR de SULS (117 km) a las 15:00Z, desplazado a la zona sin interpolar; metros AGL de estación (elevación no aplicada)",
+            "status": "inferred",
+            "confidence": "low",
+            "unit": "m",
+            "range": [
+              518,
+              518
+            ],
+            "reference": "AGL en la estación METAR (no MSL)",
+            "stationObservations": [
+              {
+                "station": "SULS",
+                "distanceKm": 117,
+                "obsUtc": "2026-10-11T15:00:00Z",
+                "obsOffsetMin": 10,
+                "metar": "SULS 111500Z 20012KT 9999 FEW008 SCT012 BKN017 14/11 Q1021",
+                "ceilingM": 518,
+                "ceilingLayersM": [
+                  518
+                ],
+                "allLayersM": [
+                  [
+                    "FEW",
+                    244
+                  ],
+                  [
+                    "SCT",
+                    366
+                  ],
+                  [
+                    "BKN",
+                    518
+                  ]
+                ],
+                "drizzle": false
+              }
+            ]
+          },
+          "cloudTopM": {
+            "value": 1003,
+            "method": "Mediana del tope de nube ACHA (2 km) dentro de la zona; rango = percentiles 10–90 de los píxeles",
+            "status": "derived",
+            "confidence": "low",
+            "unit": "m",
+            "range": [
+              627,
+              1266
+            ],
+            "topTemperatureC": {
+              "median": 5.6,
+              "range": [
+                4.5,
+                8.0
+              ]
+            }
+          },
+          "cloudThicknessM": {
+            "value": 485,
+            "method": "Tope ACHA (mediana) − techo METAR; asume base ≈ MSL (sin corregir elevación de la estación) y que el techo METAR representa la base de la misma capa",
+            "status": "inferred",
+            "confidence": "low",
+            "unit": "m",
+            "range": [
+              485,
+              485
+            ]
+          },
+          "cloudPhase": {
+            "value": "liquid",
+            "method": "Moda de la fase ACTP en la zona (líquida si ≥90 % de los píxeles nublados son agua líquida o líquida superenfriada)",
+            "status": "derived",
+            "confidence": "medium",
+            "fractions": {
+              "liquid": 1.0,
+              "supercooledLiquid": 0.0,
+              "mixed": 0.0,
+              "ice": 0.0,
+              "unknown": 0.0
+            }
+          },
+          "sourceRefs": [
+            "goes19-acha2kmf",
+            "goes19-actpf",
+            "goes19-achtf",
+            "metar-SULS"
+          ],
+          "confidence": "low",
+          "notes": [
+            "Dispersión del tope entre píxeles > 500 m: capa heterogénea o varias capas.",
+            "Sin radiosondeo ni ceilómetro a lo largo de la trayectoria: la base no está medida en la zona."
+          ],
+          "evidence": {
+            "goes19": {
+              "scan": "14:50Z",
+              "pixelsInZone": 458,
+              "topPixels": 458,
+              "phaseValidPixels": 458,
+              "cloudyPixels": 458,
+              "phaseCounts": {
+                "0": 0,
+                "1": 458,
+                "2": 0,
+                "3": 0,
+                "4": 0,
+                "5": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "S1520",
+      "timestampUtc": "2026-10-11T15:20:00Z",
+      "timestampLocal": "2026-10-11T12:20:00-03:00",
+      "satelliteScanStartUtc": "2026-10-11T15:20:00Z",
+      "timeNote": "Hora nominal = inicio del escaneo GOES-19; la zona (≈34°S) se observa unos minutos después (≈6 min estimados, ver docs/CLOUDS_FEASIBILITY.md).",
+      "zones": [
+        {
+          "zoneId": "Z1-centro-oeste",
+          "zoneName": "Centro-oeste (desde el lanzamiento hasta ~54.2°W)",
+          "area": {
+            "type": "bbox",
+            "minLat": -34.7,
+            "maxLat": -33.9,
+            "minLon": -55.5,
+            "maxLon": -54.2
+          },
+          "cloudCoverage": {
+            "value": 99.9,
+            "method": "Fracción de píxeles de 2 km clasificados como nube por ACTP (fase ≠ cielo despejado) dentro de la zona; es cobertura de columna, no por capa",
+            "status": "derived",
+            "confidence": "high",
+            "unit": "%"
+          },
+          "cloudTypeProbable": {
+            "value": "stratus/stratocumulus (capa estratiforme baja, probable)",
+            "method": "Regla cualitativa: fase líquida + tope < 2,5 km + techo METAR < 1 km + cobertura ≥ BKN; no hay clasificación automática de género disponible en los datos usados",
+            "status": "inferred",
+            "confidence": "medium",
+            "fragmentsBelowM": 244
+          },
+          "cloudBaseM": {
+            "value": 518,
+            "method": "Techo (capa BKN/OVC más baja) del METAR de SULS (68 km) a las 15:00Z, desplazado a la zona sin interpolar; metros AGL de estación (elevación no aplicada)",
+            "status": "inferred",
+            "confidence": "medium",
+            "unit": "m",
+            "range": [
+              427,
+              640
+            ],
+            "reference": "AGL en la estación METAR (no MSL)",
+            "stationObservations": [
+              {
+                "station": "SULS",
+                "distanceKm": 68,
+                "obsUtc": "2026-10-11T15:00:00Z",
+                "obsOffsetMin": 20,
+                "metar": "SULS 111500Z 20012KT 9999 FEW008 SCT012 BKN017 14/11 Q1021",
+                "ceilingM": 518,
+                "ceilingLayersM": [
+                  518
+                ],
+                "allLayersM": [
+                  [
+                    "FEW",
+                    244
+                  ],
+                  [
+                    "SCT",
+                    366
+                  ],
+                  [
+                    "BKN",
+                    518
+                  ]
+                ],
+                "drizzle": false
+              },
+              {
+                "station": "SUMU",
+                "distanceKm": 123,
+                "obsUtc": "2026-10-11T15:00:00Z",
+                "obsOffsetMin": 20,
+                "metar": "SUMU 111500Z 18011KT 150V220 9999 BKN014 BKN021 13/10 Q1023 NOSIG",
+                "ceilingM": 427,
+                "ceilingLayersM": [
+                  427,
+                  640
+                ],
+                "allLayersM": [
+                  [
+                    "BKN",
+                    427
+                  ],
+                  [
+                    "BKN",
+                    640
+                  ]
+                ],
+                "drizzle": false
+              }
+            ]
+          },
+          "cloudTopM": {
+            "value": 1350,
+            "method": "Mediana del tope de nube ACHA (2 km) dentro de la zona; rango = percentiles 10–90 de los píxeles",
+            "status": "derived",
+            "confidence": "low",
+            "unit": "m",
+            "range": [
+              1009,
+              2040
+            ],
+            "topTemperatureC": {
+              "median": 3.7,
+              "range": [
+                3.0,
+                5.8
+              ]
+            }
+          },
+          "cloudThicknessM": {
+            "value": 832,
+            "method": "Tope ACHA (mediana) − techo METAR; asume base ≈ MSL (sin corregir elevación de la estación) y que el techo METAR representa la base de la misma capa",
+            "status": "inferred",
+            "confidence": "low",
+            "unit": "m",
+            "range": [
+              710,
+              923
+            ]
+          },
+          "cloudPhase": {
+            "value": "liquid",
+            "method": "Moda de la fase ACTP en la zona (líquida si ≥90 % de los píxeles nublados son agua líquida o líquida superenfriada)",
+            "status": "derived",
+            "confidence": "medium",
+            "fractions": {
+              "liquid": 1.0,
+              "supercooledLiquid": 0.0,
+              "mixed": 0.0,
+              "ice": 0.0,
+              "unknown": 0.0
+            }
+          },
+          "sourceRefs": [
+            "goes19-acha2kmf",
+            "goes19-actpf",
+            "goes19-achtf",
+            "metar-SULS",
+            "metar-SUMU"
+          ],
+          "confidence": "low",
+          "notes": [
+            "Dispersión del tope entre píxeles > 500 m: capa heterogénea o varias capas.",
+            "METAR a 20 min del estado (sin interpolación).",
+            "Sin radiosondeo ni ceilómetro a lo largo de la trayectoria: la base no está medida en la zona."
+          ],
+          "evidence": {
+            "goes19": {
+              "scan": "15:20Z",
+              "pixelsInZone": 1701,
+              "topPixels": 1700,
+              "phaseValidPixels": 1701,
+              "cloudyPixels": 1700,
+              "phaseCounts": {
+                "0": 1,
+                "1": 1700,
+                "2": 0,
+                "3": 0,
+                "4": 0,
+                "5": 0
+              }
+            }
+          }
+        },
+        {
+          "zoneId": "Z2-este",
+          "zoneName": "Este (desde ~54.2°W hasta la zona de caída)",
+          "area": {
+            "type": "bbox",
+            "minLat": -34.7,
+            "maxLat": -33.9,
+            "minLon": -54.2,
+            "maxLon": -53.85
+          },
+          "cloudCoverage": {
+            "value": 100.0,
+            "method": "Fracción de píxeles de 2 km clasificados como nube por ACTP (fase ≠ cielo despejado) dentro de la zona; es cobertura de columna, no por capa",
+            "status": "derived",
+            "confidence": "high",
+            "unit": "%"
+          },
+          "cloudTypeProbable": {
+            "value": "stratus/stratocumulus (capa estratiforme baja, probable)",
+            "method": "Regla cualitativa: fase líquida + tope < 2,5 km + techo METAR < 1 km + cobertura ≥ BKN; no hay clasificación automática de género disponible en los datos usados",
+            "status": "inferred",
+            "confidence": "low",
+            "fragmentsBelowM": 244
+          },
+          "cloudBaseM": {
+            "value": 518,
+            "method": "Techo (capa BKN/OVC más baja) del METAR de SULS (117 km) a las 15:00Z, desplazado a la zona sin interpolar; metros AGL de estación (elevación no aplicada)",
+            "status": "inferred",
+            "confidence": "low",
+            "unit": "m",
+            "range": [
+              518,
+              518
+            ],
+            "reference": "AGL en la estación METAR (no MSL)",
+            "stationObservations": [
+              {
+                "station": "SULS",
+                "distanceKm": 117,
+                "obsUtc": "2026-10-11T15:00:00Z",
+                "obsOffsetMin": 20,
+                "metar": "SULS 111500Z 20012KT 9999 FEW008 SCT012 BKN017 14/11 Q1021",
+                "ceilingM": 518,
+                "ceilingLayersM": [
+                  518
+                ],
+                "allLayersM": [
+                  [
+                    "FEW",
+                    244
+                  ],
+                  [
+                    "SCT",
+                    366
+                  ],
+                  [
+                    "BKN",
+                    518
+                  ]
+                ],
+                "drizzle": false
+              }
+            ]
+          },
+          "cloudTopM": {
+            "value": 941,
+            "method": "Mediana del tope de nube ACHA (2 km) dentro de la zona; rango = percentiles 10–90 de los píxeles",
+            "status": "derived",
+            "confidence": "low",
+            "unit": "m",
+            "range": [
+              624,
+              1387
+            ],
+            "topTemperatureC": {
+              "median": 6.1,
+              "range": [
+                3.8,
+                8.0
+              ]
+            }
+          },
+          "cloudThicknessM": {
+            "value": 423,
+            "method": "Tope ACHA (mediana) − techo METAR; asume base ≈ MSL (sin corregir elevación de la estación) y que el techo METAR representa la base de la misma capa",
+            "status": "inferred",
+            "confidence": "low",
+            "unit": "m",
+            "range": [
+              423,
+              423
+            ]
+          },
+          "cloudPhase": {
+            "value": "liquid",
+            "method": "Moda de la fase ACTP en la zona (líquida si ≥90 % de los píxeles nublados son agua líquida o líquida superenfriada)",
+            "status": "derived",
+            "confidence": "medium",
+            "fractions": {
+              "liquid": 1.0,
+              "supercooledLiquid": 0.0,
+              "mixed": 0.0,
+              "ice": 0.0,
+              "unknown": 0.0
+            }
+          },
+          "sourceRefs": [
+            "goes19-acha2kmf",
+            "goes19-actpf",
+            "goes19-achtf",
+            "metar-SULS"
+          ],
+          "confidence": "low",
+          "notes": [
+            "Dispersión del tope entre píxeles > 500 m: capa heterogénea o varias capas.",
+            "METAR a 20 min del estado (sin interpolación).",
+            "Sin radiosondeo ni ceilómetro a lo largo de la trayectoria: la base no está medida en la zona."
+          ],
+          "evidence": {
+            "goes19": {
+              "scan": "15:20Z",
+              "pixelsInZone": 458,
+              "topPixels": 455,
+              "phaseValidPixels": 458,
+              "cloudyPixels": 458,
+              "phaseCounts": {
+                "0": 0,
+                "1": 458,
+                "2": 0,
+                "3": 0,
+                "4": 0,
+                "5": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "S1550",
+      "timestampUtc": "2026-10-11T15:50:00Z",
+      "timestampLocal": "2026-10-11T12:50:00-03:00",
+      "satelliteScanStartUtc": "2026-10-11T15:50:00Z",
+      "timeNote": "Hora nominal = inicio del escaneo GOES-19; la zona (≈34°S) se observa unos minutos después (≈6 min estimados, ver docs/CLOUDS_FEASIBILITY.md).",
+      "zones": [
+        {
+          "zoneId": "Z1-centro-oeste",
+          "zoneName": "Centro-oeste (desde el lanzamiento hasta ~54.2°W)",
+          "area": {
+            "type": "bbox",
+            "minLat": -34.7,
+            "maxLat": -33.9,
+            "minLon": -55.5,
+            "maxLon": -54.2
+          },
+          "cloudCoverage": {
+            "value": 100.0,
+            "method": "Fracción de píxeles de 2 km clasificados como nube por ACTP (fase ≠ cielo despejado) dentro de la zona; es cobertura de columna, no por capa",
+            "status": "derived",
+            "confidence": "high",
+            "unit": "%"
+          },
+          "cloudTypeProbable": {
+            "value": "stratus/stratocumulus (capa estratiforme baja, probable)",
+            "method": "Regla cualitativa: fase líquida + tope < 2,5 km + techo METAR < 1 km + cobertura ≥ BKN; no hay clasificación automática de género disponible en los datos usados; llovizna (DZ) reportada en un METAR de la zona",
+            "status": "inferred",
+            "confidence": "medium",
+            "fragmentsBelowM": 213
+          },
+          "cloudBaseM": {
+            "value": 518,
+            "method": "Techo (capa BKN/OVC más baja) del METAR de SULS (68 km) a las 16:00Z, desplazado a la zona sin interpolar; metros AGL de estación (elevación no aplicada)",
+            "status": "inferred",
+            "confidence": "medium",
+            "unit": "m",
+            "range": [
+              518,
+              610
+            ],
+            "reference": "AGL en la estación METAR (no MSL)",
+            "stationObservations": [
+              {
+                "station": "SULS",
+                "distanceKm": 68,
+                "obsUtc": "2026-10-11T16:00:00Z",
+                "obsOffsetMin": 10,
+                "metar": "SULS 111600Z 21013KT 9999 -DZ FEW007 SCT010 BKN017 15/11 Q1021",
+                "ceilingM": 518,
+                "ceilingLayersM": [
+                  518
+                ],
+                "allLayersM": [
+                  [
+                    "FEW",
+                    213
+                  ],
+                  [
+                    "SCT",
+                    305
+                  ],
+                  [
+                    "BKN",
+                    518
+                  ]
+                ],
+                "drizzle": true
+              },
+              {
+                "station": "SUMU",
+                "distanceKm": 123,
+                "obsUtc": "2026-10-11T16:00:00Z",
+                "obsOffsetMin": 10,
+                "metar": "SUMU 111600Z 17012KT 140V200 9999 SCT013 BKN020 13/09 Q1022 NOSIG",
+                "ceilingM": 610,
+                "ceilingLayersM": [
+                  610
+                ],
+                "allLayersM": [
+                  [
+                    "SCT",
+                    396
+                  ],
+                  [
+                    "BKN",
+                    610
+                  ]
+                ],
+                "drizzle": false
+              }
+            ]
+          },
+          "cloudTopM": {
+            "value": 1430,
+            "method": "Mediana del tope de nube ACHA (2 km) dentro de la zona; rango = percentiles 10–90 de los píxeles",
+            "status": "derived",
+            "confidence": "low",
+            "unit": "m",
+            "range": [
+              1024,
+              2379
+            ],
+            "topTemperatureC": {
+              "median": 3.4,
+              "range": [
+                3.0,
+                5.7
+              ]
+            }
+          },
+          "cloudThicknessM": {
+            "value": 912,
+            "method": "Tope ACHA (mediana) − techo METAR; asume base ≈ MSL (sin corregir elevación de la estación) y que el techo METAR representa la base de la misma capa",
+            "status": "inferred",
+            "confidence": "low",
+            "unit": "m",
+            "range": [
+              820,
+              912
+            ]
+          },
+          "cloudPhase": {
+            "value": "liquid",
+            "method": "Moda de la fase ACTP en la zona (líquida si ≥90 % de los píxeles nublados son agua líquida o líquida superenfriada)",
+            "status": "derived",
+            "confidence": "medium",
+            "fractions": {
+              "liquid": 1.0,
+              "supercooledLiquid": 0.0,
+              "mixed": 0.0,
+              "ice": 0.0,
+              "unknown": 0.0
+            }
+          },
+          "sourceRefs": [
+            "goes19-acha2kmf",
+            "goes19-actpf",
+            "goes19-achtf",
+            "metar-SULS",
+            "metar-SUMU"
+          ],
+          "confidence": "low",
+          "notes": [
+            "Dispersión del tope entre píxeles > 500 m: capa heterogénea o varias capas.",
+            "Sin radiosondeo ni ceilómetro a lo largo de la trayectoria: la base no está medida en la zona."
+          ],
+          "evidence": {
+            "goes19": {
+              "scan": "15:50Z",
+              "pixelsInZone": 1701,
+              "topPixels": 1700,
+              "phaseValidPixels": 1701,
+              "cloudyPixels": 1701,
+              "phaseCounts": {
+                "0": 0,
+                "1": 1701,
+                "2": 0,
+                "3": 0,
+                "4": 0,
+                "5": 0
+              }
+            }
+          }
+        },
+        {
+          "zoneId": "Z2-este",
+          "zoneName": "Este (desde ~54.2°W hasta la zona de caída)",
+          "area": {
+            "type": "bbox",
+            "minLat": -34.7,
+            "maxLat": -33.9,
+            "minLon": -54.2,
+            "maxLon": -53.85
+          },
+          "cloudCoverage": {
+            "value": 100.0,
+            "method": "Fracción de píxeles de 2 km clasificados como nube por ACTP (fase ≠ cielo despejado) dentro de la zona; es cobertura de columna, no por capa",
+            "status": "derived",
+            "confidence": "high",
+            "unit": "%"
+          },
+          "cloudTypeProbable": {
+            "value": "stratus/stratocumulus (capa estratiforme baja, probable)",
+            "method": "Regla cualitativa: fase líquida + tope < 2,5 km + techo METAR < 1 km + cobertura ≥ BKN; no hay clasificación automática de género disponible en los datos usados; llovizna (DZ) reportada en un METAR de la zona",
+            "status": "inferred",
+            "confidence": "low",
+            "fragmentsBelowM": 213
+          },
+          "cloudBaseM": {
+            "value": 518,
+            "method": "Techo (capa BKN/OVC más baja) del METAR de SULS (117 km) a las 16:00Z, desplazado a la zona sin interpolar; metros AGL de estación (elevación no aplicada)",
+            "status": "inferred",
+            "confidence": "low",
+            "unit": "m",
+            "range": [
+              518,
+              518
+            ],
+            "reference": "AGL en la estación METAR (no MSL)",
+            "stationObservations": [
+              {
+                "station": "SULS",
+                "distanceKm": 117,
+                "obsUtc": "2026-10-11T16:00:00Z",
+                "obsOffsetMin": 10,
+                "metar": "SULS 111600Z 21013KT 9999 -DZ FEW007 SCT010 BKN017 15/11 Q1021",
+                "ceilingM": 518,
+                "ceilingLayersM": [
+                  518
+                ],
+                "allLayersM": [
+                  [
+                    "FEW",
+                    213
+                  ],
+                  [
+                    "SCT",
+                    305
+                  ],
+                  [
+                    "BKN",
+                    518
+                  ]
+                ],
+                "drizzle": true
+              }
+            ]
+          },
+          "cloudTopM": {
+            "value": 916,
+            "method": "Mediana del tope de nube ACHA (2 km) dentro de la zona; rango = percentiles 10–90 de los píxeles",
+            "status": "derived",
+            "confidence": "low",
+            "unit": "m",
+            "range": [
+              603,
+              1391
+            ],
+            "topTemperatureC": {
+              "median": 6.2,
+              "range": [
+                3.8,
+                8.1
+              ]
+            }
+          },
+          "cloudThicknessM": {
+            "value": 398,
+            "method": "Tope ACHA (mediana) − techo METAR; asume base ≈ MSL (sin corregir elevación de la estación) y que el techo METAR representa la base de la misma capa",
+            "status": "inferred",
+            "confidence": "low",
+            "unit": "m",
+            "range": [
+              398,
+              398
+            ]
+          },
+          "cloudPhase": {
+            "value": "liquid",
+            "method": "Moda de la fase ACTP en la zona (líquida si ≥90 % de los píxeles nublados son agua líquida o líquida superenfriada)",
+            "status": "derived",
+            "confidence": "medium",
+            "fractions": {
+              "liquid": 1.0,
+              "supercooledLiquid": 0.0,
+              "mixed": 0.0,
+              "ice": 0.0,
+              "unknown": 0.0
+            }
+          },
+          "sourceRefs": [
+            "goes19-acha2kmf",
+            "goes19-actpf",
+            "goes19-achtf",
+            "metar-SULS"
+          ],
+          "confidence": "low",
+          "notes": [
+            "Dispersión del tope entre píxeles > 500 m: capa heterogénea o varias capas.",
+            "Sin radiosondeo ni ceilómetro a lo largo de la trayectoria: la base no está medida en la zona."
+          ],
+          "evidence": {
+            "goes19": {
+              "scan": "15:50Z",
+              "pixelsInZone": 458,
+              "topPixels": 455,
+              "phaseValidPixels": 458,
+              "cloudyPixels": 458,
+              "phaseCounts": {
+                "0": 0,
+                "1": 458,
+                "2": 0,
+                "3": 0,
+                "4": 0,
+                "5": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "S1620",
+      "timestampUtc": "2026-10-11T16:20:00Z",
+      "timestampLocal": "2026-10-11T13:20:00-03:00",
+      "satelliteScanStartUtc": "2026-10-11T16:20:00Z",
+      "timeNote": "Hora nominal = inicio del escaneo GOES-19; la zona (≈34°S) se observa unos minutos después (≈6 min estimados, ver docs/CLOUDS_FEASIBILITY.md).",
+      "zones": [
+        {
+          "zoneId": "Z1-centro-oeste",
+          "zoneName": "Centro-oeste (desde el lanzamiento hasta ~54.2°W)",
+          "area": {
+            "type": "bbox",
+            "minLat": -34.7,
+            "maxLat": -33.9,
+            "minLon": -55.5,
+            "maxLon": -54.2
+          },
+          "cloudCoverage": {
+            "value": 100.0,
+            "method": "Fracción de píxeles de 2 km clasificados como nube por ACTP (fase ≠ cielo despejado) dentro de la zona; es cobertura de columna, no por capa",
+            "status": "derived",
+            "confidence": "high",
+            "unit": "%"
+          },
+          "cloudTypeProbable": {
+            "value": "stratus/stratocumulus (capa estratiforme baja, probable)",
+            "method": "Regla cualitativa: fase líquida + tope < 2,5 km + techo METAR < 1 km + cobertura ≥ BKN; no hay clasificación automática de género disponible en los datos usados; llovizna (DZ) reportada en un METAR de la zona",
+            "status": "inferred",
+            "confidence": "medium",
+            "fragmentsBelowM": 213
+          },
+          "cloudBaseM": {
+            "value": 518,
+            "method": "Techo (capa BKN/OVC más baja) del METAR de SULS (68 km) a las 16:00Z, desplazado a la zona sin interpolar; metros AGL de estación (elevación no aplicada)",
+            "status": "inferred",
+            "confidence": "medium",
+            "unit": "m",
+            "range": [
+              518,
+              610
+            ],
+            "reference": "AGL en la estación METAR (no MSL)",
+            "stationObservations": [
+              {
+                "station": "SULS",
+                "distanceKm": 68,
+                "obsUtc": "2026-10-11T16:00:00Z",
+                "obsOffsetMin": 20,
+                "metar": "SULS 111600Z 21013KT 9999 -DZ FEW007 SCT010 BKN017 15/11 Q1021",
+                "ceilingM": 518,
+                "ceilingLayersM": [
+                  518
+                ],
+                "allLayersM": [
+                  [
+                    "FEW",
+                    213
+                  ],
+                  [
+                    "SCT",
+                    305
+                  ],
+                  [
+                    "BKN",
+                    518
+                  ]
+                ],
+                "drizzle": true
+              },
+              {
+                "station": "SUMU",
+                "distanceKm": 123,
+                "obsUtc": "2026-10-11T16:00:00Z",
+                "obsOffsetMin": 20,
+                "metar": "SUMU 111600Z 17012KT 140V200 9999 SCT013 BKN020 13/09 Q1022 NOSIG",
+                "ceilingM": 610,
+                "ceilingLayersM": [
+                  610
+                ],
+                "allLayersM": [
+                  [
+                    "SCT",
+                    396
+                  ],
+                  [
+                    "BKN",
+                    610
+                  ]
+                ],
+                "drizzle": false
+              }
+            ]
+          },
+          "cloudTopM": {
+            "value": 1452,
+            "method": "Mediana del tope de nube ACHA (2 km) dentro de la zona; rango = percentiles 10–90 de los píxeles",
+            "status": "derived",
+            "confidence": "low",
+            "unit": "m",
+            "range": [
+              1200,
+              2477
+            ],
+            "topTemperatureC": {
+              "median": 3.4,
+              "range": [
+                3.0,
+                4.9
+              ]
+            }
+          },
+          "cloudThicknessM": {
+            "value": 934,
+            "method": "Tope ACHA (mediana) − techo METAR; asume base ≈ MSL (sin corregir elevación de la estación) y que el techo METAR representa la base de la misma capa",
+            "status": "inferred",
+            "confidence": "low",
+            "unit": "m",
+            "range": [
+              842,
+              934
+            ]
+          },
+          "cloudPhase": {
+            "value": "liquid",
+            "method": "Moda de la fase ACTP en la zona (líquida si ≥90 % de los píxeles nublados son agua líquida o líquida superenfriada)",
+            "status": "derived",
+            "confidence": "medium",
+            "fractions": {
+              "liquid": 1.0,
+              "supercooledLiquid": 0.0,
+              "mixed": 0.0,
+              "ice": 0.0,
+              "unknown": 0.0
+            }
+          },
+          "sourceRefs": [
+            "goes19-acha2kmf",
+            "goes19-actpf",
+            "goes19-achtf",
+            "metar-SULS",
+            "metar-SUMU"
+          ],
+          "confidence": "low",
+          "notes": [
+            "Dispersión del tope entre píxeles > 500 m: capa heterogénea o varias capas.",
+            "METAR a 20 min del estado (sin interpolación).",
+            "Sin radiosondeo ni ceilómetro a lo largo de la trayectoria: la base no está medida en la zona."
+          ],
+          "evidence": {
+            "goes19": {
+              "scan": "16:20Z",
+              "pixelsInZone": 1701,
+              "topPixels": 1700,
+              "phaseValidPixels": 1701,
+              "cloudyPixels": 1701,
+              "phaseCounts": {
+                "0": 0,
+                "1": 1701,
+                "2": 0,
+                "3": 0,
+                "4": 0,
+                "5": 0
+              }
+            }
+          }
+        },
+        {
+          "zoneId": "Z2-este",
+          "zoneName": "Este (desde ~54.2°W hasta la zona de caída)",
+          "area": {
+            "type": "bbox",
+            "minLat": -34.7,
+            "maxLat": -33.9,
+            "minLon": -54.2,
+            "maxLon": -53.85
+          },
+          "cloudCoverage": {
+            "value": 100.0,
+            "method": "Fracción de píxeles de 2 km clasificados como nube por ACTP (fase ≠ cielo despejado) dentro de la zona; es cobertura de columna, no por capa",
+            "status": "derived",
+            "confidence": "high",
+            "unit": "%"
+          },
+          "cloudTypeProbable": {
+            "value": "stratus/stratocumulus (capa estratiforme baja, probable)",
+            "method": "Regla cualitativa: fase líquida + tope < 2,5 km + techo METAR < 1 km + cobertura ≥ BKN; no hay clasificación automática de género disponible en los datos usados; llovizna (DZ) reportada en un METAR de la zona",
+            "status": "inferred",
+            "confidence": "low",
+            "fragmentsBelowM": 213
+          },
+          "cloudBaseM": {
+            "value": 518,
+            "method": "Techo (capa BKN/OVC más baja) del METAR de SULS (117 km) a las 16:00Z, desplazado a la zona sin interpolar; metros AGL de estación (elevación no aplicada)",
+            "status": "inferred",
+            "confidence": "low",
+            "unit": "m",
+            "range": [
+              518,
+              518
+            ],
+            "reference": "AGL en la estación METAR (no MSL)",
+            "stationObservations": [
+              {
+                "station": "SULS",
+                "distanceKm": 117,
+                "obsUtc": "2026-10-11T16:00:00Z",
+                "obsOffsetMin": 20,
+                "metar": "SULS 111600Z 21013KT 9999 -DZ FEW007 SCT010 BKN017 15/11 Q1021",
+                "ceilingM": 518,
+                "ceilingLayersM": [
+                  518
+                ],
+                "allLayersM": [
+                  [
+                    "FEW",
+                    213
+                  ],
+                  [
+                    "SCT",
+                    305
+                  ],
+                  [
+                    "BKN",
+                    518
+                  ]
+                ],
+                "drizzle": true
+              }
+            ]
+          },
+          "cloudTopM": {
+            "value": 1195,
+            "method": "Mediana del tope de nube ACHA (2 km) dentro de la zona; rango = percentiles 10–90 de los píxeles",
+            "status": "derived",
+            "confidence": "low",
+            "unit": "m",
+            "range": [
+              730,
+              1394
+            ],
+            "topTemperatureC": {
+              "median": 5.3,
+              "range": [
+                4.1,
+                7.6
+              ]
+            }
+          },
+          "cloudThicknessM": {
+            "value": 677,
+            "method": "Tope ACHA (mediana) − techo METAR; asume base ≈ MSL (sin corregir elevación de la estación) y que el techo METAR representa la base de la misma capa",
+            "status": "inferred",
+            "confidence": "low",
+            "unit": "m",
+            "range": [
+              677,
+              677
+            ]
+          },
+          "cloudPhase": {
+            "value": "liquid",
+            "method": "Moda de la fase ACTP en la zona (líquida si ≥90 % de los píxeles nublados son agua líquida o líquida superenfriada)",
+            "status": "derived",
+            "confidence": "medium",
+            "fractions": {
+              "liquid": 1.0,
+              "supercooledLiquid": 0.0,
+              "mixed": 0.0,
+              "ice": 0.0,
+              "unknown": 0.0
+            }
+          },
+          "sourceRefs": [
+            "goes19-acha2kmf",
+            "goes19-actpf",
+            "goes19-achtf",
+            "metar-SULS"
+          ],
+          "confidence": "low",
+          "notes": [
+            "Dispersión del tope entre píxeles > 500 m: capa heterogénea o varias capas.",
+            "METAR a 20 min del estado (sin interpolación).",
+            "Sin radiosondeo ni ceilómetro a lo largo de la trayectoria: la base no está medida en la zona."
+          ],
+          "evidence": {
+            "goes19": {
+              "scan": "16:20Z",
+              "pixelsInZone": 458,
+              "topPixels": 458,
+              "phaseValidPixels": 458,
+              "cloudyPixels": 458,
+              "phaseCounts": {
+                "0": 0,
+                "1": 458,
+                "2": 0,
+                "3": 0,
+                "4": 0,
+                "5": 0
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "undetermined": [
+    "Base de nube medida a lo largo de la trayectoria (no hay ceilómetro, lidar ni radiosondeo; el radiosondeo de Carrasco/Ezeiza 12Z de ese día no estaba disponible).",
+    "Género de nube por clasificación automática (el producto de tipo de nube no se descargó/validó).",
+    "Estructura vertical interna (número de capas reales, huecos entre capas) y contenido de agua.",
+    "Cobertura por capa (solo hay cobertura de columna por satélite y oktas de los METAR lejanos).",
+    "Existencia de nubes por encima de 2,5 km: el satélite no las detecta como tope principal, pero ACHA solo da el tope más alto visible.",
+    "Corrección de paralaje (≈1 km de desplazamiento hacia el sureste para tope ≈1 km: menor que la resolución usada)."
+  ],
+  "insituCrossCheck": {
+    "humidityMaxPercent": 61,
+    "largestHumidityDrop": {
+      "fromAltM": 1512,
+      "toAltM": 1677,
+      "fromPct": 39,
+      "toPct": 11,
+      "utcFrom": "2026-10-11T13:28:39Z",
+      "utcTo": "2026-10-11T13:29:39Z"
+    },
+    "temperatureMinFirst12": {
+      "altM": 1134,
+      "tempC": 11
+    }
+  },
+  "generator": {
+    "script": "tools/cloud-model/build_cloud_model.py",
+    "inputs": [
+      "NetCDF GOES-19 L2 (no versionados)",
+      "data/clouds/sources/metar/*.csv",
+      "data/vuelo/transmissions.json"
+    ]
+  }
+}

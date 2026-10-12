@@ -111,6 +111,24 @@
       "notes": "Describe el plan, no el lugar efectivo de partida: este se deriva de la primera posición GPS válida (flight.json → actualLaunch)."
     },
     {
+      "id": "goes19-l2-cloud-products",
+      "name": "GOES-19 ABI L2: ACHA (tope), ACTP (fase), ACHT (temperatura del tope), 10 min y 2 km",
+      "type": "satellite_retrieval",
+      "provides": ["cobertura de columna, tope, fase y temperatura del tope por zona y hora (data/clouds/cloud-model.json)"],
+      "generalConfidence": "medium",
+      "url": "https://noaa-goes19.s3.amazonaws.com/",
+      "notes": "Productos de algoritmo (no mediciones directas). Los NetCDF no se versionan; se versiona un extracto estadístico en data/clouds/sources/goes19-zone-stats.json."
+    },
+    {
+      "id": "metar-uruguay-iem",
+      "name": "METAR de aeropuertos de Uruguay (SULS, SUMU y otros) vía Iowa Environmental Mesonet",
+      "type": "surface_observation",
+      "provides": ["techo de nubes (BKN/OVC), capas bajas y llovizna a 68–116 km de la trayectoria"],
+      "generalConfidence": "medium",
+      "url": "https://mesonet.agron.iastate.edu/cgi-bin/request/asos.py",
+      "notes": "Los METAR crudos están en data/clouds/sources/metar/. Son observaciones horarias en las estaciones, no a lo largo de la trayectoria: la base de nube del modelo es una inferencia."
+    },
+    {
       "id": "user-aprsfi-screenshots",
       "name": "Capturas de APRS.fi aportadas por el usuario",
       "type": "user_supplied_screenshots",

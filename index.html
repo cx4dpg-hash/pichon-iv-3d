@@ -17,6 +17,8 @@
     <div id="viewerWrap">
       <div id="cesiumContainer"></div>
 
+      <button type="button" id="btnPanelToggle" aria-expanded="true" aria-controls="infoPanel">◂ Ocultar panel</button>
+
       <aside id="infoPanel" aria-label="Información de la transmisión">
         <header class="brand">
           <img class="logo logo-rcu" src="assets/branding/rcu-shield.png" alt="Radio Club Uruguayo" width="35" height="44">
@@ -127,6 +129,8 @@
         </div>
       </aside>
 
+      <button type="button" id="btnPresent" aria-pressed="false" title="Modo presentación: pantalla completa con el visor y los controles principales">Presentación</button>
+
       <button type="button" id="compass" aria-label="Restablecer orientación al Norte" title="Clic: Norte arriba">
         <svg viewBox="-50 -50 100 100" width="64" height="64" aria-hidden="true" focusable="false">
           <circle class="cp-ring" r="46"></circle>
@@ -164,7 +168,7 @@
         <div class="group">
           <button type="button" id="btnOverview">Vista general</button>
           <button type="button" id="btnFollow">Seguir globo</button>
-          <button type="button" id="btnClouds" aria-pressed="false" title="Imágenes satelitales reales GOES-19 (GeoColor, NASA GIBS) de la zona durante el vuelo">Nubes</button>
+          <button type="button" id="btnClouds" aria-pressed="false" title="Capa satelital 2D de referencia: imágenes reales GOES-19 (GeoColor, NASA GIBS) sobre el terreno. No tiene altura ni volumen; no son nubes 3D.">Nubosidad satelital 2D</button>
         </div>
       </div>
       <div class="timeline">

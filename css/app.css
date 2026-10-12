@@ -645,3 +645,57 @@ button[aria-pressed="true"] {
 #cloudInfo[hidden] {
   display: none;
 }
+
+/* ---------- Panel ocultable y modo presentación ---------- */
+#btnPanelToggle {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 3;
+  padding: 3px 9px;
+  font-size: 12px;
+}
+
+#btnPanelToggle[aria-expanded="true"] {
+  background: rgba(11, 16, 32, 0.85);
+}
+
+#infoPanel {
+  top: 42px;
+  max-height: calc(100% - 52px);
+}
+
+#infoPanel[hidden] {
+  display: none;
+}
+
+#btnPresent {
+  position: absolute;
+  right: 88px;
+  bottom: 12px;
+  padding: 4px 9px;
+  font-size: 12px;
+}
+
+#btnPresent[aria-pressed="false"] {
+  background: rgba(11, 16, 32, 0.7);
+}
+
+#app.presentation {
+  background: #0b1020;
+}
+
+#app.presentation #infoPanel,
+#app.presentation #btnPanelToggle,
+#app.presentation #receptionPanel,
+#app.presentation #telemetry,
+#app.presentation #mapMode,
+#app.presentation #cloudInfo {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  #infoPanel {
+    max-height: 45%;
+  }
+}
