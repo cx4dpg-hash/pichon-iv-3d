@@ -35,6 +35,7 @@ js/map3d.js     visor CesiumJS, trayectoria, marcadores, enlace al primer IGate,
 js/stations.js  estaciones terrestres y resolución del primer IGate
 js/ui.js        panel de información, controles y timeline
 js/charts.js    ocho gráficos de telemetría (Chart.js) con cursor sincronizado (etapas 6 y 8)
+js/compass.js   brújula de la cámara (heading/pitch, reset a Norte arriba; etapa 9)
 js/derived.js   datos derivados (velocidad vertical entre transmisiones consecutivas)
 js/terrain.js   base cartográfica: mapa básico u, opcionalmente, Cesium Ion (satélite + relieve)
 config.example.js / config.local.js   configuración local (token de Cesium Ion); config.local.js no se versiona
@@ -51,6 +52,8 @@ js/importer/    importador local de logs, sin DOM ni red:
 La física (`physics.js`) está separada de la representación (`balloon.js`). Ver `docs/PHYSICS.md`.
 
 Importador de logs (etapa 7): el log se lee con la File API y se procesa en el navegador (`js/importer/`, módulos puros que también corren en Node para `tests/importer.test.mjs`). El maestro nunca se modifica; la recepción local (`reception.js`) es independiente de `firstIgate`. Ver `docs/LOG_IMPORT.md`.
+
+Brújula e identidad (etapa 9): `compass.js` lee `viewer.camera.heading/pitch` en `scene.preRender` y rota un SVG; el clic rota la cámara alrededor del punto observado (cámara libre) o dentro del marco ENU de la carga (Seguir globo) sin cancelar el seguimiento. Los logos están en `assets/branding/` (ver `docs/BRANDING.md`).
 
 Posición y trayectoria (una sola fuente geométrica): `positionAtTime(flight, times, t)` en `playback.js` es la única interpolación visual de la posición de la carga (lineal en lat, lon y altitudeGpsM entre transmisiones reales). La carga animada (`visualPosition`) y la línea amarilla (`trajectorySamples`, un remuestreo de esa misma función cada 5 s que conserva siempre las 155 transmisiones reales) dependen de ella, así que la carga está siempre sobre la línea. Antes la línea unía solo las 155 posiciones con segmentos rectos en coordenadas cartesianas (cuerdas), mientras la carga seguía una curva (interpolación lineal en lat/lon/altitud): la diferencia llegaba a ≈ 0.42 m en los intervalos de 120 s. Los puntos intermedios son solo geometría de render (no son transmisiones, no se agregan al dataset y no tienen telemetría).
 

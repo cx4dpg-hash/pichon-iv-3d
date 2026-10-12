@@ -24,6 +24,10 @@ y abrir <http://localhost:8000/>. También sirve cualquier otro servidor estáti
 
 El proyecto es un sitio web **estático** (HTML, CSS y JavaScript con módulos ES; CesiumJS 1.123.1 y Chart.js 4.4.1 desde CDN), sin backend, publicable en un hosting convencional (por ejemplo `/RCU/pichon4/`). Solo usa rutas relativas.
 
+## Brújula e identidad visual (etapa 9)
+
+Brújula propia de la cámara en la esquina inferior derecha del visor (indica el Norte según `camera.heading`, un clic pone "Norte arriba" conservando posición, distancia e inclinación, también en Seguir globo) y logos del Radio Club Uruguayo y de Pichón IV en el encabezado del panel. Los recursos están en `assets/branding/` y se prepararon a partir de `imports/source/logo-rcu.jpg` y del Boletín CX 918. Ver [docs/BRANDING.md](docs/BRANDING.md).
+
 ## Mapa satélite + relieve y ocho gráficos de telemetría (etapa 8)
 
 - **Mapa:** por defecto, OpenStreetMap sobre elipsoide ("Mapa básico · sin relieve"). Con un token de Cesium Ion en `config.local.js` (copia de `config.example.js`, ignorado por Git) se activan imaginería satelital y relieve 3D ("Satélite + relieve 3D"). Sin token o con token inválido todo funciona igual. El relieve no modifica latitud, longitud, altitud GPS ni la trayectoria. Ver [docs/MAPPING.md](docs/MAPPING.md).
@@ -59,3 +63,4 @@ El marcador simple se reemplazó por un conjunto aproximado (carga útil en la p
 - [docs/TELEMETRY.md](docs/TELEMETRY.md): telemetría, gráficos y sincronización.
 - [docs/LOG_IMPORT.md](docs/LOG_IMPORT.md): importación local de logs de recepción.
 - [docs/MAPPING.md](docs/MAPPING.md): mapa básico, satélite y relieve 3D (Cesium Ion).
+- [docs/BRANDING.md](docs/BRANDING.md): logos (origen y preparación) y brújula.

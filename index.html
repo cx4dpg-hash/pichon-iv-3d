@@ -18,7 +18,14 @@
       <div id="cesiumContainer"></div>
 
       <aside id="infoPanel" aria-label="Información de la transmisión">
-        <h1>PICHÓN IV — CX1AA-11</h1>
+        <header class="brand">
+          <img class="logo logo-rcu" src="assets/branding/rcu-logo.png" alt="Radio Club Uruguayo" width="36" height="36">
+          <div class="brandText">
+            <h1>PICHÓN IV — CX1AA-11</h1>
+            <p class="credit">Radio Club Uruguayo · Proyecto Pichón IV</p>
+          </div>
+          <span class="logoChip"><img class="logo logo-pichon" src="assets/branding/pichon-iv-logo.png" alt="Pichón IV" width="39" height="28"></span>
+        </header>
         <p id="pCount" class="count">Cargando…</p>
         <div class="groups">
           <section>
@@ -114,6 +121,25 @@
           <p class="note">Las coincidencias exactas requieren los cinco campos (hora APRS, frame, lat, lon, altitud). "Probable" indica que falta algún campo; "ambigua" no se asigna a ninguna transmisión. Recibir una trama no implica ser su primer IGate.</p>
         </div>
       </aside>
+
+      <button type="button" id="compass" aria-label="Restablecer orientación al Norte" title="Clic: Norte arriba">
+        <svg viewBox="-50 -50 100 100" width="64" height="64" aria-hidden="true" focusable="false">
+          <circle class="cp-ring" r="46"></circle>
+          <g id="compassDial">
+            <g class="cp-ticks">
+              <line x1="0" y1="-46" x2="0" y2="-40"></line>
+              <line x1="46" y1="0" x2="40" y2="0"></line>
+              <line x1="0" y1="46" x2="0" y2="40"></line>
+              <line x1="-46" y1="0" x2="-40" y2="0"></line>
+            </g>
+            <polygon class="cp-north" points="0,-24 7,0 -7,0"></polygon>
+            <polygon class="cp-south" points="0,24 7,0 -7,0"></polygon>
+            <text class="cp-n" x="0" y="-27" text-anchor="middle">N</text>
+          </g>
+          <circle class="cp-hub" r="4"></circle>
+        </svg>
+        <span id="compassPitch">Incl. 0°</span>
+      </button>
 
       <div id="mapMode" aria-live="polite">Mapa básico · sin relieve</div>
 

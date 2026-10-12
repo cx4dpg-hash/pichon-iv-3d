@@ -8,6 +8,7 @@ import { initUi } from "./ui.js";
 import { createCharts } from "./charts.js";
 import { initReception } from "./reception.js";
 import { verticalSpeedsMs } from "./derived.js";
+import { initCompass } from "./compass.js";
 
 function showStatus(message) {
   const status = document.getElementById("status");
@@ -34,8 +35,9 @@ async function main() {
   });
   playback.onChange(() => charts.sync());
   const reception = initReception({ data, playback, map });
+  const compass = initCompass({ viewer: map.viewer });
   // Acceso para depuración desde la consola del navegador.
-  window.pichon = { data, playback, map, diameterModel, charts, reception, verticalSpeeds };
+  window.pichon = { data, playback, map, diameterModel, charts, reception, verticalSpeeds, compass };
 }
 
 main().catch((error) => {
