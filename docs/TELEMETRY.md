@@ -46,9 +46,11 @@ Agrupado en Vuelo (hora local, hora de la trama, frame, lat, lon, velocidad, vel
 
 ## Gráficos (Chart.js 4.4.1, CDN)
 
-Ocho gráficos, creados una sola vez (`js/charts.js`), en una cuadrícula de 2 columnas (4 filas) con scroll propio dentro de la sección plegable "Telemetría" (4 columnas en pantallas de ≥ 2200 px, 1 columna en < 900 px):
+Ocho gráficos, creados una sola vez (`js/charts.js`), mostrados **4 a la vez** (cuadrícula de 2 columnas × 2 filas, 1 columna en < 900 px) con paginación simple (‹ Página 1 de 2 ›, con indicadores ● ○) dentro del encabezado de la sección plegable "Telemetría". Página 1: Altitud, Temperaturas, Presión atmosférica y Batería. Página 2: Humedad externa, Velocidad GPS, Curso GPS y Recepción GPS.
 
-| # | Gráfico | Series |
+Cambiar de página solo cambia la visibilidad de los grupos: los gráficos no se destruyen ni se recrean, no se tocan sus datasets y la reproducción no se interrumpe. Los ocho siguen sincronizados aunque solo cuatro sean visibles: los ocultos no se redibujan; cuando vuelven a verse (al cambiar de página o al desplegar la sección) se hace únicamente un `resize` y un `update` ligero para poner al día el cursor y el punto resaltado de la transmisión vigente.
+
+| # (orden interno) | Gráfico | Series |
 |---|---|---|
 | 1 | Altitud (m) | `altitudeGpsM` (GPS) y `barometricAltitudeM` |
 | 2 | Temperaturas (°C) | `internalTemperatureC` y `externalTemperatureC` |

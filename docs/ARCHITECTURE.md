@@ -54,7 +54,7 @@ Importador de logs (etapa 7): el log se lee con la File API y se procesa en el n
 
 Cartografía (etapa 8): `terrain.js` mantiene OpenStreetMap + elipsoide por defecto y, si `config.local.js` aporta un token válido, cambia a Cesium World Imagery + World Terrain; si falla, conserva el modo básico. El relieve es solo de representación (no toca lat/lon/altitudeGpsM). Las alturas de terreno de las estaciones se consultan en tiempo de ejecución y no se guardan. Ver `docs/MAPPING.md`.
 
-Telemetría (etapas 6 y 8): `charts.js` crea los ocho gráficos una sola vez a partir de `flight` y expone `sync()`, que `app.js` engancha a `playback.onChange`. Solo se mueve el cursor (un `<div>` superpuesto) y se resalta el punto de la transmisión vigente; el clic en un punto llama a `playback.seekToIndex` (sin Play). Chart.js 4.4.1 se carga por CDN con versión fijada. Ver `docs/TELEMETRY.md`.
+Telemetría (etapas 6 y 8): `charts.js` crea los ocho gráficos una sola vez (se muestran 4 por página; paginar solo cambia la visibilidad y pone al día los gráficos que se hacen visibles) a partir de `flight` y expone `sync()`, que `app.js` engancha a `playback.onChange`. Solo se mueve el cursor (un `<div>` superpuesto) y se resalta el punto de la transmisión vigente; el clic en un punto llama a `playback.seekToIndex` (sin Play). Chart.js 4.4.1 se carga por CDN con versión fijada. Ver `docs/TELEMETRY.md`.
 
 Decisiones del modelo del conjunto de vuelo:
 

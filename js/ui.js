@@ -82,6 +82,7 @@ export function initUi({ data, playback, map, diameterModel, verticalSpeeds }) {
     telemetryToggle.setAttribute("aria-expanded", String(open));
     telemetryToggle.textContent = open ? "Telemetría ▾" : "Telemetría ▸";
     $("charts").hidden = !open;
+    $("chartsPager").hidden = !open;
   });
 
   // --- Panel de información (valores de la transmisión real vigente) ---

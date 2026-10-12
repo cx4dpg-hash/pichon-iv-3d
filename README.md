@@ -27,7 +27,7 @@ El proyecto es un sitio web **estático** (HTML, CSS y JavaScript con módulos E
 ## Mapa satélite + relieve y ocho gráficos de telemetría (etapa 8)
 
 - **Mapa:** por defecto, OpenStreetMap sobre elipsoide ("Mapa básico · sin relieve"). Con un token de Cesium Ion en `config.local.js` (copia de `config.example.js`, ignorado por Git) se activan imaginería satelital y relieve 3D ("Satélite + relieve 3D"). Sin token o con token inválido todo funciona igual. El relieve no modifica latitud, longitud, altitud GPS ni la trayectoria. Ver [docs/MAPPING.md](docs/MAPPING.md).
-- **Telemetría:** ocho gráficos finos (altitud, temperaturas, presión, humedad, batería, velocidad GPS, curso GPS y recepción GPS) con cursor sincronizado, tooltips y clic para saltar a una transmisión; el panel agrega la velocidad vertical derivada. Ver [docs/TELEMETRY.md](docs/TELEMETRY.md).
+- **Telemetría:** ocho gráficos finos en dos páginas de 2×2 (altitud, temperaturas, presión y batería / humedad, velocidad GPS, curso GPS y recepción GPS) con cursor sincronizado, tooltips y clic para saltar a una transmisión; el panel agrega la velocidad vertical derivada. Ver [docs/TELEMETRY.md](docs/TELEMETRY.md).
 
 ## Mi recepción: importación local de logs (etapa 7)
 

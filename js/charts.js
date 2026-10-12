@@ -231,7 +231,7 @@ export function createCharts({ data, playback, diameterModel, seekToIndex }) {
   const entries = definitions.map((def) => {
     const canvas = document.getElementById(def.canvasId);
     const cursor = canvas.parentElement.querySelector(".cursor");
-    const entry = { chart: null, cursor };
+    const entry = { chart: null, cursor, canvas, stale: false };
     entry.chart = new Chart(canvas, {
       type: "line",
       data: { datasets: def.series.map(buildSeries) },
@@ -241,7 +241,7 @@ export function createCharts({ data, playback, diameterModel, seekToIndex }) {
         animation: false,
         interaction: { mode: "nearest", intersect: true },
         layout: { padding: { right: 4 } },
-        onResize: () => placeCursor(entry),
+        onResize: () => refreshEntry(entry),
         onHover(event, elements) {
           event.native.target.style.cursor = elements.length ? "pointer" : "default";
         },
@@ -286,10 +286,13 @@ export function createCharts({ data, playback, diameterModel, seekToIndex }) {
     return entry;
   });
 
+  // Un gráfico está visible si su canvas tiene tamaño (página activa y sección desplegada).
+  const isVisible = (entry) => entry.canvas.clientWidth > 0 && entry.canvas.clientHeight > 0;
+
   // Cursor vertical: un <div> superpuesto que se reposiciona (no se redibuja el gráfico).
   function placeCursor(entry) {
     const { chart, cursor } = entry;
-    if (!chart) return; // onResize puede dispararse durante la construcción
+    if (!chart || !isVisible(entry)) return; // onResize puede dispararse durante la construcción
     const area = chart.chartArea;
     if (!area) return;
     const x = chart.scales.x.getPixelForValue(playback.absoluteMs);
@@ -298,17 +301,75 @@ export function createCharts({ data, playback, diameterModel, seekToIndex }) {
     cursor.style.height = `${area.bottom - area.top}px`;
   }
 
-  /** Llamar en cada cambio de reproducción. */
+  // Pone al día un gráfico visible: si la transmisión vigente cambió mientras estaba oculto, solo
+  // se actualiza el resaltado (sin reconstruir ni tocar datasets); luego se coloca el cursor.
+  function refreshEntry(entry) {
+    if (!entry.chart || !isVisible(entry)) return;
+    if (entry.stale) {
+      entry.stale = false;
+      entry.chart.update("none");
+    }
+    placeCursor(entry);
+  }
+
+  /** Llamar en cada cambio de reproducción. Los 8 gráficos siguen sincronizados. */
   function sync() {
     const index = playback.index;
     if (index !== state.index) {
       state.index = index;
-      for (const { chart } of entries) chart.update("none"); // solo resalta el punto vigente
+      for (const entry of entries) entry.stale = true; // los ocultos se actualizan al mostrarse
     }
     // Después del update: el layout puede cambiar y el cursor debe usar la escala vigente.
-    for (const entry of entries) placeCursor(entry);
+    for (const entry of entries) refreshEntry(entry);
   }
 
+  // --- Paginación (4 gráficos por página): solo cambia la visibilidad de los grupos ---
+  const pages = [...document.querySelectorAll("#charts .chartPage")];
+  const dots = [...document.querySelectorAll("#chartsPager .dot")];
+  let page = 0;
+  function setPage(n) {
+    page = Math.min(Math.max(n, 0), pages.length - 1);
+    pages.forEach((p, i) => {
+      p.hidden = i !== page;
+    });
+    dots.forEach((d, i) => d.classList.toggle("active", i === page));
+    document.getElementById("chartsPageLabel").textContent = `Página ${page + 1} de ${pages.length}`;
+    document.getElementById("chartsPrev").disabled = page === 0;
+    document.getElementById("chartsNext").disabled = page === pages.length - 1;
+    // Los gráficos que se hacen visibles se ajustan (resize) y se ponen al día, sin reconstruirlos.
+    for (const entry of entries) {
+      if (isVisible(entry)) {
+        entry.chart.resize();
+        entry.stale = true;
+        refreshEntry(entry);
+      }
+    }
+  }
+  document.getElementById("chartsPrev").addEventListener("click", () => setPage(page - 1));
+  document.getElementById("chartsNext").addEventListener("click", () => setPage(page + 1));
+  for (let k = 0; k < dots.length; k++) dots[k].addEventListener("click", () => setPage(k));
+
+  // Al desplegar la sección (o cambiar el tamaño de la ventana) los gráficos que vuelven a ser
+  // visibles se ajustan y se ponen al día, sin reconstruirlos.
+  new ResizeObserver(() => {
+    for (const entry of entries) {
+      if (isVisible(entry)) {
+        entry.chart.resize();
+        entry.stale = true;
+        refreshEntry(entry);
+      }
+    }
+  }).observe(document.getElementById("charts"));
+
+  setPage(0);
   sync();
-  return { charts: entries.map((e) => e.chart), sync, cursors: entries.map((e) => e.cursor) };
+  return {
+    charts: entries.map((e) => e.chart),
+    sync,
+    cursors: entries.map((e) => e.cursor),
+    setPage,
+    get page() {
+      return page;
+    },
+  };
 }
