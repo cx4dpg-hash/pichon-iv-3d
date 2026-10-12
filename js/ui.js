@@ -2,6 +2,8 @@
 
 import { SPEEDS } from "./playback.js";
 import { describeFirstIgate } from "./stations.js";
+import { currentEstimate } from "./physics.js";
+import { VISUAL } from "./balloon.js";
 
 const TIME_ZONE = "America/Montevideo";
 const timeFormat = new Intl.DateTimeFormat("es-UY", {
@@ -22,8 +24,10 @@ function fmt(value, decimals) {
   return Number.isFinite(value) ? value.toFixed(decimals) : "—";
 }
 
-export function initUi({ data, playback, map }) {
+export function initUi({ data, playback, map, diameterModel }) {
   const { flight, stationByCallsign } = data;
+
+  $("visualScale").textContent = `×${VISUAL.scale}`;
 
   // --- Timeline ---
   const slider = $("slider");
@@ -86,6 +90,13 @@ export function initUi({ data, playback, map }) {
     $("pSpeed").textContent = `${fmt(tx.speedKmh, 1)} km/h (${tx.speedAprsKnotsRaw} kt)`;
     $("pCourse").textContent = `${tx.courseDeg}°`;
     $("pMode").textContent = tx.telemetry.mode;
+    $("pPressure").textContent = `${fmt(tx.telemetry.pressureHpa, 0)} hPa`;
+    $("pExtTemp").textContent = `${fmt(tx.telemetry.externalTemperatureC, 0)} °C`;
+    $("pIntTemp").textContent = `${fmt(tx.telemetry.internalTemperatureC, 0)} °C`;
+    $("pBaroAlt").textContent = `${fmt(tx.telemetry.barometricAltitudeM, 0)} m`;
+    const estimate = currentEstimate(diameterModel, index);
+    $("pDiameter").textContent =
+      `${fmt(estimate.diameterM, 1)} m` + (estimate.status === "computed" ? "" : ` (${estimate.status})`);
 
     const igate = describeFirstIgate(tx.firstIgate, stationByCallsign);
     $("pIgate").textContent = igate.text;

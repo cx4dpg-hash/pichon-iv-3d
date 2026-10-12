@@ -2,6 +2,7 @@
 
 import { loadData } from "./data.js";
 import { Playback } from "./playback.js";
+import { buildDiameterModel } from "./physics.js";
 import { createMap } from "./map3d.js";
 import { initUi } from "./ui.js";
 
@@ -17,10 +18,11 @@ async function main() {
   }
   const data = await loadData();
   const playback = new Playback(data.times);
-  const map = createMap("cesiumContainer", data, playback);
-  initUi({ data, playback, map });
+  const diameterModel = buildDiameterModel(data.flight, data.initialBalloonDiameterM);
+  const map = createMap("cesiumContainer", data, playback, diameterModel);
+  initUi({ data, playback, map, diameterModel });
   // Acceso para depuración desde la consola del navegador.
-  window.pichon = { data, playback, map };
+  window.pichon = { data, playback, map, diameterModel };
 }
 
 main().catch((error) => {

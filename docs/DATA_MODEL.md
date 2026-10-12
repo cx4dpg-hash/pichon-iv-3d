@@ -34,6 +34,8 @@ La fuente cruda está en `imports/source/` y no se modifica. El fuente `user-con
 - `lat`/`lon`: de la posición APRS. `speed`/`course`: de la parte APRS de curso/velocidad.
 
 ### Estimados
+- `estimatedBalloonDiameterM` (diámetro estimado del globo): se calcula **en tiempo de ejecución** (gas ideal con `pressureHpa`, `externalTemperatureC` y el diámetro inicial visual); **no está en el dataset** y no es un dato original. Ver `docs/PHYSICS.md`.
+- Longitudes de suspensión y antena dibujadas: valores visuales nominales en `js/balloon.js`, no medidos.
 - Diámetro inicial del globo: 1.5 m ± 0.2 m (visual, confianza media).
 - Dimensiones de la carga: 0.45 × 0.25 × 0.18 m (visual, confianza baja, pendiente de confirmar).
 

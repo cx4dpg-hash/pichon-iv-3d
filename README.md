@@ -24,6 +24,10 @@ y abrir <http://localhost:8000/>. También sirve cualquier otro servidor estáti
 
 El proyecto es un sitio web **estático** (HTML, CSS y JavaScript con módulos ES; CesiumJS 1.123.1 desde CDN), sin backend, publicable en un hosting convencional (por ejemplo `/RCU/pichon4/`). Solo usa rutas relativas.
 
+## Modelo físico del globo (etapa 5)
+
+El marcador simple se reemplazó por un conjunto aproximado (globo, suspensión, carga útil, antena) cuyo diámetro estimado crece con la presión y temperatura reales (gas ideal). Es una estimación visual/física, no una medición, y se dibuja con tamaño exagerado ×20 solo para que sea visible. Detalles y limitaciones en [docs/PHYSICS.md](docs/PHYSICS.md).
+
 ## Decisiones técnicas de la etapa 4
 
 - **Mapa base:** teselas de OpenStreetMap (`tile.openstreetmap.org`), sin credenciales. Está pensado para pruebas y uso moderado; para una publicación con tráfico real habrá que revisar la política de uso de OSM o elegir otro proveedor.
@@ -36,3 +40,4 @@ El proyecto es un sitio web **estático** (HTML, CSS y JavaScript con módulos E
 
 - [CLAUDE.md](CLAUDE.md): reglas de trabajo del desarrollo técnico.
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): arquitectura preliminar.
+- [docs/PHYSICS.md](docs/PHYSICS.md): modelo físico aproximado del globo.

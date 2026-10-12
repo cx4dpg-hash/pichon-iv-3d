@@ -2,12 +2,16 @@
 
 import { visualPosition } from "./playback.js";
 import { addStationEntities, describeFirstIgate } from "./stations.js";
+import { createBalloonAssembly } from "./balloon.js";
 
 const Cesium = window.Cesium;
 
 // Base cartográfica pública sin credenciales: teselas de OpenStreetMap.
 // Sin terreno 3D (elipsoide) porque el terreno de Cesium requiere token de Cesium Ion.
 const OSM_URL = "https://tile.openstreetmap.org/";
+
+// El marcador simple del globo solo se ve con la cámara lejos; de cerca se ve el conjunto 3D.
+const MARKER_FAR_ONLY = new Cesium.DistanceDisplayCondition(2500, Number.MAX_VALUE);
 
 function toCartesian(lat, lon, altM) {
   return Cesium.Cartesian3.fromDegrees(lon, lat, altM);
@@ -38,7 +42,7 @@ function labelledPoint(viewer, { id, position, text, color, pixelSize = 12 }) {
   });
 }
 
-export function createMap(containerId, data, playback) {
+export function createMap(containerId, data, playback, diameterModel) {
   const { flight, stations, stationByCallsign, maxIndex } = data;
 
   const viewer = new Cesium.Viewer(containerId, {
@@ -101,13 +105,14 @@ export function createMap(containerId, data, playback) {
   const balloon = viewer.entities.add({
     id: "balloon",
     position: new Cesium.CallbackProperty(balloonPosition, false),
-    viewFrom: new Cesium.Cartesian3(-6000, -9000, 5000),
+    viewFrom: new Cesium.Cartesian3(-250, -400, 150),
     point: {
       pixelSize: 14,
       color: Cesium.Color.fromCssColorString("#ff4d4d"),
       outlineColor: Cesium.Color.WHITE,
       outlineWidth: 2,
       disableDepthTestDistance: Number.POSITIVE_INFINITY,
+      distanceDisplayCondition: MARKER_FAR_ONLY,
     },
     label: {
       text: "CX1AA-11",
@@ -119,7 +124,16 @@ export function createMap(containerId, data, playback) {
       verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
       pixelOffset: new Cesium.Cartesian2(0, -16),
       disableDepthTestDistance: Number.POSITIVE_INFINITY,
+      distanceDisplayCondition: MARKER_FAR_ONLY,
     },
+  });
+
+  // Conjunto físico aproximado (globo, suspensión, carga útil, antena).
+  const assembly = createBalloonAssembly(viewer, {
+    flight,
+    playback,
+    diameterModel,
+    payloadDimensionsM: data.payloadDimensionsM,
   });
 
   // --- Enlace temporal estación → globo (solo el de la transmisión vigente) ---
@@ -174,6 +188,7 @@ export function createMap(containerId, data, playback) {
   return {
     viewer,
     balloon,
+    assembly,
     link,
     setCameraMode,
     get cameraMode() {

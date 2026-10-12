@@ -23,6 +23,21 @@ Reloj de reproducción: tiempo actual, Play/Pausa, cursor manual, velocidades e 
 ## 5. Visualización 3D
 Terreno, globo, trayectoria y enlaces globo → estación, con CesiumJS (a incorporar cuando se autorice). Consume el estado del motor temporal.
 
+### Módulos implementados (etapas 4 y 5)
+
+```
+js/app.js       punto de entrada: conecta los módulos
+js/data.js      carga de JSON (transmissions, stations, flight)
+js/playback.js  motor temporal e interpolación visual de posición/altitud
+js/physics.js   cálculo del diámetro estimado del globo (sin Cesium)
+js/balloon.js   representación 3D: globo, suspensión, carga útil, antena, escala visual
+js/map3d.js     visor CesiumJS, trayectoria, marcadores, enlace al primer IGate, cámara
+js/stations.js  estaciones terrestres y resolución del primer IGate
+js/ui.js        panel de información, controles y timeline
+```
+
+La física (`physics.js`) está separada de la representación (`balloon.js`). Ver `docs/PHYSICS.md`.
+
 ## 6. Importador futuro de logs externos
 Carga local, en el navegador, de logs de radioaficionados para resaltar las tramas recibidas por cada uno. Sin envío al servidor. Los archivos de ejemplo/trabajo irían en `imports/`.
 
