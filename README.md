@@ -2,12 +2,18 @@
 
 Reconstrucción interactiva 3D del vuelo **Pichón IV** del **Radio Club Uruguayo** (indicativo APRS **CX1AA-11**), un globo estratosférico lanzado el **11 de octubre de 2026** en Uruguay. Muestra la trayectoria real reconstruida a partir de las tramas APRS, con reproducción temporal, telemetría sincronizada y la recepción de cada trama por las estaciones terrestres.
 
+## Aplicación pública
+
+**https://cx4dpg-hash.github.io/pichon-iv-3d/**
+
+![PICHÓN IV 3D — reconstrucción interactiva del vuelo](docs/images/pichon-iv-3d-preview.png)
+
 Es un sitio web **estático** (HTML, CSS y JavaScript con módulos ES; CesiumJS y Chart.js desde CDN): sin backend, sin Node/npm ni paso de compilación.
 
 ## Características
 
 - **Trayectoria 3D** del vuelo (148 transmisiones, de la liberación a la última telemetría) con reproducción temporal 1x–64x, cámara de vista general y de seguimiento, y brújula.
-- **Terreno e imagery** de Cesium (World Terrain / World Imagery con token propio de Cesium Ion; sin token, mapa básico de OpenStreetMap).
+- **Terreno e imagery** de Cesium (Cesium World Terrain / World Imagery; la versión pública usa un token de Cesium Ion guardado como secreto de GitHub Actions; sin token, mapa básico de OpenStreetMap).
 - **Telemetría**: ocho gráficos sincronizados y panel con los valores de cada transmisión real.
 - **APRS / firstIgate**: enlace a la primera estación en la que apareció cada transmisión en APRS-IS (CX3BP-8 es móvil y de posición desconocida).
 - **Recepción local ("Mi recepción")**: el radioaficionado carga su propio log y ve qué tramas recibió; se procesa en el navegador, sin enviar nada a un servidor.
@@ -25,7 +31,7 @@ cd pichon-iv-3d
 python -m http.server 8000
 ```
 
-y abrir <http://127.0.0.1:8000/>. No abre con `file://` (usa módulos ES y `fetch`). Para activar terreno e imagery de Cesium hay que crear `config.local.js` con un token propio de Cesium Ion; sin él la aplicación funciona con el mapa básico. Detalles de instalación y publicación (Apache, Nginx, hosting estático, subdirectorio, GitHub Pages) y de cómo restringir el token en [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+y abrir <http://127.0.0.1:8000/>. No abre con `file://` (usa módulos ES y `fetch`). Para activar terreno e imagery de Cesium hay que crear `config.local.js` con un token propio de Cesium Ion; sin él la aplicación funciona con el mapa básico. Detalles de instalación, del despliegue en GitHub Pages con GitHub Actions y de cómo restringir el token (a la URL de origen) en [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ## Documentación
 

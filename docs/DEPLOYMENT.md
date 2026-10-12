@@ -48,19 +48,38 @@ Copie el contenido del repositorio (como mínimo `index.html`, `css/`, `js/`, `d
 
 - **Apache / Nginx / hosting estático:** basta servir la carpeta como archivos estáticos. Asegúrese de que se sirvan `.js` como `text/javascript` (módulos ES) y `.json` como `application/json`, que es lo habitual.
 - **Subdirectorio de un sitio** (p. ej. `https://ejemplo.org/RCU/pichon4/`): copiar la carpeta allí; no hay que cambiar ninguna ruta.
-- **GitHub Pages:** compatible, porque todas las rutas son relativas (sirve desde `https://<usuario>.github.io/<repositorio>/`). Como `config.local.js` no se versiona, en Pages la aplicación funciona con el mapa básico; para tener terreno e imagery habría que publicar el token en el propio sitio (ver el aviso siguiente).
+- **GitHub Pages (despliegue vigente):** ver la sección siguiente.
+
+### Despliegue en GitHub Pages con GitHub Actions (el real)
+
+La aplicación pública está en **https://cx4dpg-hash.github.io/pichon-iv-3d/**. Se despliega con GitHub Actions (no con "Deploy from a branch"): en *Settings → Pages* la fuente (*Source*) es **GitHub Actions**. El flujo, definido en `.github/workflows/pages.yml` (versionado en el commit `15e3793` y verificado: build y deploy en éxito), es:
+
+```
+push a main (o ejecución manual: workflow_dispatch)
+→ GitHub Pages / GitHub Actions
+→ build de _site (solo index.html, css/, js/, data/ y assets/)
+→ generación de _site/config.local.js desde el secreto CESIUM_ION_TOKEN
+→ upload-pages-artifact
+→ deploy-pages (environment github-pages)
+→ aplicación pública funcionando
+```
+
+- **Secreto:** `CESIUM_ION_TOKEN` está guardado en *Settings → Secrets and variables → Actions* y funciona. Lo lee `.github/scripts/write-config.mjs` desde una variable de entorno, falla con "CESIUM_ION_TOKEN is not configured" si falta o está vacío, y nunca imprime el valor.
+- **`config.local.js` solo existe dentro del artefacto de Pages**: se genera durante la ejecución del workflow, **no se versiona** (sigue en `.gitignore`) y no aparece en el historial de Git. El valor del token no está en ningún archivo del repositorio.
+- **Resultado verificado:** la aplicación pública muestra "Satélite + relieve 3D" (Cesium World Imagery y World Terrain), es decir, Cesium Ion funciona en Pages.
+- **Rutas:** todas son relativas, por lo que funciona bajo `/pichon-iv-3d/` sin cambios.
 
 ## E. Seguridad del token de Cesium Ion en producción
 
 En un sitio estático el token es **visible para cualquiera que abra la página** (está en `config.local.js`, que el navegador descarga). Por eso:
 
 1. En <https://cesium.com/ion/tokens> cree un token **exclusivo para este sitio**, solo con permisos de lectura de los recursos necesarios (Cesium World Imagery y Cesium World Terrain).
-2. Use la opción **Allowed URLs** del token para **restringirlo a la URL final** donde se publique (dominio y, si corresponde, subdirectorio; por ejemplo `https://ejemplo.org/RCU/pichon4/`). Con eso el token no funciona si alguien lo copia a otro sitio.
+2. Use la opción **Allowed URLs** del token para restringirlo al sitio donde se publique, de modo que no funcione si alguien lo copia a otro dominio. **Restrinja al origen (dominio), no a una subruta:** en este proyecto la Allowed URL que funciona es **`https://cx4dpg-hash.github.io`**. Se observó que restringirla a la subruta `https://cx4dpg-hash.github.io/pichon-iv-3d/` provoca **HTTP 401** en Cesium Ion (la restricción se compara con el origen de la página), mientras que restringir al origen funciona correctamente. En un servidor propio use igualmente el origen (p. ej. `https://ejemplo.org`).
 3. No reutilice el token personal de desarrollo en producción, y rótelo si sospecha que se filtró.
-4. No suba nunca `config.local.js` a un repositorio público.
+4. No suba nunca `config.local.js` a un repositorio público. En GitHub Pages se genera en CI desde el secreto `CESIUM_ION_TOKEN`; no hay que crearlo ni subirlo a mano.
 
 ## Comprobación rápida tras publicar
 
 - La página carga y muestra "Transmisión 1 de 148" y los gráficos.
-- El rótulo inferior dice "Satélite + relieve 3D" (con token válido) o "Mapa básico · sin relieve".
+- El rótulo inferior dice "Satélite + relieve 3D" (token válido y restringido al origen correcto) o "Mapa básico · sin relieve" (sin token, token inválido o una Allowed URL que no coincide, que da HTTP 401).
 - El botón ⓘ abre la ventana de fuentes y metodología, y "Nubes 3D" las muestra (se descarga `data/clouds/cloud-model.json` solo al activarlas).
