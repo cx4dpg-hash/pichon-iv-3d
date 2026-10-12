@@ -1,0 +1,240 @@
+{
+  "description": "GOES-East (GOES-19) ABI GeoColor frames over Uruguay for the PICHON IV flight window, downloaded from NASA GIBS WMS on 2026-10-12. Raw source archive (analysis stage); not used by the app yet.",
+  "provider": "NASA GIBS (Global Imagery Browse Services), layer GOES-East_ABI_GeoColor (CIRA GeoColor from NOAA GOES-East ABI)",
+  "crs": "EPSG:4326",
+  "bboxLatLon": {
+    "south": -36,
+    "west": -59,
+    "north": -30,
+    "east": -52
+  },
+  "imageSize": [
+    796,
+    683
+  ],
+  "format": "image/jpeg",
+  "timeNote": "TIME is the GIBS timestamp (scan start, 10-minute cadence); the scan reaches Uruguay several minutes later.",
+  "retrievedAt": "2026-10-12",
+  "frames": [
+    {
+      "file": "geocolor_20261011T1300Z.jpg",
+      "scanStartUtc": "2026-10-11T13:00:00Z",
+      "localTime": "2026-10-11T10:00:00-03:00",
+      "bytes": 97860,
+      "sha256": "a6377f5824055cd3af65634a0f40730998aa844e6b21abc5e9a375338973f66a",
+      "meanLuma": 151.2,
+      "stdLuma": 41.8,
+      "requestUrl": "https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&CRS=EPSG:4326&FORMAT=image/jpeg&STYLES=&LAYERS=GOES-East_ABI_GeoColor&BBOX=-36,-59,-30,-52&WIDTH=796&HEIGHT=683&TIME=2026-10-11T13:00:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1310Z.jpg",
+      "scanStartUtc": "2026-10-11T13:10:00Z",
+      "localTime": "2026-10-11T10:10:00-03:00",
+      "bytes": 97770,
+      "sha256": "3bc3ad0b7a1a5d48f7a8e7de4366b86f8031ec9bdf96c88380a1fed1ac721ae5",
+      "meanLuma": 150.1,
+      "stdLuma": 42.7,
+      "requestUrl": "https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&CRS=EPSG:4326&FORMAT=image/jpeg&STYLES=&LAYERS=GOES-East_ABI_GeoColor&BBOX=-36,-59,-30,-52&WIDTH=796&HEIGHT=683&TIME=2026-10-11T13:10:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1320Z.jpg",
+      "scanStartUtc": "2026-10-11T13:20:00Z",
+      "localTime": "2026-10-11T10:20:00-03:00",
+      "bytes": 98001,
+      "sha256": "217355bbf29775a9d4f2092cffef3720d2208cf92a7c159f505c91c0187a4e1f",
+      "meanLuma": 148.8,
+      "stdLuma": 43.7,
+      "requestUrl": "https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&CRS=EPSG:4326&FORMAT=image/jpeg&STYLES=&LAYERS=GOES-East_ABI_GeoColor&BBOX=-36,-59,-30,-52&WIDTH=796&HEIGHT=683&TIME=2026-10-11T13:20:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1330Z.jpg",
+      "scanStartUtc": "2026-10-11T13:30:00Z",
+      "localTime": "2026-10-11T10:30:00-03:00",
+      "bytes": 97484,
+      "sha256": "736ea3d4f547d6b72c044fbce540135cb0b643c3d57b691372c1931728ec74dc",
+      "meanLuma": 147.9,
+      "stdLuma": 44.5,
+      "requestUrl": "https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&CRS=EPSG:4326&FORMAT=image/jpeg&STYLES=&LAYERS=GOES-East_ABI_GeoColor&BBOX=-36,-59,-30,-52&WIDTH=796&HEIGHT=683&TIME=2026-10-11T13:30:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1340Z.jpg",
+      "scanStartUtc": "2026-10-11T13:40:00Z",
+      "localTime": "2026-10-11T10:40:00-03:00",
+      "bytes": 96950,
+      "sha256": "662e39343adb141b1541189b316e42d1930d31f8c084f0949e57a54e2c31fc24",
+      "meanLuma": 147.3,
+      "stdLuma": 45.2,
+      "requestUrl": "https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&CRS=EPSG:4326&FORMAT=image/jpeg&STYLES=&LAYERS=GOES-East_ABI_GeoColor&BBOX=-36,-59,-30,-52&WIDTH=796&HEIGHT=683&TIME=2026-10-11T13:40:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1350Z.jpg",
+      "scanStartUtc": "2026-10-11T13:50:00Z",
+      "localTime": "2026-10-11T10:50:00-03:00",
+      "bytes": 96079,
+      "sha256": "7b696eb1f83e1054e3d6d436bacf814ebe038f26e146961014b1aaf1d35e5528",
+      "meanLuma": 147.2,
+      "stdLuma": 45.7,
+      "requestUrl": "https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&CRS=EPSG:4326&FORMAT=image/jpeg&STYLES=&LAYERS=GOES-East_ABI_GeoColor&BBOX=-36,-59,-30,-52&WIDTH=796&HEIGHT=683&TIME=2026-10-11T13:50:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1400Z.jpg",
+      "scanStartUtc": "2026-10-11T14:00:00Z",
+      "localTime": "2026-10-11T11:00:00-03:00",
+      "bytes": 94918,
+      "sha256": "02e7a3c79a9cb19ab47942e17f0f8172c1f36bdda92deddf6349d6829243420b",
+      "meanLuma": 148.0,
+      "stdLuma": 46.3,
+      "requestUrl": "https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&CRS=EPSG:4326&FORMAT=image/jpeg&STYLES=&LAYERS=GOES-East_ABI_GeoColor&BBOX=-36,-59,-30,-52&WIDTH=796&HEIGHT=683&TIME=2026-10-11T14:00:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1410Z.jpg",
+      "scanStartUtc": "2026-10-11T14:10:00Z",
+      "localTime": "2026-10-11T11:10:00-03:00",
+      "bytes": 93727,
+      "sha256": "dc6bd2cd99d481aae1c6a671c30df005b5952366fabf9874e3ed4066d5b4c9e7",
+      "meanLuma": 150.0,
+      "stdLuma": 46.8,
+      "requestUrl": "https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&CRS=EPSG:4326&FORMAT=image/jpeg&STYLES=&LAYERS=GOES-East_ABI_GeoColor&BBOX=-36,-59,-30,-52&WIDTH=796&HEIGHT=683&TIME=2026-10-11T14:10:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1420Z.jpg",
+      "scanStartUtc": "2026-10-11T14:20:00Z",
+      "localTime": "2026-10-11T11:20:00-03:00",
+      "bytes": 92841,
+      "sha256": "59b1da29a401cec704a09f0485a8d822acae089b53514d1d3ed7092ce9bac307",
+      "meanLuma": 152.7,
+      "stdLuma": 47.3,
+      "requestUrl": "https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&CRS=EPSG:4326&FORMAT=image/jpeg&STYLES=&LAYERS=GOES-East_ABI_GeoColor&BBOX=-36,-59,-30,-52&WIDTH=796&HEIGHT=683&TIME=2026-10-11T14:20:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1430Z.jpg",
+      "scanStartUtc": "2026-10-11T14:30:00Z",
+      "localTime": "2026-10-11T11:30:00-03:00",
+      "bytes": 92473,
+      "sha256": "439753ffcaad20f6a976af61ab18f6839587fabc2baf597162afef4d4f41ef21",
+      "meanLuma": 153.0,
+      "stdLuma": 47.1,
+      "requestUrl": "https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&CRS=EPSG:4326&FORMAT=image/jpeg&STYLES=&LAYERS=GOES-East_ABI_GeoColor&BBOX=-36,-59,-30,-52&WIDTH=796&HEIGHT=683&TIME=2026-10-11T14:30:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1440Z.jpg",
+      "scanStartUtc": "2026-10-11T14:40:00Z",
+      "localTime": "2026-10-11T11:40:00-03:00",
+      "bytes": 92082,
+      "sha256": "9bbede57cb529cb459b9bc00ddc0d284d9982b0d887535fe335e16a565e890aa",
+      "meanLuma": 150.9,
+      "stdLuma": 46.8,
+      "requestUrl": "https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&CRS=EPSG:4326&FORMAT=image/jpeg&STYLES=&LAYERS=GOES-East_ABI_GeoColor&BBOX=-36,-59,-30,-52&WIDTH=796&HEIGHT=683&TIME=2026-10-11T14:40:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1450Z.jpg",
+      "scanStartUtc": "2026-10-11T14:50:00Z",
+      "localTime": "2026-10-11T11:50:00-03:00",
+      "bytes": 91368,
+      "sha256": "43cf6009aea1e9e9158c99263b9cb7db16cfe25b6d7abab49a843c9afab54cca",
+      "meanLuma": 150.0,
+      "stdLuma": 47.3,
+      "requestUrl": "https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&CRS=EPSG:4326&FORMAT=image/jpeg&STYLES=&LAYERS=GOES-East_ABI_GeoColor&BBOX=-36,-59,-30,-52&WIDTH=796&HEIGHT=683&TIME=2026-10-11T14:50:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1500Z.jpg",
+      "scanStartUtc": "2026-10-11T15:00:00Z",
+      "localTime": "2026-10-11T12:00:00-03:00",
+      "bytes": 90451,
+      "sha256": "6e9d0b64d2f2a39df83d1add89137ee262160f1006b3d45112cd8fb1a0938835",
+      "meanLuma": 149.6,
+      "stdLuma": 47.6,
+      "requestUrl": "https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&CRS=EPSG:4326&FORMAT=image/jpeg&STYLES=&LAYERS=GOES-East_ABI_GeoColor&BBOX=-36,-59,-30,-52&WIDTH=796&HEIGHT=683&TIME=2026-10-11T15:00:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1510Z.jpg",
+      "scanStartUtc": "2026-10-11T15:10:00Z",
+      "localTime": "2026-10-11T12:10:00-03:00",
+      "bytes": 89967,
+      "sha256": "7a3254454ab4fcce20398a028a85c0747cb6c9a92c50bd9f4348142c25aaa3c2",
+      "meanLuma": 149.5,
+      "stdLuma": 47.5,
+      "requestUrl": "https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&CRS=EPSG:4326&FORMAT=image/jpeg&STYLES=&LAYERS=GOES-East_ABI_GeoColor&BBOX=-36,-59,-30,-52&WIDTH=796&HEIGHT=683&TIME=2026-10-11T15:10:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1520Z.jpg",
+      "scanStartUtc": "2026-10-11T15:20:00Z",
+      "localTime": "2026-10-11T12:20:00-03:00",
+      "bytes": 88910,
+      "sha256": "7cc25a4883ee98b0ae576ad59483ceea08d86402a426e55c4df64aca0516f07c",
+      "meanLuma": 149.5,
+      "stdLuma": 47.4,
+      "requestUrl": "https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&CRS=EPSG:4326&FORMAT=image/jpeg&STYLES=&LAYERS=GOES-East_ABI_GeoColor&BBOX=-36,-59,-30,-52&WIDTH=796&HEIGHT=683&TIME=2026-10-11T15:20:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1530Z.jpg",
+      "scanStartUtc": "2026-10-11T15:30:00Z",
+      "localTime": "2026-10-11T12:30:00-03:00",
+      "bytes": 88148,
+      "sha256": "1c70ca6685cb0f48e0b2c28b38b49c91c4784db25debfcab4a42824eca9f81fd",
+      "meanLuma": 149.2,
+      "stdLuma": 47.4,
+      "requestUrl": "https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&CRS=EPSG:4326&FORMAT=image/jpeg&STYLES=&LAYERS=GOES-East_ABI_GeoColor&BBOX=-36,-59,-30,-52&WIDTH=796&HEIGHT=683&TIME=2026-10-11T15:30:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1540Z.jpg",
+      "scanStartUtc": "2026-10-11T15:40:00Z",
+      "localTime": "2026-10-11T12:40:00-03:00",
+      "bytes": 87660,
+      "sha256": "10678edf2a072fce922b69ad8471c094cf687228c22b6465189d71fd8e1c7e11",
+      "meanLuma": 148.8,
+      "stdLuma": 47.3,
+      "requestUrl": "https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&CRS=EPSG:4326&FORMAT=image/jpeg&STYLES=&LAYERS=GOES-East_ABI_GeoColor&BBOX=-36,-59,-30,-52&WIDTH=796&HEIGHT=683&TIME=2026-10-11T15:40:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1550Z.jpg",
+      "scanStartUtc": "2026-10-11T15:50:00Z",
+      "localTime": "2026-10-11T12:50:00-03:00",
+      "bytes": 87296,
+      "sha256": "6d8cde1ba9473947351419bd8aa00eba5106d8ed24d8aea9eda0e0053aaf8a96",
+      "meanLuma": 148.4,
+      "stdLuma": 47.3,
+      "requestUrl": "https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&CRS=EPSG:4326&FORMAT=image/jpeg&STYLES=&LAYERS=GOES-East_ABI_GeoColor&BBOX=-36,-59,-30,-52&WIDTH=796&HEIGHT=683&TIME=2026-10-11T15:50:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1600Z.jpg",
+      "scanStartUtc": "2026-10-11T16:00:00Z",
+      "localTime": "2026-10-11T13:00:00-03:00",
+      "bytes": 86664,
+      "sha256": "9fce4b4c5c12706428c2cac29b7bd1d6abeb8ba3944644338b236751d874c425",
+      "meanLuma": 148.3,
+      "stdLuma": 47.2,
+      "requestUrl": "https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&CRS=EPSG:4326&FORMAT=image/jpeg&STYLES=&LAYERS=GOES-East_ABI_GeoColor&BBOX=-36,-59,-30,-52&WIDTH=796&HEIGHT=683&TIME=2026-10-11T16:00:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1610Z.jpg",
+      "scanStartUtc": "2026-10-11T16:10:00Z",
+      "localTime": "2026-10-11T13:10:00-03:00",
+      "bytes": 86499,
+      "sha256": "89a73fb544244509051f6d25b89202abf496c7ab40aa2d18438806b5aff3ca9a",
+      "meanLuma": 148.1,
+      "stdLuma": 47.1,
+      "requestUrl": "https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&CRS=EPSG:4326&FORMAT=image/jpeg&STYLES=&LAYERS=GOES-East_ABI_GeoColor&BBOX=-36,-59,-30,-52&WIDTH=796&HEIGHT=683&TIME=2026-10-11T16:10:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1620Z.jpg",
+      "scanStartUtc": "2026-10-11T16:20:00Z",
+      "localTime": "2026-10-11T13:20:00-03:00",
+      "bytes": 86232,
+      "sha256": "e3334f46dd9aa777c0ec86c1a4716debe87e41300de2bea47100173a23c0d1ba",
+      "meanLuma": 147.8,
+      "stdLuma": 47.1,
+      "requestUrl": "https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&CRS=EPSG:4326&FORMAT=image/jpeg&STYLES=&LAYERS=GOES-East_ABI_GeoColor&BBOX=-36,-59,-30,-52&WIDTH=796&HEIGHT=683&TIME=2026-10-11T16:20:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1630Z.jpg",
+      "scanStartUtc": "2026-10-11T16:30:00Z",
+      "localTime": "2026-10-11T13:30:00-03:00",
+      "bytes": 86521,
+      "sha256": "5be1bed902e1500ce069d002d570a37cf11f05230b1b882062a3e134d50f53af",
+      "meanLuma": 147.4,
+      "stdLuma": 47.4,
+      "requestUrl": "https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&CRS=EPSG:4326&FORMAT=image/jpeg&STYLES=&LAYERS=GOES-East_ABI_GeoColor&BBOX=-36,-59,-30,-52&WIDTH=796&HEIGHT=683&TIME=2026-10-11T16:30:00Z"
+    }
+  ]
+}

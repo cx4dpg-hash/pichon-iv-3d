@@ -64,3 +64,4 @@ El marcador simple se reemplazó por un conjunto aproximado (carga útil en la p
 - [docs/LOG_IMPORT.md](docs/LOG_IMPORT.md): importación local de logs de recepción.
 - [docs/MAPPING.md](docs/MAPPING.md): mapa básico, satélite y relieve 3D (Cesium Ion).
 - [docs/BRANDING.md](docs/BRANDING.md): logos (origen y preparación) y brújula.
+- [docs/CLOUDS_FEASIBILITY.md](docs/CLOUDS_FEASIBILITY.md): análisis de viabilidad de la nubosidad histórica (GOES-19); aún no implementada.

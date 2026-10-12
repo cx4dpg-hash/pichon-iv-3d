@@ -40,3 +40,20 @@ Control propio (`js/compass.js`, SVG sin dependencias) en la esquina inferior de
   - **Seguir globo:** se rota la cámara dentro del marco local (ENU) de la carga, que es el que usa Cesium para el seguimiento; el seguimiento **no se cancela**, la distancia no cambia y el pitch se conserva exactamente. También funciona con la reproducción en marcha.
   - Si el usuario toma el control (arrastre o rueda) durante la animación, esta se cancela.
 - **Limitación de Cesium en seguimiento:** con una entidad seguida, Cesium desactiva por sí mismo la inclinación con el botón central; ahí se inclina con el arrastre izquierdo vertical (ver `docs/MAPPING.md`). La brújula refleja correctamente cualquier cambio de orientación hecho con los controles estándar.
+
+## Propuesta (análisis): reemplazar el sello circular del RCU por el escudo interior
+
+**Estado actual.** El encabezado usa `assets/branding/rcu-logo.png` (320 × 320 px), derivado del sello circular completo de `imports/source/logo-rcu.jpg`. A 36 px de alto el escudo central mide ≈ 20 × 25 px y el monograma "RCU" no se lee.
+
+**Versión mejor del escudo.** Existe en el Boletín CX 918: la imagen incrustada que se repite en el encabezado de todas las páginas (por ejemplo, portada en x 167–237, y 45–132 pt) es el escudo del RCU como **PNG de 145 × 181 px con máscara de transparencia real** (objetos 32 y 33 del PDF). Trazo azul limpio, sin fondo ni artefactos de JPEG, y al ser transparente se ve bien sobre el panel oscuro. Alternativa: recortar el escudo del JPEG (≈ 177 × 221 px útiles), pero obliga a quitar fondo blanco y arrastra ruido de JPEG.
+
+**Opciones evaluadas**
+1. Recortar el escudo del recurso actual (320 px): descartada, solo quedarían ≈ 100 × 125 px ya remuestreados.
+2. Recortar del JPEG original: viable, peor calidad (ruido JPEG, hay que recortar el fondo del disco).
+3. **Usar el PNG con transparencia del boletín, sin tocarlo (recomendada):** es el recurso más limpio y ya es "variante nueva limpia en PNG transparente" sin reprocesar.
+
+El candidato está en `assets/branding/candidates/rcu-shield-bulletin.png` (píxeles originales del boletín, sin modificar). **No** está conectado a la aplicación.
+
+**Ubicación y tamaño propuestos.** Mismo sitio que ahora (izquierda del encabezado del panel), mostrando el escudo a **44–48 px de alto (≈ 35–38 px de ancho)**, con `object-fit: contain` y proporción 145:181. La fila del encabezado pasa de 36 a ≈ 44–48 px de alto (≈ +8–12 px en el panel). El logo de Pichón IV se mantiene igual (28 px de alto sobre su pastilla clara). En ≤ 600 px bajar el escudo a ≈ 32 px. En pruebas de maqueta (no versionadas) a 44 px el monograma se lee con claridad y a 52 px domina demasiado frente al logo de Pichón IV: **44–46 px es el equilibrio recomendado**. Se mantendría el `alt="Radio Club Uruguayo"`.
+
+**Limitación.** Es la resolución disponible (145 × 181 px): 44 px equivale a ≈ 3 × en pantallas de alta densidad. No hay versión vectorial en las fuentes.
