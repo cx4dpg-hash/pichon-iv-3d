@@ -1,6 +1,6 @@
 # Nubosidad histórica del vuelo: análisis de viabilidad
 
-Estado: **análisis y propuesta**. No hay ninguna capa de nubes en la aplicación. Lo único que se hizo para evaluar viabilidad fue descargar y mirar imágenes reales (ver "Pruebas realizadas") y archivar las que cubren el vuelo.
+Estado: análisis (etapa anterior) + **base implementada en la etapa 10** (ver "Implementación inicial").
 
 Fecha del análisis: 2026-10-12. Ventana del vuelo: 10:14:41 a 13:23:47 hora de Uruguay (UTC−3) = **13:14:41Z a 16:23:47Z** del 2026-10-11.
 
@@ -74,3 +74,14 @@ Es el mejor equilibrio: fuente real, 1 km, cadencia de 10 min, 2 MB, sin backend
 Fases posteriores, opcionales: (a) corregir el paralaje y/o dibujar una lámina a la altura del tope de nubes con `ACHAF`; (b) superponer un paso MODIS/VIIRS de 250 m como contexto de alta resolución; (c) máscara de nubes `ACMF` para estimar cuándo el globo estuvo sobre o dentro de capas nubosas.
 
 **Siguiente paso propuesto:** confirmar (1) GeoColor frente a visible en gris, (2) recorte y tamaño (el actual abarca lat −36 a −30, lon −59 a −52), (3) capa sobre el suelo frente a lámina elevada y (4) texto de atribución. Con eso se implementa la primera versión en una etapa corta.
+
+
+## Implementación inicial (etapa 10)
+
+Base prudente y no invasiva, con la fuente recomendada (GOES-19 GeoColor, NASA GIBS):
+- **Datos:** `assets/clouds/` con los 22 fotogramas JPEG reales (13:00 a 16:30 Z, 796 × 683 px, ≈ 2 MB) y `manifest.json` (rectángulo lat −36…−30, lon −59…−52, retardo de observación de 6 min, crédito). La procedencia exacta (URL de cada petición, hashes) está en `imports/source/clouds-gibs-geocolor-2026-10-11/manifest.json`. No se pide nada a GIBS en tiempo de ejecución.
+- **Interfaz:** botón "Nubes" (`aria-pressed`) en la fila de cámara. **Apagado por defecto**: no se descarga nada hasta activarlo. Al activarlo se muestra un rótulo con la fuente y el intervalo de horas locales de los dos fotogramas reales vigentes.
+- **Técnica:** cada fotograma es una imagen georreferenciada dibujada sobre el terreno (`SingleTileImageryProvider` con su rectángulo). Dos capas activas (fotograma real vigente y siguiente, opacidad base 0.7) con transparencia cruzada según `playback.absoluteMs`: es una transición **visual** entre dos observaciones reales, no una observación nueva. Se mantienen unas 5 capas (vigente ± 2) y se descartan las demás.
+- **Pruebas:** al activar solo se piden el manifiesto y 4 fotogramas; reproducir a 64x mantiene ≤ 6 capas de imagen; al apagar se eliminan todas; sin errores de consola.
+- **Limitaciones vigentes:** las del análisis (1 km, paralaje sin corregir, compuesto de color, fuera del rectángulo no hay capa). La capa tapa parcialmente la imaginería base mientras está activa.
+- **Pendiente para una etapa posterior:** corrección de paralaje / lámina a la altura del tope de nubes (`ACHAF`), máscara de nubes para dibujar solo nubes, y atribución definitiva a confirmar con el proyecto.

@@ -74,11 +74,14 @@ export function createMap(containerId, data, playback, diameterModel, config = {
   // Posiciones reales (marcadores, encuadre) y geometría visible: la línea es un remuestreo de la
   // MISMA función positionAtTime que mueve la carga, por lo que la carga siempre queda sobre ella.
   const pathCartesians = flight.map((tx) => toCartesian(tx.position.lat, tx.position.lon, tx.altitudeGpsM));
-  const pathVisual = trajectorySamples(flight, data.times).map((s) => toCartesian(s.lat, s.lon, s.altM));
-  viewer.entities.add({
+  // Altura mostrada de cada transmisión: bruta, salvo la corrección visual al terreno (solo render).
+  const displayAlt = (i) => playback.displayAltM?.[i] ?? flight[i].altitudeGpsM;
+  const samplePositions = () =>
+    trajectorySamples(flight, data.times, 5000, playback.displayAltM).map((s) => toCartesian(s.lat, s.lon, s.altM));
+  const pathEntity = viewer.entities.add({
     id: "flight-path",
     polyline: {
-      positions: pathVisual,
+      positions: samplePositions(),
       width: 3,
       material: Cesium.Color.fromCssColorString("#ffb000"),
       arcType: Cesium.ArcType.NONE,
@@ -90,21 +93,30 @@ export function createMap(containerId, data, playback, diameterModel, config = {
   const max = flight[maxIndex];
   labelledPoint(viewer, {
     id: "marker-start",
-    position: pathCartesians[0],
+    position: new Cesium.CallbackProperty(() => toCartesian(first.position.lat, first.position.lon, displayAlt(0)), false),
     text: `Inicio · frame ${first.frameNumber}`,
     color: Cesium.Color.LIME,
   });
   labelledPoint(viewer, {
     id: "marker-end",
-    position: pathCartesians[pathCartesians.length - 1],
+    position: new Cesium.CallbackProperty(
+      () => toCartesian(last.position.lat, last.position.lon, displayAlt(flight.length - 1)),
+      false,
+    ),
     text: `Fin · frame ${last.frameNumber}`,
     color: Cesium.Color.RED,
   });
   labelledPoint(viewer, {
     id: "marker-max",
-    position: pathCartesians[maxIndex],
+    position: new Cesium.CallbackProperty(() => toCartesian(max.position.lat, max.position.lon, displayAlt(maxIndex)), false),
     text: `Máx. altitud · frame ${max.frameNumber} · ${max.altitudeGpsM.toFixed(0)} m`,
     color: Cesium.Color.YELLOW,
+  });
+
+  // Si cambia la geometría de render (corrección visual al terreno), se vuelve a dibujar la línea
+  // con el mismo remuestreo de positionAtTime; los marcadores y la carga la leen en cada fotograma.
+  playback.onGeometryChange(() => {
+    pathEntity.polyline.positions = samplePositions();
   });
 
   // --- Estaciones terrestres fijas ---

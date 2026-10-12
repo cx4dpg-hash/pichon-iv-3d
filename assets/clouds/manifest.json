@@ -1,0 +1,104 @@
+{
+  "schemaVersion": "1.0",
+  "description": "Fotogramas reales de GOES-East (GOES-19) ABI GeoColor sobre Uruguay durante el vuelo del 2026-10-11, obtenidos de NASA GIBS (WMS, EPSG:4326). Son imágenes satelitales reales, no una simulación. Procedencia exacta en imports/source/clouds-gibs-geocolor-2026-10-11/manifest.json.",
+  "provider": "NASA GIBS (Global Imagery Browse Services), layer GOES-East_ABI_GeoColor (CIRA GeoColor from NOAA GOES-East ABI)",
+  "credit": "Nubes: NASA GIBS / NOAA NESDIS GOES-East (GOES-19) ABI / CIRA GeoColor",
+  "rectangleDeg": {
+    "west": -59,
+    "south": -36,
+    "east": -52,
+    "north": -30
+  },
+  "observationLagMinutes": 6,
+  "observationLagNote": "El sello de GIBS es el inicio del escaneo del disco completo; el escaneo llega a Uruguay unos 5-7 minutos después (valor aproximado).",
+  "frames": [
+    {
+      "file": "geocolor_20261011T1300Z.jpg",
+      "scanStartUtc": "2026-10-11T13:00:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1310Z.jpg",
+      "scanStartUtc": "2026-10-11T13:10:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1320Z.jpg",
+      "scanStartUtc": "2026-10-11T13:20:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1330Z.jpg",
+      "scanStartUtc": "2026-10-11T13:30:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1340Z.jpg",
+      "scanStartUtc": "2026-10-11T13:40:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1350Z.jpg",
+      "scanStartUtc": "2026-10-11T13:50:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1400Z.jpg",
+      "scanStartUtc": "2026-10-11T14:00:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1410Z.jpg",
+      "scanStartUtc": "2026-10-11T14:10:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1420Z.jpg",
+      "scanStartUtc": "2026-10-11T14:20:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1430Z.jpg",
+      "scanStartUtc": "2026-10-11T14:30:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1440Z.jpg",
+      "scanStartUtc": "2026-10-11T14:40:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1450Z.jpg",
+      "scanStartUtc": "2026-10-11T14:50:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1500Z.jpg",
+      "scanStartUtc": "2026-10-11T15:00:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1510Z.jpg",
+      "scanStartUtc": "2026-10-11T15:10:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1520Z.jpg",
+      "scanStartUtc": "2026-10-11T15:20:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1530Z.jpg",
+      "scanStartUtc": "2026-10-11T15:30:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1540Z.jpg",
+      "scanStartUtc": "2026-10-11T15:40:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1550Z.jpg",
+      "scanStartUtc": "2026-10-11T15:50:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1600Z.jpg",
+      "scanStartUtc": "2026-10-11T16:00:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1610Z.jpg",
+      "scanStartUtc": "2026-10-11T16:10:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1620Z.jpg",
+      "scanStartUtc": "2026-10-11T16:20:00Z"
+    },
+    {
+      "file": "geocolor_20261011T1630Z.jpg",
+      "scanStartUtc": "2026-10-11T16:30:00Z"
+    }
+  ]
+}

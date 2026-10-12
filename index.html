@@ -19,7 +19,7 @@
 
       <aside id="infoPanel" aria-label="Información de la transmisión">
         <header class="brand">
-          <img class="logo logo-rcu" src="assets/branding/rcu-logo.png" alt="Radio Club Uruguayo" width="36" height="36">
+          <img class="logo logo-rcu" src="assets/branding/rcu-shield.png" alt="Radio Club Uruguayo" width="35" height="44">
           <div class="brandText">
             <h1>PICHÓN IV — CX1AA-11</h1>
             <p class="credit">Radio Club Uruguayo · Proyecto Pichón IV</p>
@@ -45,6 +45,7 @@
             <dl>
               <dt>GPS</dt><dd id="pAlt">—</dd>
               <dt>Barométrica</dt><dd id="pBaroAlt">—</dd>
+              <dt title="Solo presentación: con relieve, a baja altitud la carga se dibuja sobre el terreno si la altitud GPS bruta queda bajo él. La altitud GPS mostrada arriba es siempre la bruta.">Corrección visual</dt><dd id="pAltAdjust">—</dd>
             </dl>
             <h2>Ambiente</h2>
             <dl>
@@ -73,6 +74,10 @@
               <dt>First IGate</dt><dd id="pIgate">—</dd>
               <dt title="Recepción local del log cargado; independiente de First IGate">Mi estación</dt><dd id="pMyStation">— (sin log cargado)</dd>
             </dl>
+            <div id="recoveryBox" hidden>
+              <h3>Después de esta transmisión</h3>
+              <p id="recoveryText" class="recoveryText"></p>
+            </div>
             <div id="warningsBox" hidden>
               <h3>Advertencias de APRS.fi</h3>
               <ul id="pWarnings"></ul>
@@ -141,6 +146,8 @@
         <span id="compassPitch">Incl. 0°</span>
       </button>
 
+      <div id="cloudInfo" aria-live="polite" hidden></div>
+
       <div id="mapMode" aria-live="polite">Mapa básico · sin relieve</div>
 
       <div id="status" role="alert" hidden></div>
@@ -157,6 +164,7 @@
         <div class="group">
           <button type="button" id="btnOverview">Vista general</button>
           <button type="button" id="btnFollow">Seguir globo</button>
+          <button type="button" id="btnClouds" aria-pressed="false" title="Imágenes satelitales reales GOES-19 (GeoColor, NASA GIBS) de la zona durante el vuelo">Nubes</button>
         </div>
       </div>
       <div class="timeline">

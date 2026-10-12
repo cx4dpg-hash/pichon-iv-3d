@@ -36,6 +36,10 @@ Fuente única: `data/vuelo/transmissions.json`, array `flight` (155 transmisione
 
 La velocidad vertical es la **tasa media entre dos transmisiones consecutivas** (con intervalos de 60 s o, a veces, 120 s), no una medición instantánea. Positivo = ascenso. Implementada en `js/derived.js` (con prueba unitaria).
 
+## Altitud GPS y corrección visual
+
+La altitud GPS del panel y de los gráficos es siempre la **bruta** (`altitudeGpsM`). La fila "Corrección visual" del panel solo informa la corrección de **render** al terreno aplicada en el lanzamiento (ver `docs/MAPPING.md`); no es un dato de telemetría.
+
 ## Batería
 
 `batteryRaw` es el dato original y siempre se muestra (por ejemplo, `6858 raw`). Los voltios (`≈ 6.858 V (interpretación probable)`) son una interpretación probable, no confirmada documentalmente; nunca se presentan como valor definitivo. En el gráfico se dibujan con línea punteada fina, en un eje derecho propio rotulado "probable".

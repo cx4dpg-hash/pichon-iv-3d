@@ -13,6 +13,10 @@ export class Playback {
     this.playing = false;
     this.speed = 1;
     this._listeners = new Set();
+    // Altitudes SOLO de render (corrección visual al terreno); null = se usa altitudeGpsM tal cual.
+    this.displayAltM = null;
+    this.floorCorrectionsM = null;
+    this._geometryListeners = new Set();
     this._raf = null;
     this._last = 0;
   }
@@ -23,6 +27,22 @@ export class Playback {
 
   _emit() {
     for (const cb of this._listeners) cb(this);
+  }
+
+  /** Avisa cuando cambia la geometría de render (altitudes mostradas). */
+  onGeometryChange(callback) {
+    this._geometryListeners.add(callback);
+  }
+
+  /**
+   * Fija las altitudes de RENDER de cada transmisión (p. ej. con corrección al terreno). No
+   * modifica el dataset: los valores brutos siguen siendo altitudeGpsM.
+   */
+  setDisplayAltitudes(displayAltM, floorCorrectionsM = null) {
+    this.displayAltM = displayAltM;
+    this.floorCorrectionsM = floorCorrectionsM;
+    for (const cb of this._geometryListeners) cb(this);
+    this._emit();
   }
 
   get absoluteMs() {
@@ -128,17 +148,19 @@ export class Playback {
  * @param {object[]} flight transmisiones de vuelo
  * @param {number[]} times instantes (ms) de cada transmisión, en orden estricto
  * @param {number} ms instante absoluto (ms)
+ * @param {number[]|null} [altitudes] altitudes de render por transmisión (null = altitudeGpsM)
  * @returns {{lat:number, lon:number, altM:number}}
  */
-export function positionAtTime(flight, times, ms) {
+export function positionAtTime(flight, times, ms, altitudes = null) {
   const last = flight.length - 1;
+  const alt = (i) => (altitudes ? altitudes[i] : flight[i].altitudeGpsM);
   if (ms <= times[0]) {
     const a = flight[0];
-    return { lat: a.position.lat, lon: a.position.lon, altM: a.altitudeGpsM };
+    return { lat: a.position.lat, lon: a.position.lon, altM: alt(0) };
   }
   if (ms >= times[last]) {
     const a = flight[last];
-    return { lat: a.position.lat, lon: a.position.lon, altM: a.altitudeGpsM };
+    return { lat: a.position.lat, lon: a.position.lon, altM: alt(last) };
   }
   let lo = 0;
   let hi = last;
@@ -153,13 +175,13 @@ export function positionAtTime(flight, times, ms) {
   return {
     lat: a.position.lat + (b.position.lat - a.position.lat) * f,
     lon: a.position.lon + (b.position.lon - a.position.lon) * f,
-    altM: a.altitudeGpsM + (b.altitudeGpsM - a.altitudeGpsM) * f,
+    altM: alt(lo) + (alt(lo + 1) - alt(lo)) * f,
   };
 }
 
 /** Posición visual de la carga en el instante actual de la reproducción. */
 export function visualPosition(flight, playback) {
-  return positionAtTime(flight, playback.times, playback.absoluteMs);
+  return positionAtTime(flight, playback.times, playback.absoluteMs, playback.displayAltM);
 }
 
 /**
@@ -169,13 +191,13 @@ export function visualPosition(flight, playback) {
  *
  * @returns {{lat:number, lon:number, altM:number, real:boolean}[]}
  */
-export function trajectorySamples(flight, times, stepMs = 5000) {
+export function trajectorySamples(flight, times, stepMs = 5000, altitudes = null) {
   const out = [];
   for (let i = 0; i < flight.length; i++) {
-    out.push({ ...positionAtTime(flight, times, times[i]), real: true });
+    out.push({ ...positionAtTime(flight, times, times[i], altitudes), real: true });
     if (i === flight.length - 1) break;
     for (let t = times[i] + stepMs; t < times[i + 1]; t += stepMs) {
-      out.push({ ...positionAtTime(flight, times, t), real: false });
+      out.push({ ...positionAtTime(flight, times, t, altitudes), real: false });
     }
   }
   return out;

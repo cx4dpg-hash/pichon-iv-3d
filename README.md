@@ -24,6 +24,13 @@ y abrir <http://localhost:8000/>. También sirve cualquier otro servidor estáti
 
 El proyecto es un sitio web **estático** (HTML, CSS y JavaScript con módulos ES; CesiumJS 1.123.1 y Chart.js 4.4.1 desde CDN), sin backend, publicable en un hosting convencional (por ejemplo `/RCU/pichon4/`). Solo usa rutas relativas.
 
+## Rescate final, arranque sobre el terreno, nubes y escudo RCU (etapa 10)
+
+- **Punto de rescate (CX5RN-5):** marcador y tramo final punteado (violeta) desde el último punto de la trayectoria hasta el punto de recuperación reportado. Es una anotación complementaria (`data/vuelo/recovery.json`), no telemetría ni parte de la trayectoria APRS principal.
+- **Arranque sobre el terreno:** con relieve activo, una corrección **solo visual** evita que la carga se dibuje enterrada en el lanzamiento (el dato GPS bruto no se modifica). Ver [docs/MAPPING.md](docs/MAPPING.md).
+- **Nubes (opcional):** botón "Nubes" con imágenes satelitales reales GOES-19 (NASA GIBS) empaquetadas en `assets/clouds/`; apagado por defecto. Ver [docs/CLOUDS_FEASIBILITY.md](docs/CLOUDS_FEASIBILITY.md).
+- **Branding:** el emblema del RCU del Boletín CX 918 sustituye al sello circular en el encabezado ([docs/BRANDING.md](docs/BRANDING.md)).
+
 ## Brújula e identidad visual (etapa 9)
 
 Brújula propia de la cámara en la esquina inferior derecha del visor (indica el Norte según `camera.heading`, un clic pone "Norte arriba" conservando posición, distancia e inclinación, también en Seguir globo) y logos del Radio Club Uruguayo y de Pichón IV en el encabezado del panel. Los recursos están en `assets/branding/` y se prepararon a partir de `imports/source/logo-rcu.jpg` y del Boletín CX 918. Ver [docs/BRANDING.md](docs/BRANDING.md).

@@ -16,6 +16,7 @@ Datos estáticos en JSON, consumibles directamente por el navegador (rutas relat
 | `data/vuelo/flight.json` | Metadata general del vuelo, estimaciones visuales, suspensión de la carga. Sin tramas. |
 | `data/estaciones/stations.json` | Cinco estaciones terrestres: cuatro fijas con posición conocida y CX3BP-8 (móvil, posición desconocida). |
 | `data/telemetria/telemetry-schema.json` | Definición de campos de telemetría APRS y su estado de interpretación. Sin tramas. |
+| `data/vuelo/recovery.json` | **Anotación complementaria** del final del vuelo: punto real de rescate de CX5RN-5 (34°19.69' S, 53°59.15' W → −34.3281667, −53.9858333; ubicación aproximada confirmada por el usuario desde APRS.fi), nota de que el tramo final no es telemétrico y la observación operativa **no confirmada** ("el paracaídas aparentemente no abrió"). No es telemetría, no forma parte de `transmissions.json` ni de la trayectoria principal. |
 | `data/metadata.json` | Procedencia: fuentes, qué aportan, confianza general. |
 | `data/vuelo/transmissions.json` | Dataset maestro de tramas: `preFlight`, `flight`, `postFlight` (transmisiones con sus recepciones). Fuente: `imports/source/cx1aa-11-aprsfi-raw.pdf` (APRS.fi). Ver `docs/DATA_QUALITY.md`. |
 

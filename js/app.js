@@ -9,6 +9,9 @@ import { createCharts } from "./charts.js";
 import { initReception } from "./reception.js";
 import { verticalSpeedsMs } from "./derived.js";
 import { initCompass } from "./compass.js";
+import { addRecovery } from "./recovery.js";
+import { initTerrainFloor } from "./terrainfloor.js";
+import { initClouds } from "./clouds.js";
 
 function showStatus(message) {
   const status = document.getElementById("status");
@@ -36,8 +39,11 @@ async function main() {
   playback.onChange(() => charts.sync());
   const reception = initReception({ data, playback, map });
   const compass = initCompass({ viewer: map.viewer });
+  addRecovery(map.viewer, { data, playback, map });
+  initTerrainFloor({ data, playback, map });
+  const clouds = initClouds({ viewer: map.viewer, playback });
   // Acceso para depuración desde la consola del navegador.
-  window.pichon = { data, playback, map, diameterModel, charts, reception, verticalSpeeds, compass };
+  window.pichon = { data, playback, map, diameterModel, charts, reception, verticalSpeeds, compass, clouds };
 }
 
 main().catch((error) => {

@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "1.0",
+  "description": "Anotación COMPLEMENTARIA sobre el final del vuelo: punto real de rescate/recuperación de la carga. No es telemetría del globo, no forma parte de transmissions.json ni de la trayectoria APRS principal.",
+  "rescuePoint": {
+    "label": "Rescate CX5RN-5",
+    "rescueStation": "CX5RN-5",
+    "aprsLatitude": "34°19.69' S",
+    "aprsLongitude": "53°59.15' W",
+    "lat": -34.3281667,
+    "lon": -53.9858333,
+    "approximate": true,
+    "positionSource": "Ubicación aproximada confirmada por el usuario desde APRS.fi (rescate de CX5RN-5)",
+    "sourceRef": "user-reported-rescue-point",
+    "confidence": "medium",
+    "notes": [
+      "Coordenadas convertidas de grados y minutos decimales: decimal = grados + minutos/60, negativo por S/W.",
+      "Verificación independiente con datos del proyecto: la transmisión postFlight frame 77 (2026-10-11T17:40:18Z, recibida por CX3BP-8) está a ≈ 59 m de este punto, dentro de la incertidumbre de una posición APRS. Este punto no se deriva de esa transmisión: se usa la coordenada confirmada por el usuario."
+    ]
+  },
+  "finalSegment": {
+    "kind": "non-telemetry annotation",
+    "from": "última transmisión de la trayectoria principal (frame 157)",
+    "to": "rescuePoint",
+    "notes": "Línea recta de referencia (no es una trayectoria medida): une el último punto telemétrico del vuelo con el punto de recuperación real."
+  },
+  "operationalNotes": [
+    {
+      "text": "El paracaídas aparentemente no abrió.",
+      "status": "reported_unconfirmed",
+      "source": "Observación reportada por el usuario; sin soporte en la telemetría disponible. No se afirma como hecho."
+    }
+  ]
+}

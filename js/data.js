@@ -3,6 +3,7 @@
 const TRANSMISSIONS_URL = "data/vuelo/transmissions.json";
 const STATIONS_URL = "data/estaciones/stations.json";
 const FLIGHT_URL = "data/vuelo/flight.json";
+const RECOVERY_URL = "data/vuelo/recovery.json";
 
 async function fetchJson(url) {
   const response = await fetch(url);
@@ -13,10 +14,11 @@ async function fetchJson(url) {
 }
 
 export async function loadData() {
-  const [transmissions, stationsFile, flightMeta] = await Promise.all([
+  const [transmissions, stationsFile, flightMeta, recovery] = await Promise.all([
     fetchJson(TRANSMISSIONS_URL),
     fetchJson(STATIONS_URL),
     fetchJson(FLIGHT_URL),
+    fetchJson(RECOVERY_URL),
   ]);
 
   // La trayectoria principal usa únicamente "flight". preFlight y postFlight quedan
@@ -49,6 +51,7 @@ export async function loadData() {
   return {
     meta: transmissions.meta,
     flightMeta,
+    recovery,
     initialBalloonDiameterM: estimates.initialBalloonDiameterM.value,
     payloadDimensionsM: estimates.payloadDimensionsM,
     flight,

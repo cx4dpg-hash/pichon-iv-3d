@@ -35,6 +35,10 @@ js/map3d.js     visor CesiumJS, trayectoria, marcadores, enlace al primer IGate,
 js/stations.js  estaciones terrestres y resolución del primer IGate
 js/ui.js        panel de información, controles y timeline
 js/charts.js    ocho gráficos de telemetría (Chart.js) con cursor sincronizado (etapas 6 y 8)
+js/recovery.js  punto de rescate y tramo final no telemétrico (anotación complementaria; etapa 10)
+js/floor.js     corrección visual de altura al terreno (función pura, con pruebas)
+js/terrainfloor.js aplica esa corrección cuando hay relieve activo
+js/clouds.js    nubosidad histórica real (GOES-19 GeoColor, NASA GIBS), opcional y apagada por defecto
 js/compass.js   brújula de la cámara (heading/pitch, reset a Norte arriba; etapa 9)
 js/derived.js   datos derivados (velocidad vertical entre transmisiones consecutivas)
 js/terrain.js   base cartográfica: mapa básico u, opcionalmente, Cesium Ion (satélite + relieve)
@@ -52,6 +56,11 @@ js/importer/    importador local de logs, sin DOM ni red:
 La física (`physics.js`) está separada de la representación (`balloon.js`). Ver `docs/PHYSICS.md`.
 
 Importador de logs (etapa 7): el log se lee con la File API y se procesa en el navegador (`js/importer/`, módulos puros que también corren en Node para `tests/importer.test.mjs`). El maestro nunca se modifica; la recepción local (`reception.js`) es independiente de `firstIgate`. Ver `docs/LOG_IMPORT.md`.
+
+Etapa 10:
+- **Altura de render.** `positionAtTime(flight, times, t, altitudes)` acepta altitudes de render por transmisión (`playback.displayAltM`); sin ellas usa `altitudeGpsM` tal cual. La corrección visual al terreno (`floor.js`, aplicada por `terrainfloor.js` solo con relieve) rellena ese arreglo; la carga, la línea amarilla, los marcadores y los puntos de "Mi recepción" leen la misma fuente, así que siguen coincidiendo. El dataset y los gráficos usan siempre el valor bruto.
+- **Rescate.** `recovery.json` se carga aparte de `transmissions.json`; `recovery.js` dibuja marcador, línea punteada y etiquetas sin tocar la trayectoria principal.
+- **Nubes.** `clouds.js` carga `assets/clouds/manifest.json` solo al activar el botón, mantiene como máximo ~5 capas `SingleTileImageryProvider` y las mezcla según `playback.absoluteMs`.
 
 Brújula e identidad (etapa 9): `compass.js` lee `viewer.camera.heading/pitch` en `scene.preRender` y rota un SVG; el clic rota la cámara alrededor del punto observado (cámara libre) o dentro del marco ENU de la carga (Seguir globo) sin cancelar el seguimiento. Los logos están en `assets/branding/` (ver `docs/BRANDING.md`).
 

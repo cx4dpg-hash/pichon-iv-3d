@@ -41,7 +41,11 @@ Control propio (`js/compass.js`, SVG sin dependencias) en la esquina inferior de
   - Si el usuario toma el control (arrastre o rueda) durante la animación, esta se cancela.
 - **Limitación de Cesium en seguimiento:** con una entidad seguida, Cesium desactiva por sí mismo la inclinación con el botón central; ahí se inclina con el arrastre izquierdo vertical (ver `docs/MAPPING.md`). La brújula refleja correctamente cualquier cambio de orientación hecho con los controles estándar.
 
-## Propuesta (análisis): reemplazar el sello circular del RCU por el escudo interior
+## Escudo del RCU en el encabezado (implementado en la etapa 10)
+
+**Estado:** el encabezado usa ahora `assets/branding/rcu-shield.png`: el escudo/monograma del RCU extraído del Boletín CX 918 (PNG de 145 × 181 px con transparencia real, píxeles originales, sin modificar), mostrado a **44 px de alto** (≈ 35 px de ancho; 32 px en pantallas de ≤ 600 px), con la proporción 145:181 conservada. El logo de Pichón IV no cambió. El sello circular anterior (`rcu-logo.png`) se conserva en `assets/branding/` sin uso. El panel crece unos 8 px de alto en el encabezado.
+
+### Análisis previo (se mantiene como justificación)
 
 **Estado actual.** El encabezado usa `assets/branding/rcu-logo.png` (320 × 320 px), derivado del sello circular completo de `imports/source/logo-rcu.jpg`. A 36 px de alto el escudo central mide ≈ 20 × 25 px y el monograma "RCU" no se lee.
 

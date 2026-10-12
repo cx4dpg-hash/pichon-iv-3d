@@ -86,3 +86,11 @@ Cada una está en `warnings` de la recepción correspondiente. Ninguna recepció
 - Escala/unidad de la batería.
 - Causa de los intervalos de 120 s.
 - Decisión sobre la inclusión del frame 157 como fin del vuelo principal.
+
+
+## Observaciones posteriores (etapa 10)
+
+- **Punto de rescate.** El punto reportado (−34.3281667, −53.9858333) está a ≈ 231 m del último punto del vuelo (frame 157). La transmisión `postFlight` frame 77 (2026-10-11T17:40:18Z, 24 ft, primera recepción por CX3BP-8) está a ≈ 59 m de ese punto y a ≈ 174 m del último punto del vuelo: corrobora de forma independiente la zona de caída (dentro de la incertidumbre de una posición APRS). Las `postFlight` frames 13 a 19 (19:32 a 19:38 Z) están ≈ 3.5 km al oeste, a 65–124 ft: son posteriores a la recuperación y se interpretan como la carga transportada; no se dibujan.
+- **Observación no confirmada.** La observación de que el paracaídas aparentemente no abrió es un reporte del usuario; la telemetría disponible no la confirma ni la desmiente. Se muestra solo como "observación reportada, no confirmada".
+- **Sitio de lanzamiento vs. primer fix GPS (inconsistencia a revisar, no corregida).** `flight.json` indica "Aero Club de Mercedes" (Soriano, ≈ −33.25, −58.03), pero el primer fix GPS válido (frame 3, 10:14:41 local) y todo el período en tierra previo al ascenso (frames 3 a 10, velocidad 0, ≈ 121 m) están en lat −34.297, lon −55.355, unos 270 km al este (zona de Minas). O el lugar real de lanzamiento fue otro, o el dato del sitio es incorrecto. No se modificó `flight.json`; se informa para que el proyecto decida.
+- **Altitud GPS vs. terreno en el lanzamiento.** Ver `docs/MAPPING.md` (corrección visual solo de render en los frames 3 a 10).

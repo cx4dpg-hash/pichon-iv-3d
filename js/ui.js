@@ -4,6 +4,7 @@ import { SPEEDS } from "./playback.js";
 import { describeFirstIgate } from "./stations.js";
 import { currentEstimate, isAscentPhase } from "./physics.js";
 import { formatLocalTime } from "./format.js";
+import { haversineKm } from "./importer/stats.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -105,6 +106,10 @@ export function initUi({ data, playback, map, diameterModel, verticalSpeeds }) {
     $("pPressure").textContent = `${fmt(tx.telemetry.pressureHpa, 0)} hPa`;
     $("pExtTemp").textContent = `${fmt(tx.telemetry.externalTemperatureC, 0)} °C`;
     $("pIntTemp").textContent = `${fmt(tx.telemetry.internalTemperatureC, 0)} °C`;
+    // Corrección visual al terreno (solo render): la altitud GPS mostrada arriba es siempre la bruta.
+    const corr = playback.floorCorrectionsM?.[index] ?? 0;
+    $("pAltAdjust").textContent =
+      corr > 0.05 ? `+${corr.toFixed(1)} m (solo render)` : playback.floorCorrectionsM ? "ninguna" : "— (sin relieve)";
     $("pBaroAlt").textContent = `${fmt(tx.telemetry.barometricAltitudeM, 0)} m`;
     $("pHumidity").textContent = `${fmt(tx.telemetry.humidityPercent, 0)} %`;
     // batteryRaw es el dato original; los voltios son una interpretación probable (no confirmada).
@@ -140,6 +145,16 @@ export function initUi({ data, playback, map, diameterModel, verticalSpeeds }) {
       }),
     );
     $("warningsBox").hidden = warnings.length === 0;
+    // Nota sobre el tramo final (anotación complementaria, no telemetría).
+    const atEnd = index === flight.length - 1;
+    $("recoveryBox").hidden = !atEnd;
+    if (atEnd && data.recovery) {
+      const r = data.recovery.rescuePoint;
+      const km = haversineKm(tx.position.lat, tx.position.lon, r.lat, r.lon);
+      $("recoveryText").textContent =
+        `Tramo final no telemétrico hasta el punto de rescate reportado (${r.label}), a ≈ ${Math.round(km * 1000)} m del último punto. ` +
+        `Observación reportada, no confirmada: el paracaídas aparentemente no abrió.`;
+    }
     renderedIndex = index;
   }
 
@@ -157,6 +172,11 @@ export function initUi({ data, playback, map, diameterModel, verticalSpeeds }) {
   }
 
   playback.onChange(render);
+  // Cambió la geometría de render: se refresca el panel de la transmisión vigente.
+  playback.onGeometryChange(() => {
+    renderedIndex = -1;
+    render();
+  });
   render();
   renderCameraButtons();
 }

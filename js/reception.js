@@ -133,6 +133,16 @@ export function initReception({ data, playback, map }) {
     },
   });
 
+  playback.onGeometryChange(() => {
+    flight.forEach((tx, i) => {
+      pointByIndex[i].position = Cesium.Cartesian3.fromDegrees(
+        tx.position.lon,
+        tx.position.lat,
+        playback.displayAltM?.[i] ?? tx.altitudeGpsM,
+      );
+    });
+  });
+
   function refreshMap() {
     const received = state.imported?.index.received;
     flight.forEach((tx, i) => {

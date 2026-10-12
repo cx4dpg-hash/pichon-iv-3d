@@ -20,6 +20,7 @@ export function createBaseMap(viewer, osmLayer, { token, flight, stations }) {
     mode: "basic",
     terrainProvider: null,
     terrainReport: null,
+    terrainHeights: null, // alturas de terreno (m) bajo las 155 transmisiones; solo con relieve
     ready: Promise.resolve(),
     /** Altura de terreno (m, elipsoidal) en un punto, o null si no hay relieve. */
     sampleHeight: async () => null,
@@ -88,6 +89,7 @@ export function createBaseMap(viewer, osmLayer, { token, flight, stations }) {
   async function buildTerrainReport() {
     const cartographics = flight.map((tx) => Cesium.Cartographic.fromDegrees(tx.position.lon, tx.position.lat));
     const sampled = await Cesium.sampleTerrainMostDetailed(state.terrainProvider, cartographics);
+    state.terrainHeights = sampled.map((c) => (Number.isFinite(c.height) ? c.height : null));
     let min = null;
     const below = [];
     flight.forEach((tx, i) => {
