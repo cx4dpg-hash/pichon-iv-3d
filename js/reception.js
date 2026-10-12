@@ -40,7 +40,7 @@ function validCoords(latText, lonText) {
 
 export function initReception({ data, playback, map }) {
   const { flight } = data;
-  const master = { flight: data.flight, postFlight: data.postFlight, preFlight: data.preFlight };
+  const master = { flight: data.flight, postFlight: data.postFlight, preFlight: data.preFlight, preLaunch: data.preLaunch };
   const viewer = map.viewer;
 
   const state = {
@@ -194,8 +194,11 @@ export function initReception({ data, playback, map }) {
       ["Exactas / probables", `${stats.byStatus.exact} / ${stats.byStatus.probable}`],
       ["Ambiguas / sin coincidencia", `${stats.byStatus.ambiguous} / ${stats.byStatus.unmatched}`],
     ];
-    if (stats.postFlightReceived || stats.preFlightReceived) {
-      rows.push(["Fuera del vuelo principal", `${stats.postFlightReceived} post-vuelo, ${stats.preFlightReceived} pre-vuelo (no cuentan en la cobertura)`]);
+    if (stats.postFlightReceived || stats.preFlightReceived || stats.preLaunchReceived) {
+      rows.push([
+        "Fuera del vuelo efectivo",
+        `${stats.postFlightReceived} post-vuelo, ${stats.preLaunchReceived} en tierra (preLaunch), ${stats.preFlightReceived} sin GPS (no cuentan en la cobertura)`,
+      ]);
     }
     if (state.type === "fixed" && state.station) {
       rows.push([

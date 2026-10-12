@@ -30,11 +30,11 @@ Implementada en `js/physics.js` (`estimateDiameter`, `buildDiameterModel`). Se c
 - Solo `pressureHpa` y `externalTemperatureC` de cada transmisión de `flight`; `T(K) = °C + 273.15`.
 - **No** se usa `altitudeGpsM` ni `barometricAltitudeM` para calcular el tamaño.
 - `D1 = 1.5 m` (`visualEstimates.initialBalloonDiameterM`, incertidumbre ±0.2 m, estimación visual de confianza media), leído de `data/vuelo/flight.json`.
-- Condición de referencia (P1, T1): la **primera transmisión válida del vuelo** (presión > 0 y T(K) > 0). No se asume 1013.25 hPa.
+- Condición de referencia (P1, T1): la **primera transmisión válida del vuelo efectivo** (hoy el frame 10, la liberación; antes, con los datos en tierra incluidos, el frame 3 con los mismos P y T) (presión > 0 y T(K) > 0). No se asume 1013.25 hPa.
 
 ## Referencia inicial utilizada
 
-Frame 3 (2026-10-11 13:14:41Z = 10:14:41 hora local): P1 = 1008 hPa, T1 = 18 °C = 291.15 K, D1 = 1.5 m.
+Frame 10 (2026-10-11 13:21:39Z = 10:21:39 hora local, la liberación): P1 = 1008 hPa, T1 = 18 °C = 291.15 K, D1 = 1.5 m. (El frame 3, primera posición GPS válida, tenía los mismos 1008 hPa y 18 °C, por lo que los diámetros estimados no cambian.)
 
 Es una aproximación: 1.5 m corresponde visualmente al momento próximo al lanzamiento, pero el frame 3 es la primera trama con GPS válido y precede en varios minutos al inicio real del ascenso (la altitud GPS empieza a aumentar hacia el frame 11, ~10:22 local). Entre los frames 3 y 10 la presión es constante (1008 hPa), por lo que el diámetro estimado casi no varía.
 
@@ -56,7 +56,7 @@ Es una aproximación: 1.5 m corresponde visualmente al momento próximo al lanza
 
 | | Valor |
 |---|---|
-| Diámetro inicial (frame 3) | 1.5 m |
+| Diámetro inicial (frame 10, liberación) | 1.5 m |
 | Diámetro máximo estimado | 4.9 m (4.94 m), ~3.3 veces el inicial |
 | Frame / hora del máximo | frame 138, 15:59:46Z = 12:59:46 local |
 | Presión / temp. externa en el máximo | 26 hPa / −5 °C |

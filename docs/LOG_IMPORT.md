@@ -60,7 +60,7 @@ Solo cuentan como recibidas las coincidencias `exact` y `probable`. Las transmis
 
 ## Estadísticas
 
-Transmisiones del vuelo (155), recibidas, cobertura %, primera y última recibidas, frame más alto, altitud GPS máxima recibida, líneas, duplicados y el número de líneas por estado. Con estación **fija** y coordenadas válidas: distancia **horizontal** máxima (haversine con radio medio 6371.0088 km, error ≈ 0.3 % respecto del elipsoide) a una transmisión recibida. No incluye la diferencia de altitud (no es distancia espacial 3D). No hay ranking de estaciones.
+Transmisiones del vuelo efectivo (148, frames 10 a 157; las `preLaunch` frames 3 a 9 también se buscan en el matching pero no cuentan en la cobertura), recibidas, cobertura %, primera y última recibidas, frame más alto, altitud GPS máxima recibida, líneas, duplicados y el número de líneas por estado. Con estación **fija** y coordenadas válidas: distancia **horizontal** máxima (haversine con radio medio 6371.0088 km, error ≈ 0.3 % respecto del elipsoide) a una transmisión recibida. No incluye la diferencia de altitud (no es distancia espacial 3D). No hay ranking de estaciones.
 
 ## Estación del usuario
 

@@ -1,6 +1,6 @@
 # Telemetría en la interfaz (etapas 6 y 8)
 
-Fuente única: `data/vuelo/transmissions.json`, array `flight` (155 transmisiones). No se duplica telemetría en otro archivo. Los gráficos y el panel **no interpolan ni rellenan** ningún valor.
+Fuente única: `data/vuelo/transmissions.json`, array `flight` (155 transmisiones con GPS válido, frames 3 a 157). Los gráficos y el panel muestran el **vuelo efectivo**: las 148 transmisiones desde la liberación (frames 10 a 157); las 7 en tierra anteriores (`preLaunch`, frames 3 a 9) se conservan pero no se grafican (ver `docs/DATA_QUALITY.md`). No se duplica telemetría en otro archivo. Los gráficos y el panel **no interpolan ni rellenan** ningún valor.
 
 ## Datos originales (de la trama APRS)
 

@@ -9,6 +9,14 @@ Datos estáticos en JSON, consumibles directamente por el navegador (rutas relat
 - Cada dato no exacto lleva su fuente y nivel de confianza.
 - Los datos maestros no se mezclan con datos de usuarios (logs futuros).
 
+## Tres conceptos distintos: primera posición GPS, lanzamiento e inicio del ascenso
+
+- **Primera posición GPS válida:** la primera transmisión con posición no nula (frame 3, 2026-10-11T13:14:41Z = 10:14:41 hora local, 121 m). Es solo el instante en que el GPS obtuvo fix.
+- **Punto de lanzamiento:** el **sitio** (lat −34.297167, lon −55.355333) de esa primera posición válida (`flight.json` → `actualLaunch`). La carga permaneció allí, en tierra, hasta la liberación.
+- **Inicio efectivo del ascenso (liberación):** frame 10, 13:21:39Z = 10:21:39 hora local (última posición en tierra; el primer punto ya en el aire es el frame 11). Se **deriva en tiempo de ejecución** con el criterio de `docs/DATA_QUALITY.md` (`js/phases.js`); no se guarda en ningún archivo ni modifica `transmissions.json`.
+
+Fases (derivadas): `preLaunch` / en tierra (frames 3 a 9, conservados) → `ascent` (frame 10 hasta el máximo, frame 138) → `descent` (desde el frame 139). El `flight` de `transmissions.json` sigue teniendo 155 transmisiones (frames 3 a 157): 7 `preLaunch` + 148 de vuelo efectivo.
+
 ## Archivos
 
 | Archivo | Contenido |

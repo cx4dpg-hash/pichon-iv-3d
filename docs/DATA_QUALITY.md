@@ -94,3 +94,37 @@ Cada una está en `warnings` de la recepción correspondiente. Ninguna recepció
 - **Observación no confirmada.** La observación de que el paracaídas aparentemente no abrió es un reporte del usuario; la telemetría disponible no la confirma ni la desmiente. Se muestra solo como "observación reportada, no confirmada".
 - **Lugar planificado vs. punto efectivo de partida (aclarado).** El Boletín CX 918 anunciaba el lanzamiento en el Aero Club de Mercedes (Soriano, ≈ −33.25, −58.03); esa información es el **plan** y se conserva como `plannedLaunchSite` (estado `planned`). El punto efectivo de partida se deriva de la telemetría: la primera posición GPS válida de CX1AA-11 (frame 3, 2026-10-11T13:14:41Z) está en lat −34.297167, lon −55.355333 (`actualLaunch`, confianza alta), unos 270 km al este del lugar planificado, y la carga permaneció en ese punto en tierra (velocidad 0) hasta el frame 10. Una captura de APRS.fi aportada por el usuario (≈ 34°17.84' S, 55°21.32' W) corrobora el mismo sector (diferencia ≈ 18 m). No se asigna nombre de localidad porque no está documentalmente confirmado. La interfaz no presenta Mercedes como lugar efectivo.
 - **Altitud GPS vs. terreno en el lanzamiento.** Ver `docs/MAPPING.md` (corrección visual solo de render en los frames 3 a 10).
+
+
+## Inicio efectivo del vuelo: análisis de los primeros frames (preLaunch)
+
+**Problema.** La reproducción empezaba en el frame 3 (primera posición GPS válida). Durante ≈ 8 minutos (frames 3 a 10) la carga permanecía en tierra: el conjunto globo/carga parecía arrastrarse pegado al terreno antes de subir, lo que no representa la operación real.
+
+**Frames analizados (11 de 2026-10-11, hora UTC / local):**
+
+| Frame | UTC | Local | Alt. GPS (m) | Alt. barométrica (m) | Δ alt. GPS (m) | v. vertical derivada (m/s) | Velocidad (km/h) | Desplaz. horizontal (m) | Presión (hPa) |
+|---|---|---|---|---|---|---|---|---|---|
+| 3 | 13:14:41 | 10:14:41 | 121.3 | 112 | — | — | 0.0 | — | 1008 |
+| 4 | 13:15:41 | 10:15:41 | 124.4 | 112 | +3.0 | +0.05 | 0.0 | 24.0 | 1008 |
+| 5 | 13:16:39 | 10:16:39 | 120.4 | 112 | −4.0 | −0.07 | 0.0 | 0.0 | 1008 |
+| 6 | 13:17:39 | 10:17:39 | 120.4 | 113 | 0.0 | 0.00 | 1.9 | 0.0 | 1008 |
+| 7 | 13:18:39 | 10:18:39 | 119.5 | 113 | −0.9 | −0.02 | 0.0 | 0.0 | 1008 |
+| 8 | 13:19:39 | 10:19:39 | 119.5 | 113 | 0.0 | 0.00 | 0.0 | 0.0 | 1008 |
+| 9 | 13:20:39 | 10:20:39 | 118.3 | 113 | −1.2 | −0.02 | 0.0 | 0.0 | 1008 |
+| **10** | **13:21:39** | **10:21:39** | **118.6** | 113 | +0.3 | +0.01 | 0.0 | 0.0 | 1008 |
+| 11 | 13:22:39 | 10:22:39 | 164.0 | 159 | +45.4 | +0.76 | 24.1 | 115.4 | 1003 |
+| 12 | 13:23:39 | 10:23:39 | 393.8 | 388 | +229.8 | +3.83 | 33.3 | 548.0 | 976 |
+| 13 | 13:24:39 | 10:24:39 | 635.5 | 632 | +241.7 | +4.03 | 24.1 | 511.7 | 948 |
+| 14 | 13:25:39 | 10:25:39 | 888.8 | 885 | +253.3 | +4.22 | 31.5 | 472.4 | 919 |
+
+Hasta el frame 10 todo es ruido de GPS en tierra: altitud entre 118 y 124 m sin tendencia (el mayor salto es 4.0 m), barómetro constante (112–113 m, 1008 hPa), velocidad nula y ningún desplazamiento sostenido (el único movimiento, 24 m entre los frames 3 y 4, es el ajuste del fix con 8 satélites). No se asume el frame 11: el análisis es un criterio explícito.
+
+**Criterio (reproducible, `js/phases.js`, parámetros en `ASCENT_CRITERIA`).** Se busca la primera transmisión *i* tal que en los **4 intervalos consecutivos** que parten de ella (*i→i+1*, …, *i+3→i+4*) tanto la altitud GPS como la altitud barométrica suben **al menos 10 m en cada intervalo** (≈ 2.5 × el mayor salto GPS en tierra) y la ganancia GPS acumulada es **≥ 100 m**. El ruido en tierra no cumple esto: ni un salto aislado de ±15 m, ni una subida de solo 3 intervalos, ni un GPS que sube con el barómetro plano (comprobado con pruebas unitarias). La transmisión *i* es el **ancla** (última posición en tierra, base del primer intervalo ascendente) y *i+1* la primera ya en el aire.
+
+**Resultado con los datos reales.** *i* = **frame 10** (2026-10-11T13:21:39Z = 10:21:39 hora local, altitud GPS 118.6 m). Evidencia: intervalos 10→11 (+45.4 m GPS / +46 m barómetro), 11→12 (+229.8 / +229), 12→13 (+241.7 / +244) y 13→14 (+253.3 / +253); ganancia acumulada ≈ 770 m. El primer punto en el aire es el frame 11 (13:22:39Z). El instante exacto de la liberación está en algún lugar entre los frames 10 y 11 (≤ 60 s); la reproducción parte del frame 10 y el primer tramo interpolado (visual) muestra el despegue.
+
+**Modelo de fases.** `preLaunch` / en tierra: frames 3 a 9 (7 transmisiones, conservadas en `transmissions.json` y en memoria como `data.preLaunch`; texto de fase "En tierra / preparación"). `ascent`: desde el frame 10 hasta el máximo (frame 138). `descent`: desde el frame 139. El frame 10 se muestra como "Fase de ascenso; liberación (último punto en tierra antes del ascenso)".
+
+**Comportamiento anterior → nuevo.** Antes: la reproducción y el slider empezaban a las 10:14:41 (frame 3) y durante ≈ 7 minutos el conjunto se arrastraba sobre el suelo sin subir; la trayectoria principal incluía ese tramo. Ahora: el slider, Play y la trayectoria principal empiezan en la liberación (10:21:39); el primer minuto sube suavemente (≈ +36 m, interpolación visual hacia el frame 11) y luego asciende ≈ 3.8 a 4.2 m/s; los gráficos y las estadísticas usan las 148 transmisiones (cobertura de "Mi recepción": 140 de 148 = 94.6 %; antes 140 de 155). El punto de lanzamiento se marca aparte ("Lanzamiento · primera posición GPS válida (en tierra)") y la liberación como "Liberación · frame 10". No se agrega una trayectoria de preparación en tierra.
+
+**Corrección visual al terreno.** Sigue siendo necesaria solo para el ancla (frame 10, +9.7 m de render, único frame del vuelo efectivo bajo el terreno); los frames 3 a 9 ya no se reproducen. No se modifica `altitudeGpsM`.

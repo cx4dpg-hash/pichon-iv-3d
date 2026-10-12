@@ -24,6 +24,10 @@ y abrir <http://localhost:8000/>. También sirve cualquier otro servidor estáti
 
 El proyecto es un sitio web **estático** (HTML, CSS y JavaScript con módulos ES; CesiumJS 1.123.1 y Chart.js 4.4.1 desde CDN), sin backend, publicable en un hosting convencional (por ejemplo `/RCU/pichon4/`). Solo usa rutas relativas.
 
+## Inicio efectivo del vuelo (preLaunch vs vuelo)
+
+La reproducción empieza en la **liberación** (frame 10, 13:21:39 UTC = 10:21:39 hora local, última posición en tierra antes del ascenso sostenido) y no en la primera posición GPS válida (frame 3, 10:14:41). Las transmisiones anteriores (frames 3 a 9) siguen en `transmissions.json` y en memoria como fase `preLaunch` (en tierra). El punto de lanzamiento (−34.297167, −55.355333) se mantiene como sitio real y se marca en el mapa. El criterio es reproducible y está documentado en [docs/DATA_QUALITY.md](docs/DATA_QUALITY.md).
+
 ## Rescate final, arranque sobre el terreno, nubes y escudo RCU (etapa 10)
 
 - **Punto de rescate (CX5RN-5):** marcador y tramo final punteado (violeta) desde el último punto de la trayectoria hasta el punto de recuperación, respaldado por tramas APRS de CX5RN-5 (15:27:45 -03). Es una anotación complementaria (`data/vuelo/recovery.json`), no telemetría ni parte de la trayectoria APRS principal.
@@ -59,7 +63,7 @@ El marcador simple se reemplazó por un conjunto aproximado (carga útil en la p
 - **Mapa base:** teselas de OpenStreetMap (`tile.openstreetmap.org`), sin credenciales. Está pensado para pruebas y uso moderado; para una publicación con tráfico real habrá que revisar la política de uso de OSM o elegir otro proveedor.
 - **Sin terreno 3D:** el terreno de Cesium requiere un token de Cesium Ion, que no se usa. El suelo es el elipsoide, y las estaciones se dibujan a altura 0 (su altura de terreno es desconocida). La altitud GPS se usa tal cual para posicionar el globo, sin exageración vertical.
 - **Eje de tiempo:** el instante de cada transmisión es su `packetTimestampUtc` (hora de emisión). La interpolación entre transmisiones es solo visual (posición y altitud); frame, telemetría, primer IGate y advertencias son siempre los de la transmisión real vigente.
-- **Datos:** solo se dibuja `flight` (155 transmisiones). `preFlight` y `postFlight` se cargan pero no se muestran.
+- **Datos:** la reproducción principal usa el **vuelo efectivo**: las 148 transmisiones desde la liberación (frames 10 a 157). Las 7 transmisiones en tierra anteriores (frames 3 a 9, `preLaunch`) se conservan sin mostrarse en la reproducción; `preFlight` (sin GPS) y `postFlight` se cargan pero no se muestran. Ver [docs/DATA_QUALITY.md](docs/DATA_QUALITY.md).
 - **Depuración:** el objeto `window.pichon` expone datos, reproducción y mapa para inspección desde la consola del navegador.
 
 ## Documentación

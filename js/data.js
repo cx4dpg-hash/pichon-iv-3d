@@ -1,5 +1,7 @@
 // Carga y preparación de datos. Todo se lee de los JSON estáticos; no se duplican datos aquí.
 
+import { splitPhases } from "./phases.js";
+
 const TRANSMISSIONS_URL = "data/vuelo/transmissions.json";
 const STATIONS_URL = "data/estaciones/stations.json";
 const FLIGHT_URL = "data/vuelo/flight.json";
@@ -21,12 +23,16 @@ export async function loadData() {
     fetchJson(RECOVERY_URL),
   ]);
 
-  // La trayectoria principal usa únicamente "flight". preFlight y postFlight quedan
-  // disponibles pero no forman parte de la trayectoria visible.
-  const flight = transmissions.flight;
-  if (!Array.isArray(flight) || flight.length < 2) {
+  // transmissions.json → "flight" contiene todas las transmisiones con GPS válido (frames 3 a 157),
+  // incluidas las del período en tierra previo a la liberación. La reproducción principal usa el
+  // VUELO EFECTIVO: desde la liberación (criterio en phases.js). Las anteriores se conservan como
+  // preLaunch (en tierra). preFlight (sin GPS válido) y postFlight siguen aparte. El archivo
+  // no se modifica: la partición se hace aquí, en memoria.
+  const flightAll = transmissions.flight;
+  if (!Array.isArray(flightAll) || flightAll.length < 2) {
     throw new Error("transmissions.json no contiene un array 'flight' utilizable");
   }
+  const { preLaunch, flight, detection } = splitPhases(flightAll);
 
   const times = flight.map((tx) => Date.parse(tx.packetTimestampUtc));
   for (let i = 0; i < times.length; i++) {
@@ -54,7 +60,10 @@ export async function loadData() {
     recovery,
     initialBalloonDiameterM: estimates.initialBalloonDiameterM.value,
     payloadDimensionsM: estimates.payloadDimensionsM,
-    flight,
+    flight, // vuelo efectivo (desde la liberación)
+    flightAll, // todas las transmisiones con GPS válido (frames 3 a 157)
+    preLaunch, // en tierra, antes de la liberación (conservadas)
+    phaseDetection: detection,
     times,
     preFlight: transmissions.preFlight,
     postFlight: transmissions.postFlight,

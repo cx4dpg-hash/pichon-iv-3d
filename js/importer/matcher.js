@@ -33,13 +33,13 @@ function telemetryTuple(t) {
 }
 
 /**
- * @param {{flight:object[], postFlight:object[], preFlight:object[]}} master
+ * @param {{flight:object[], postFlight:object[], preFlight:object[], preLaunch?:object[]}} master
  */
 export function createMatcher(master) {
   const candidates = [];
   const rawPackets = new Set();
-  for (const group of ["flight", "postFlight", "preFlight"]) {
-    master[group].forEach((tx, index) => {
+  for (const group of ["flight", "postFlight", "preFlight", "preLaunch"]) {
+    (master[group] ?? []).forEach((tx, index) => {
       candidates.push({
         id: tx.id,
         group,

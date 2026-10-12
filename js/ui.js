@@ -14,6 +14,9 @@ function fmt(value, decimals) {
 
 // Estado del globo según el perfil de vuelo. La ruptura es una INFERENCIA, no un hecho medido.
 function balloonStateText(model, index) {
+  if (index === 0 && isAscentPhase(model, index)) {
+    return "Fase de ascenso; liberación (último punto en tierra antes del ascenso)";
+  }
   if (isAscentPhase(model, index)) {
     return index === model.apogeeIndex
       ? "Ascenso; máxima altitud (última transmisión antes de la transición estimada)"

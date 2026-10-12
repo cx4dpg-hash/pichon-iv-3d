@@ -94,7 +94,7 @@ export function createMap(containerId, data, playback, diameterModel, config = {
   labelledPoint(viewer, {
     id: "marker-start",
     position: new Cesium.CallbackProperty(() => toCartesian(first.position.lat, first.position.lon, displayAlt(0)), false),
-    text: `Inicio · frame ${first.frameNumber}`,
+    text: `Liberación · frame ${first.frameNumber}`,
     color: Cesium.Color.LIME,
   });
   labelledPoint(viewer, {
@@ -111,6 +111,27 @@ export function createMap(containerId, data, playback, diameterModel, config = {
     position: new Cesium.CallbackProperty(() => toCartesian(max.position.lat, max.position.lon, displayAlt(maxIndex)), false),
     text: `Máx. altitud · frame ${max.frameNumber} · ${max.altitudeGpsM.toFixed(0)} m`,
     color: Cesium.Color.YELLOW,
+  });
+
+  // Punto de lanzamiento: sitio de la primera posición GPS válida (flight.json → actualLaunch).
+  // Marca de "preparación en tierra": no forma parte de la trayectoria aérea principal.
+  const launch = data.flightMeta.actualLaunch;
+  let launchGroundM = data.preLaunch[0]?.altitudeGpsM ?? flight[0].altitudeGpsM;
+  labelledPoint(viewer, {
+    id: "marker-launch",
+    position: new Cesium.CallbackProperty(() => toCartesian(launch.lat, launch.lon, launchGroundM), false),
+    text: "Lanzamiento · primera posición GPS válida (en tierra)",
+    color: Cesium.Color.WHITE,
+    pixelSize: 9,
+  });
+  baseMap.ready.then(async () => {
+    if (baseMap.mode !== "ion") return;
+    try {
+      const h = await baseMap.sampleHeight(launch.lat, launch.lon);
+      if (h !== null) launchGroundM = h; // sobre el terreno consultado (solo representación)
+    } catch {
+      /* sin relieve disponible */
+    }
   });
 
   // Si cambia la geometría de render (corrección visual al terreno), se vuelve a dibujar la línea

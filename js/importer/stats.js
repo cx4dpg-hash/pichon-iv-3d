@@ -61,9 +61,11 @@ export function computeStats({ parsed, results, master, index, stationPosition =
   const flightReceived = [];
   let postFlightReceived = 0;
   let preFlightReceived = 0;
+  let preLaunchReceived = 0;
   for (const e of index.received.values()) {
     if (e.group === "flight") flightReceived.push(e);
     else if (e.group === "postFlight") postFlightReceived++;
+    else if (e.group === "preLaunch") preLaunchReceived++;
     else preFlightReceived++;
   }
   flightReceived.sort((a, b) => a.index - b.index);
@@ -83,6 +85,7 @@ export function computeStats({ parsed, results, master, index, stationPosition =
     coveragePercent: total ? (100 * flightReceived.length) / total : 0,
     postFlightReceived,
     preFlightReceived,
+    preLaunchReceived,
     first: null,
     last: null,
     highestFrame: null,
