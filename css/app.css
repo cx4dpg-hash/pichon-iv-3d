@@ -279,7 +279,7 @@ button[aria-pressed="true"] {
 
 .plot {
   position: relative;
-  height: 96px;
+  height: 170px;
 }
 
 .plot canvas {
@@ -314,6 +314,10 @@ button[aria-pressed="true"] {
 @media (max-width: 900px) {
   .chartPage {
     grid-template-columns: 1fr;
+  }
+
+  .plot {
+    height: 150px;
   }
 
   #telemetry {

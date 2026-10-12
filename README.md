@@ -27,7 +27,7 @@ El proyecto es un sitio web **estático** (HTML, CSS y JavaScript con módulos E
 ## Mapa satélite + relieve y ocho gráficos de telemetría (etapa 8)
 
 - **Mapa:** por defecto, OpenStreetMap sobre elipsoide ("Mapa básico · sin relieve"). Con un token de Cesium Ion en `config.local.js` (copia de `config.example.js`, ignorado por Git) se activan imaginería satelital y relieve 3D ("Satélite + relieve 3D"). Sin token o con token inválido todo funciona igual. El relieve no modifica latitud, longitud, altitud GPS ni la trayectoria. Ver [docs/MAPPING.md](docs/MAPPING.md).
-- **Telemetría:** ocho gráficos finos en dos páginas de 2×2 (altitud, temperaturas, presión y batería / humedad, velocidad GPS, curso GPS y recepción GPS) con cursor sincronizado, tooltips y clic para saltar a una transmisión; el panel agrega la velocidad vertical derivada. Ver [docs/TELEMETRY.md](docs/TELEMETRY.md).
+- **Telemetría:** ocho gráficos finos en 4 páginas de 2 gráficos (altitud y temperaturas / presión y humedad / batería y velocidad GPS / curso GPS y recepción GPS) con cursor sincronizado, tooltips y clic para saltar a una transmisión; el panel agrega la velocidad vertical derivada. Ver [docs/TELEMETRY.md](docs/TELEMETRY.md).
 
 ## Mi recepción: importación local de logs (etapa 7)
 
@@ -41,7 +41,7 @@ Panel agrupado (Vuelo, Altitud, Ambiente, Sistema, Globo, Recepción) y cuatro g
 
 ## Modelo físico del globo (etapa 5)
 
-El marcador simple se reemplazó por un conjunto aproximado (carga útil en la posición GPS, antena debajo y globo encima durante el ascenso). El diámetro estimado del globo crece con la presión y temperatura reales (gas ideal) solo hasta la altitud máxima; después se considera una transición estimada de ruptura/descenso y no se calcula ni se dibuja el globo. Es una estimación visual/física, no una medición. No hay un factor de exageración fijo: de cerca el conjunto se dibuja con su tamaño físico y, al alejar la cámara, una ayuda de visibilidad dependiente de la distancia evita que desaparezca (ver [docs/PHYSICS.md](docs/PHYSICS.md)). Detalles y limitaciones en [docs/PHYSICS.md](docs/PHYSICS.md).
+El marcador simple se reemplazó por un conjunto aproximado (carga útil en la posición GPS, antena debajo y globo encima durante el ascenso). El diámetro estimado del globo crece con la presión y temperatura reales (gas ideal) solo hasta la altitud máxima; después se considera una transición estimada de ruptura/descenso y no se calcula ni se dibuja el globo. Es una estimación visual/física, no una medición. No hay un factor de exageración fijo ni un tamaño angular constante: el conjunto se dibuja con su tamaño físico (cerca) y solo a gran distancia (300–2500 m) se aplica una ayuda de visibilidad gradual y limitada; más lejos se usa el marcador del indicativo (ver [docs/PHYSICS.md](docs/PHYSICS.md)). La cámara usa los controles por defecto de Cesium (ver [docs/MAPPING.md](docs/MAPPING.md)). Detalles y limitaciones en [docs/PHYSICS.md](docs/PHYSICS.md).
 
 ## Decisiones técnicas de la etapa 4
 

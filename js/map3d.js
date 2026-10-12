@@ -115,8 +115,9 @@ export function createMap(containerId, data, playback, diameterModel, config = {
   const balloon = viewer.entities.add({
     id: "balloon",
     position: new Cesium.CallbackProperty(balloonPosition, false),
-    // Offset ENU (este, norte, arriba) desde la carga: ≈ 90 m de distancia.
-    viewFrom: new Cesium.Cartesian3(-35, -70, 45),
+    // Offset ENU (este, norte, arriba) desde la carga: ≈ 35 m. El conjunto se dibuja con tamaño
+    // físico, así que hay que estar cerca para verlo; el usuario puede acercar/alejar libremente.
+    viewFrom: new Cesium.Cartesian3(-14, -28, 14),
     point: {
       pixelSize: 14,
       color: Cesium.Color.fromCssColorString("#ff4d4d"),

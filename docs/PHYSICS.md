@@ -63,41 +63,41 @@ Es una aproximación: 1.5 m corresponde visualmente al momento próximo al lanza
 
 La incertidumbre de D1 (±0.2 m, ~13 %) se propaga proporcionalmente a todas las estimaciones (≈ ±0.7 m en el máximo), sin contar las limitaciones del modelo de abajo. Por eso la interfaz muestra una sola cifra decimal.
 
-## Tamaño físico vs. ayuda de visibilidad (sin ×20 fijo)
+## Tamaño físico y ayuda de visibilidad (solo a distancia)
 
 - `estimatedBalloonDiameterM` es el valor físico y es el que se muestra en el panel ("Diámetro estimado"). No lo modifica ninguna escala visual. Se interpola linealmente solo para el dibujo, entre transmisiones consecutivas del ascenso.
-- **Ya no existe un factor de exageración fijo (el antiguo ×20).** Cada elemento se dibuja con su tamaño físico multiplicado por una **escala visual que depende de la distancia de la cámara** y vale 1 cuando se está cerca. Las primitivas 3D usadas (elipsoide, caja, cilindro) no admiten `scaleByDistance` (eso es solo para puntos, etiquetas y billboards), así que `js/balloon.js` recalcula las dimensiones en cada fotograma:
+- **De cerca el conjunto se dibuja con dimensiones físicas/modeladas**: el globo con su diámetro estimado y la carga con 0.45 × 0.25 × 0.18 m (estimación visual, confianza baja). **No se conserva un tamaño angular constante en pantalla**: al hacer zoom, el conjunto crece o disminuye de forma natural junto con la escena.
+- **Historia (qué se corrigió):** primero se usó un ×20 fijo (etapa 5); luego (etapa 7.1) una escala `clamp(d·θ/L, 1, máx)` por elemento que mantenía un tamaño angular mínimo para el globo y, por separado, para la carga. Esa fórmula compensaba la distancia de cámara en todo el rango de zoom (la carga llegaba a ×4 a 90 m, y a veces parecía mayor que el globo) y hacía que el zoom no se sintiera natural. Se eliminó.
+- **Estrategia actual:** una **única escala para todo el conjunto** (globo, cuello, carga y separaciones), que mantiene siempre la proporción física globo/carga. `js/balloon.js` (`assemblyScale`) la recalcula en cada fotograma, porque las primitivas 3D usadas (elipsoide, caja, cilindro) no admiten `scaleByDistance` (solo puntos, etiquetas y billboards):
 
 ```
-escala(L, θ) = clamp( min(d, dMax) · θ / L , 1 , escalaMax )
+t      = clamp( (d − 300) / (2500 − 300) , 0 , 1 )
+escala = 1 + (8 − 1) · t² · (3 − 2t)          (smoothstep)
 ```
 
   - `d`: distancia cámara → carga útil (m).
-  - `L`: tamaño físico del elemento: diámetro estimado del globo, o 0.45 m (mayor dimensión) de la carga.
-  - `θ`: tamaño angular mínimo en pantalla: 0.015 rad para el globo (≈ 0.86°) y 0.02 rad para la carga (≈ 1.15°).
-  - `dMax = 2500 m`: más allá la ayuda deja de crecer y aparece el marcador puntual del indicativo (`distanceDisplayCondition`).
-  - `escalaMax`: 30 para el globo y 40 para la carga.
-
-  Interpretación: si `d·θ ≤ L` el elemento se ve con su **tamaño físico** (escala 1); si no, se agranda lo justo para no bajar del tamaño angular mínimo. Ejemplos con el globo de 4.94 m (frame 138): a ≤ 330 m escala 1; a 1000 m escala ≈ 3. Con la carga (0.45 m): escala 1 solo a ≤ 22 m; a 90 m ≈ 4.
-- La ayuda es solo de renderizado: **no modifica posición, altitud ni trayectoria**. La ayuda de visibilidad de la carga no es su tamaño físico (0.45 × 0.25 × 0.18 m, estimación visual de confianza baja).
+  - **Hasta 300 m: escala 1** (tamaño físico).
+  - Entre 300 y 2500 m: crecimiento suave y limitado (≈ 1.4 a 600 m, ≈ 2.7 a 1000 m, ≈ 4.5 a 1400 m, ≈ 7.1 a 2000 m).
+  - **Desde 2500 m: escala máxima 8**, congelada. El modelo no se sigue inflando: toma el relevo el marcador puntual del indicativo CX1AA-11 (`distanceDisplayCondition` desde 2500 m).
+- Como la escala es común, la carga nunca supera la proporción física con el globo: largo de la carga / ancho del globo ≈ 0.31 (frame 3, globo de 1.5 m), ≈ 0.24 (frame 47, 1.9 m) y ≈ 0.10 (frame 138, 4.94 m).
+- La ayuda es solo de renderizado: **no modifica posición, altitud ni trayectoria**.
 
 ## Suspensión y antena: sin longitudes físicas conocidas
 
-No se conocen las longitudes de la línea de suspensión ni de la antena (`suspensionLengthM` y `antennaLengthM` son `null` en `flight.json`). Las separaciones que se ven en pantalla son parámetros **solo de renderizado**, definidos en `js/balloon.js` y calculados a partir de la distancia de la cámara (ángulo aproximadamente constante):
+No se conocen las longitudes de la línea de suspensión ni de la antena (`suspensionLengthM` y `antennaLengthM` son `null` en `flight.json`). Las separaciones que se ven en pantalla son parámetros **solo de renderizado**, definidos en `js/balloon.js`, discretos y multiplicados por la misma escala común (1 de cerca):
 
-- `visualSuspensionOffset(d) = clamp(0.035·d, 3, 40)` m de escena entre el borde superior de la carga y el cuello del globo;
-- `visualAntennaOffset(d) = clamp(0.015·d, 1.5, 18)` m de escena hacia abajo desde la base de la carga.
+- `visualSuspensionOffset = clamp(0.6 · diámetro estimado, 0.8, 4)` m de escena entre el borde superior de la carga y el cuello del globo;
+- `visualAntennaOffset = 0.8` m de escena hacia abajo desde la base de la carga.
 
 *Visual-only rendering offset. Not a measured physical length.* No son datos de la misión, no se guardan en los datos y nunca se muestran al usuario como longitudes reales.
 
 ## Elementos dibujados (aproximados)
 
 - **Globo**: elipsoide de revolución blanco/crema, translúcido (82 % opaco), algo alargado (alto = 1.12 × ancho) y con el **mismo volumen que la esfera del diámetro estimado**, más un pequeño cuello inferior (cilindro). Es una forma estilizada: no simula deformación real.
-- **Carga útil**: caja blanca/crema (aspecto de poliestireno) con borde oscuro, 0.45 × 0.25 × 0.18 m × la ayuda de visibilidad, centrada en la posición GPS.
+- **Carga útil**: caja blanca/crema (aspecto de poliestireno) con borde oscuro, 0.45 × 0.25 × 0.18 m × la escala común, centrada en la posición GPS. De cerca es pequeña (es físicamente pequeña); se acerca la cámara o se hace zoom para verla.
 - **Antena**: línea verde fina que cuelga de la carga útil (no representa tirantes estructurales).
-- **Línea de suspensión**: gris, entre la carga y el cuello del globo; solo durante el ascenso.
-- Con la cámara a más de 2500 m se muestra además el marcador puntual con el indicativo, porque el conjunto 3D ya no se distingue; de cerca no compite con el modelo.
-- La cámara "Seguir globo" se coloca a ≈ 90 m de la carga (offset ENU −35, −70, +45 m) y sigue siendo manipulable con los controles normales de Cesium.
+- **Línea de suspensión**: gris fina, entre la carga y el cuello del globo; solo durante el ascenso.
+- La cámara "Seguir globo" se coloca inicialmente a ≈ 35 m de la carga (offset ENU −14, −28, +14 m), sobre una distancia física en la que se ven globo, carga, suspensión y antena; el usuario puede acercar, alejar y rotar libremente (ver `docs/MAPPING.md`).
 
 ## Limitaciones
 

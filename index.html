@@ -72,7 +72,7 @@
             </div>
           </section>
         </div>
-        <p class="note">Valores de la transmisión real vigente (no se interpolan); la posición GPS es la de la carga útil. El marcador 3D se interpola solo visualmente entre transmisiones. Diámetro estimado: estimación física basada en presión, temperatura y diámetro inicial visual (no es una medición), solo durante el ascenso. El conjunto globo–carga usa tamaño físico de cerca y una ayuda de visibilidad que crece con la distancia de la cámara (no es tamaño físico), con separaciones y antena solo visuales.</p>
+        <p class="note">Valores de la transmisión real vigente (no se interpolan); la posición GPS es la de la carga útil. El marcador 3D se interpola solo visualmente entre transmisiones. Diámetro estimado: estimación física basada en presión, temperatura y diámetro inicial visual (no es una medición), solo durante el ascenso. El conjunto globo–carga se dibuja con tamaño físico/modelado de cerca; solo a gran distancia se aplica una ayuda de visibilidad gradual y limitada (no es tamaño físico). Las separaciones de suspensión y antena son solo visuales.</p>
       </aside>
 
       <aside id="receptionPanel" aria-label="Mi recepción">
@@ -146,9 +146,9 @@
         <button type="button" id="btnTelemetry" aria-expanded="true">Telemetría ▾</button>
         <span id="chartsPager" class="pager" role="group" aria-label="Páginas de gráficos">
           <button type="button" id="chartsPrev" aria-label="Página anterior" title="Página anterior">‹</button>
-          <span id="chartsPageLabel" aria-live="polite">Página 1 de 2</span>
+          <span id="chartsPageLabel" aria-live="polite">Página 1 de 4</span>
           <button type="button" id="chartsNext" aria-label="Página siguiente" title="Página siguiente">›</button>
-          <span class="dots" aria-hidden="true"><span class="dot active"></span><span class="dot"></span></span>
+          <span class="dots" aria-hidden="true"><span class="dot active"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
         </span>
         <span class="hint">Eje: hora de emisión (hora local, UTC−3). Datos de transmisiones reales, sin interpolar. ▲ = advertencia de APRS.fi; franja roja = transición estimada de ruptura/descenso (inferida). Clic en un punto para saltar a esa transmisión.</span>
       </div>
@@ -156,12 +156,16 @@
         <div class="chartPage" data-page="1">
           <div class="chartBox"><h3>Altitud (m)</h3><div class="plot"><canvas id="chartAltitude"></canvas><div class="cursor"></div></div></div>
           <div class="chartBox"><h3>Temperaturas (°C)</h3><div class="plot"><canvas id="chartTemperature"></canvas><div class="cursor"></div></div></div>
-          <div class="chartBox"><h3>Presión atmosférica (hPa)</h3><div class="plot"><canvas id="chartPressure"></canvas><div class="cursor"></div></div></div>
-          <div class="chartBox"><h3>Batería (raw · ≈ V probable)</h3><div class="plot"><canvas id="chartBattery"></canvas><div class="cursor"></div></div></div>
         </div>
         <div class="chartPage" data-page="2" hidden>
+          <div class="chartBox"><h3>Presión atmosférica (hPa)</h3><div class="plot"><canvas id="chartPressure"></canvas><div class="cursor"></div></div></div>
           <div class="chartBox"><h3>Humedad externa (%)</h3><div class="plot"><canvas id="chartHumidity"></canvas><div class="cursor"></div></div></div>
+        </div>
+        <div class="chartPage" data-page="3" hidden>
+          <div class="chartBox"><h3>Batería (raw · ≈ V probable)</h3><div class="plot"><canvas id="chartBattery"></canvas><div class="cursor"></div></div></div>
           <div class="chartBox"><h3>Velocidad GPS (km/h)</h3><div class="plot"><canvas id="chartSpeed"></canvas><div class="cursor"></div></div></div>
+        </div>
+        <div class="chartPage" data-page="4" hidden>
           <div class="chartBox"><h3>Curso GPS (°)</h3><div class="plot"><canvas id="chartCourse"></canvas><div class="cursor"></div></div></div>
           <div class="chartBox"><h3>Recepción GPS (valores brutos)</h3><div class="plot"><canvas id="chartGps"></canvas><div class="cursor"></div></div></div>
         </div>

@@ -54,13 +54,13 @@ Importador de logs (etapa 7): el log se lee con la File API y se procesa en el n
 
 Cartografía (etapa 8): `terrain.js` mantiene OpenStreetMap + elipsoide por defecto y, si `config.local.js` aporta un token válido, cambia a Cesium World Imagery + World Terrain; si falla, conserva el modo básico. El relieve es solo de representación (no toca lat/lon/altitudeGpsM). Las alturas de terreno de las estaciones se consultan en tiempo de ejecución y no se guardan. Ver `docs/MAPPING.md`.
 
-Telemetría (etapas 6 y 8): `charts.js` crea los ocho gráficos una sola vez (se muestran 4 por página; paginar solo cambia la visibilidad y pone al día los gráficos que se hacen visibles) a partir de `flight` y expone `sync()`, que `app.js` engancha a `playback.onChange`. Solo se mueve el cursor (un `<div>` superpuesto) y se resalta el punto de la transmisión vigente; el clic en un punto llama a `playback.seekToIndex` (sin Play). Chart.js 4.4.1 se carga por CDN con versión fijada. Ver `docs/TELEMETRY.md`.
+Telemetría (etapas 6 y 8): `charts.js` crea los ocho gráficos una sola vez (se muestran 2 por página, en 4 páginas; paginar solo cambia la visibilidad y pone al día los gráficos que se hacen visibles) a partir de `flight` y expone `sync()`, que `app.js` engancha a `playback.onChange`. Solo se mueve el cursor (un `<div>` superpuesto) y se resalta el punto de la transmisión vigente; el clic en un punto llama a `playback.seekToIndex` (sin Play). Chart.js 4.4.1 se carga por CDN con versión fijada. Ver `docs/TELEMETRY.md`.
 
 Decisiones del modelo del conjunto de vuelo:
 
 - La posición GPS es la de la **carga útil**: la carga se dibuja en esa posición, la antena debajo y el globo encima (solo en ascenso).
 - La fórmula de expansión se aplica solo hasta la transmisión de máxima altitud (determinada desde los datos). Desde la siguiente se considera la **transición estimada de ruptura/descenso** (inferida del perfil de vuelo; no se conoce el instante exacto): no se calcula diámetro ni se dibuja la esfera.
-- Suspensión y antena no tienen longitudes físicas conocidas; sus separaciones son offsets solo visuales (`visualSuspensionOffset`, `visualAntennaOffset`). No hay factor de exageración fijo: `balloon.js` aplica una escala visual dependiente de la distancia de la cámara (1 de cerca), separada del diámetro estimado. Ver `docs/PHYSICS.md`.
+- Suspensión y antena no tienen longitudes físicas conocidas; sus separaciones son offsets solo visuales (`visualSuspensionOffset`, `visualAntennaOffset`). No hay factor de exageración fijo ni tamaño angular constante: `balloon.js` dibuja el conjunto con tamaño físico (escala 1) hasta 300 m y aplica una ayuda de visibilidad común, suave y limitada (máx. ×8) solo entre 300 y 2500 m; más allá se usa el marcador lejano. Separada del diámetro estimado. Ver `docs/PHYSICS.md`. La cámara usa los controles por defecto de Cesium y el seguimiento nativo (`trackedEntity`); ver `docs/MAPPING.md`.
 
 ## 6. Importador futuro de logs externos
 Carga local, en el navegador, de logs de radioaficionados para resaltar las tramas recibidas por cada uno. Sin envío al servidor. Los archivos de ejemplo/trabajo irían en `imports/`.

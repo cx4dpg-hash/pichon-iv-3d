@@ -28,22 +28,32 @@ window.PICHON_CONFIG = { cesiumIonToken: "SU_TOKEN" };
 ## Altitudes: el relieve no modifica los datos
 
 - `altitudeGpsM` sigue siendo el dato GPS de la **carga útil** y se usa tal cual como altura sobre el elipsoide. El relieve **no** modifica `lat`, `lon`, `altitudeGpsM` ni la trayectoria, y el vuelo no se "pega" al terreno.
-- Con relieve activo se activa la prueba de profundidad contra el terreno (`depthTestAgainstTerrain`), de modo que el terreno puede ocultar partes de la trayectoria que pasen bajo él.
+- `depthTestAgainstTerrain` se deja en su valor por defecto (`false`): el terreno no oculta la trayectoria ni la carga aunque a baja altitud la altitud GPS quede por debajo del relieve.
 - **Geoide vs. elipsoide**: la altitud APRS suele ser sobre el nivel medio del mar (geoide) y Cesium usa altura elipsoidal; en Uruguay la diferencia es de unas decenas de metros y **no se corrige**. Esto es relevante a baja altitud (frame 3: 121 m).
+- **Inconsistencia conocida (pendiente):** con terreno real, en los frames 3 a 10 la altitud GPS queda hasta ≈ 9 m por debajo del terreno (terreno ≈ 127 m, GPS ≈ 118–121 m; mínimo −9 m en el frame 9). Es del orden de la diferencia geoide/elipsoide y no se corrige; queda documentada y pendiente de decisión.
 - **Informe de baja altitud**: con relieve activo, `js/terrain.js` consulta en tiempo de ejecución la altura del terreno bajo las 155 posiciones y calcula la separación `altitudeGpsM − terreno`. Informa (en el tooltip del indicador y con un mensaje informativo en la consola) la separación mínima y los frames en que la carga quedaría bajo el terreno. **No corrige nada en silencio**: una inconsistencia visible debe reportarse y decidirse aparte. Estos valores no se guardan.
 
 ## Estaciones
 
 Con relieve activo se consulta en tiempo de ejecución la altura del terreno de las cuatro estaciones fijas (y de la estación fija del usuario en "Mi recepción", si ingresó coordenadas) y se dibujan sobre ese terreno. **Es solo representación**: no se guarda en `stations.json` (`terrainHeightM` sigue en `null`) ni se presenta como medición de la estación. Sin relieve, las estaciones se dibujan a altura 0 del elipsoide (comportamiento anterior). CX3BP-8 (móvil, posición desconocida) no se dibuja.
 
-## Cámara
+## Cámara y controles del mouse
 
-- Con relieve se mantiene activa la detección de colisión de la cámara de Cesium (`enableCollisionDetection`) para la navegación manual, que sigue siendo la normal de Cesium.
-- "Seguir globo" coloca la cámara ≈ 90 m de la carga, por encima de ella, y "Vista general" encuadra toda la trayectoria. En modo seguimiento la cámara no se corrige contra el terreno.
+**Controles por defecto de Cesium.** El proyecto no define ningún esquema propio: `viewer.scene.screenSpaceCameraController` conserva todos sus valores por defecto, con y sin terreno (verificado leyendo la configuración en ambos modos): `enableCollisionDetection = true`, `minimumZoomDistance = 1`, `maximumZoomDistance = Infinity`, `enableZoom/Tilt/Rotate/Translate/Look = true`, rueda / pinch / botón derecho para zoom, botón izquierdo para rotar/desplazar y botón central (o Ctrl + arrastre) para inclinar.
+
+**Qué alteraba la interacción.** No se encontró ninguna modificación del controlador de cámara. Lo que sí cambió al activar terreno y la escala visual, y se corrigió:
+- **Escala visual compensada por distancia** (etapa 7.1): el conjunto 3D mantenía un tamaño angular mínimo en todo el rango de zoom, de modo que al acercar o alejar el objeto no reaccionaba como la escena (el zoom "no se sentía natural") y la carga podía parecer mayor que el globo. Ahora solo hay ayuda gradual a distancia (ver `docs/PHYSICS.md`).
+- **`depthTestAgainstTerrain = true`** (activado junto con el terreno): con altitudes GPS por debajo del terreno (frames 3 a 10, hasta −9 m) la carga quedaba oculta bajo el relieve. Se volvió al valor por defecto de Cesium (`false`): la carga siempre se dibuja, sin "pegarla" al suelo (el ground-clamp visual sigue pendiente).
+- **Asignación explícita de `enableCollisionDetection = true`**: era el valor por defecto, así que no cambiaba nada; se eliminó para no tocar el controlador. La detección de colisión con el terreno sigue activa por defecto (evita atravesar el relieve en la navegación manual) y no impide el zoom: en pruebas, la rueda reduce la altura aproximadamente a la mitad por paso, igual con y sin terreno.
+- **Distancia inicial de "Seguir globo"** (90 m): con el conjunto ahora a tamaño físico quedaba muy lejos; ahora se coloca a ≈ 35 m.
+
+**Seguir globo.** Usa el seguimiento nativo de Cesium (`viewer.trackedEntity` sobre la carga), sin ningún `lookAt`, `setView` ni `flyTo` propio por fotograma. Al activarlo se coloca la cámara inicialmente (≈ 35 m); después el seguimiento conserva la distancia y la orientación relativas que haya dejado el usuario (zoom con rueda o botón derecho, rotación con arrastre izquierdo) mientras la reproducción mueve el objetivo. "Vista general" encuadra toda la trayectoria y suelta el seguimiento.
+
+**Limitación de Cesium en seguimiento:** con una entidad seguida, Cesium desactiva por sí mismo la inclinación con el botón central; en ese modo la inclinación se hace con el arrastre izquierdo vertical. En Vista general el botón central inclina con normalidad.
 
 ## Estado de las pruebas
 
-Probado **sin token** (mapa básico, aplicación completa) y con un **token inválido ficticio** (activación de Ion falla y se conserva el modo básico sin exponer el token). **No se probó con un token real**: no se dispone de uno y no se inventó. Pendientes de verificar con token real: imaginería satelital, terreno, alturas de estaciones, informe de baja altitud (frame 3), vista general y seguimiento sobre relieve.
+Probado **sin token** (mapa básico, aplicación completa), con un **token inválido ficticio** (la activación de Ion falla y se conserva el modo básico sin exponer el token) y, desde que `config.local.js` contiene un token válido, con **imaginería satelital + relieve 3D reales**: indicador "Satélite + relieve 3D", alturas de las estaciones sobre el terreno, informe de baja altitud (frames 3 a 10 bajo el terreno), Vista general y Seguir globo, con zoom con rueda y arrastres izquierdo, derecho y central. La sensación subjetiva de la navegación solo puede juzgarla una persona: lo comprobado automáticamente es que la configuración del controlador es la de Cesium por defecto y que cada gesto produce el cambio de cámara esperado.
 
 ## Limitaciones
 

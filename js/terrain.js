@@ -46,8 +46,10 @@ export function createBaseMap(viewer, osmLayer, { token, flight, stations }) {
       viewer.imageryLayers.addImageryProvider(imagery, 0); // al fondo, bajo cualquier otra capa
       viewer.imageryLayers.remove(osmLayer, true);
       viewer.scene.globe.terrainProvider = terrain;
-      viewer.scene.globe.depthTestAgainstTerrain = true;
-      viewer.scene.screenSpaceCameraController.enableCollisionDetection = true;
+      // No se modifica screenSpaceCameraController (controles por defecto de Cesium; la
+      // detección de colisión con el terreno ya está activa por defecto) ni depthTestAgainstTerrain
+      // (por defecto false): la carga se dibuja aunque, a baja altitud, la altitud GPS quede por
+      // debajo del terreno (ver docs/MAPPING.md); no se oculta bajo el relieve ni se "pega" al suelo.
       state.mode = "ion";
       state.terrainProvider = terrain;
       state.sampleHeight = async (lat, lon) => {
