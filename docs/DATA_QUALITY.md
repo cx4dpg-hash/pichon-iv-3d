@@ -134,3 +134,7 @@ Hasta el frame 10 todo es ruido de GPS en tierra: altitud entre 118 y 124 m sin 
 - **Paracaídas: no abrió (confirmado por el usuario).** Procedencia separada: el punto de recuperación es de APRS de CX5RN-5; el estado del paracaídas es una confirmación del usuario y **no** se deriva del log APRS ni de la telemetría (que no lo contradicen ni lo prueban). Está en `recovery.json → parachute`. Ya no se usa lenguaje de duda ("aparentemente", "no confirmado").
 - **Posición interpolada = reconstrucción visual.** Entre transmisiones, la posición dibujada (Hermite monótona) no es un dato; coincide exactamente con las transmisiones reales y no las modifica. Ver `docs/PHYSICS.md` para las velocidades derivadas, sus diferencias con la velocidad/curso transmitidos y las métricas de la interpolación.
 - **Nubes 3D = reconstrucción aproximada.** Las nubes de la aplicación derivan de `data/clouds/cloud-model.json` (base inferida de METAR a 68–116 km, tope satelital con dispersión, confianza baja a media). No son una observación; ver `docs/CLOUD_MODEL.md`.
+
+## Etapa 16: fase visual final no telemétrica
+
+Entre el frame 157 (última telemetría) y el punto de recuperación (APRS de CX5RN-5) **no hay datos de posición ni de tiempo**. La animación final (18 s de reproducción) es una reconstrucción visual: no es una medición, no tiene timestamp APRS, no agrega transmisiones y no modifica `transmissions.json`. Ver `docs/PHYSICS.md`. El paracaídas figura como "no abrió (confirmado)" (confirmación del usuario).

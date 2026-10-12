@@ -34,7 +34,7 @@ export function initUi({ data, playback, map, diameterModel, verticalSpeeds }) {
   // --- Timeline ---
   const slider = $("slider");
   slider.min = "0";
-  slider.max = String(Math.round(playback.duration));
+  slider.max = String(Math.round(playback.totalDuration)); // incluye la fase visual final
   slider.step = "1000";
   $("tStart").textContent = formatLocalTime(playback.t0);
   $("tEnd").textContent = formatLocalTime(playback.t0 + playback.duration);
@@ -91,6 +91,7 @@ export function initUi({ data, playback, map, diameterModel, verticalSpeeds }) {
 
   // --- Panel de información (valores de la transmisión real vigente) ---
   let renderedIndex = -1;
+  let lastFinalState = "";
   function renderPanel(index) {
     const tx = flight[index];
     $("pCount").textContent = `Transmisión ${index + 1} de ${flight.length}`;
@@ -156,14 +157,21 @@ export function initUi({ data, playback, map, diameterModel, verticalSpeeds }) {
       const km = haversineKm(tx.position.lat, tx.position.lon, r.lat, r.lon);
       $("recoveryText").textContent =
         `Tramo final no telemétrico hasta el punto de recuperación (${r.label}; APRS de CX5RN-5), a ≈ ${Math.round(km * 1000)} m del último punto. ` +
-        `${data.recovery.parachute.text}. Fuente: confirmación del usuario (no deriva del log APRS).`;
+        `${data.recovery.parachute.text}. Fuente: confirmación del usuario (no deriva del log APRS). ` +
+        `Posición final basada en recuperación CX5RN-5; tramo previo no telemétrico.`;
     }
     renderedIndex = index;
   }
 
   function render() {
     if (!dragging) slider.value = String(Math.round(playback.offset));
-    const nowText = formatLocalTime(playback.absoluteMs);
+    // Fase visual final (no telemétrica): el reloj real queda en la última transmisión.
+    const finalState = !playback.inFinalPhase ? "" : playback.finalFraction >= 1 ? "done" : "moving";
+    if (finalState !== lastFinalState) {
+      lastFinalState = finalState;
+      renderedIndex = -1; // vuelve a pintar el panel con los textos base
+    }
+    const nowText = formatLocalTime(playback.absoluteMs) + (finalState ? " · fin de la telemetría" : "");
     $("tNow").textContent = nowText;
     $("tNowPanel").textContent = nowText;
     playButton.textContent = playback.playing ? "Pausa" : "Play";
@@ -171,7 +179,17 @@ export function initUi({ data, playback, map, diameterModel, verticalSpeeds }) {
       button.setAttribute("aria-pressed", String(Number(button.dataset.speed) === playback.speed));
     }
     const index = playback.index;
-    if (index !== renderedIndex) renderPanel(index);
+    if (index !== renderedIndex) {
+      renderPanel(index);
+      if (finalState) {
+        // Distingue telemetría (valores del frame 157) de la reconstrucción visual posterior.
+        $("pCount").textContent = `Transmisión ${index + 1} de ${flight.length} (última telemétrica) · tramo final no telemétrico`;
+        $("pBalloonState").textContent =
+          finalState === "moving"
+            ? "Descenso final no telemétrico (reconstrucción visual; duración no medida)"
+            : "Recuperación / punto final (posición basada en recuperación CX5RN-5; tramo previo no telemétrico)";
+      }
+    }
   }
 
   playback.onChange(render);

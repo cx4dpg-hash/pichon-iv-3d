@@ -32,6 +32,7 @@ La reproducción empieza en la **liberación** (frame 10, 13:21:39 UTC = 10:21:3
 
 - **Nubes 3D (botón "Nubes 3D", apagado por defecto):** reconstrucción 3D **aproximada** basada en GOES-19 + METAR, dibujada con `Cesium.CloudCollection` a partir de `data/clouds/cloud-model.json` (base, tope, espesor, cobertura y zonas por hora; transiciones suaves). Disponible también en el modo Presentación. No son nubes reales ni una observación. Ver [docs/CLOUD_MODEL.md](docs/CLOUD_MODEL.md).
 - **Movimiento de la carga:** `positionAtTime` usa ahora interpolación Hermite cúbica monótona (PCHIP) en lugar de lineal: la velocidad es continua en cada transmisión (se acelera y frena de forma suave), sin sobreimpulso y pasando exactamente por cada transmisión real; el tiempo de reproducción y las velocidades 1x–64x no cambian. Ver [docs/PHYSICS.md](docs/PHYSICS.md).
+- **Final de la carga (etapa 16):** tras el frame 157 la carga continúa en una fase visual "Descenso final no telemétrico" (18 s, reconstruida, no medida; sin timestamp ni transmisiones nuevas) por la línea violeta hasta el punto de recuperación de CX5RN-5, y queda apoyada en el terreno. Ver [docs/PHYSICS.md](docs/PHYSICS.md).
 - **Paracaídas:** el estado "no abrió" está **confirmado por el usuario** (no deriva de APRS) y se muestra así en el panel del último punto ([docs/DATA_QUALITY.md](docs/DATA_QUALITY.md)).
 
 ## Modo presentación y modelo meteorológico de nubosidad (etapa 14)

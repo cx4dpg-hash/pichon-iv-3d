@@ -3,12 +3,25 @@
 
 export const SPEEDS = [1, 2, 4, 8, 16, 32, 64];
 
+/**
+ * Duración (ms de reproducción) de la fase visual final "Descenso final no telemétrico": desde la
+ * última transmisión (frame 157) hasta el punto de recuperación. NO es un tiempo medido ni un
+ * timestamp APRS: es una duración elegida para la presentación: ≈ los 151 m de recta divididos
+ * por la última velocidad GPS transmitida (29,6 km/h ≈ 8,2 m/s) ≈ 18 s. Siempre corre a velocidad 1x, sea cual sea la
+ * velocidad elegida, para que se vea.
+ */
+export const FINAL_PHASE_MS = 18000;
+
 export class Playback {
   /** @param {number[]} times instantes (ms) de cada transmisión, en orden estricto */
   constructor(times) {
     this.times = times;
     this.t0 = times[0];
-    this.duration = times[times.length - 1] - times[0];
+    this.duration = times[times.length - 1] - times[0]; // telemetría real (primera a última transmisión)
+    this.finalMs = FINAL_PHASE_MS;
+    this.totalDuration = this.duration + this.finalMs; // + fase visual final (reconstruida)
+    // Datos de la fase final (los fija recovery.js): { lat, lon, groundM, offsetM }
+    this.final = null;
     this.offset = 0; // ms desde la primera transmisión
     this.playing = false;
     this.speed = 1;
@@ -45,8 +58,24 @@ export class Playback {
     this._emit();
   }
 
+  /** Instante real: se congela en la última transmisión durante la fase visual final. */
   get absoluteMs() {
-    return this.t0 + this.offset;
+    return this.t0 + Math.min(this.offset, this.duration);
+  }
+
+  /** 0 durante la telemetría; 0–1 durante la fase visual final no telemétrica. */
+  get finalFraction() {
+    return this.offset > this.duration ? Math.min((this.offset - this.duration) / this.finalMs, 1) : 0;
+  }
+
+  get inFinalPhase() {
+    return this.offset > this.duration;
+  }
+
+  /** Define el destino de la fase final (punto de recuperación y altura de apoyo). */
+  setFinalPhase(final) {
+    this.final = final;
+    this._emit();
   }
 
   /** Índice de la transmisión vigente: la última con instante <= tiempo actual. */
@@ -76,7 +105,7 @@ export class Playback {
   }
 
   seek(offset) {
-    this.offset = Math.min(Math.max(offset, 0), this.duration);
+    this.offset = Math.min(Math.max(offset, 0), this.totalDuration);
     this._emit();
   }
 
@@ -103,7 +132,7 @@ export class Playback {
 
   play() {
     if (this.playing) return;
-    if (this.offset >= this.duration) this.offset = 0;
+    if (this.offset >= this.totalDuration) this.offset = 0;
     this.playing = true;
     this._last = performance.now();
     this._raf = requestAnimationFrame((now) => this._tick(now));
@@ -124,9 +153,14 @@ export class Playback {
     const dt = Math.min(now - this._last, 1000);
     this._last = now;
     // Velocidad = multiplicador del tiempo real del vuelo.
-    this.offset += dt * this.speed;
     if (this.offset >= this.duration) {
-      this.offset = this.duration;
+      this.offset += dt; // fase visual final: siempre a 1x
+    } else {
+      this.offset += dt * this.speed;
+      if (this.offset > this.duration) this.offset = this.duration; // termina la fase telemétrica
+    }
+    if (this.offset >= this.totalDuration) {
+      this.offset = this.totalDuration;
       this.playing = false;
       this._raf = null;
     } else {
@@ -251,7 +285,25 @@ export function positionAtTimeLinear(flight, times, ms, altitudes = null) {
 
 /** Posición visual de la carga en el instante actual de la reproducción. */
 export function visualPosition(flight, playback) {
+  const f = playback.finalFraction;
+  if (f > 0 && playback.final) return finalPosition(flight, playback, f);
   return positionAtTime(flight, playback.times, playback.absoluteMs, playback.displayAltM);
+}
+
+/**
+ * Fase visual final NO TELEMÉTRICA: recta desde la última transmisión (tal como se dibuja) hasta
+ * el punto de recuperación, a la altura del terreno + un pequeño apoyo visual. Es la misma recta
+ * que la línea violeta (recovery.js). No usa ninguna altitud GPS inventada.
+ */
+export function finalPosition(flight, playback, f) {
+  const start = positionAtTime(flight, playback.times, playback.times[playback.times.length - 1], playback.displayAltM);
+  const end = { lat: playback.final.lat, lon: playback.final.lon, altM: playback.final.groundM + playback.final.offsetM };
+  if (f >= 1) return end;
+  return {
+    lat: start.lat + (end.lat - start.lat) * f,
+    lon: start.lon + (end.lon - start.lon) * f,
+    altM: start.altM + (end.altM - start.altM) * f,
+  };
 }
 
 /**

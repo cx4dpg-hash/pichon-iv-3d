@@ -18,6 +18,11 @@ export function addRecovery(viewer, { data, playback, map }) {
   const { flight, times } = data;
   let groundHeightM = 0; // altura de terreno consultada (solo representación); sin relieve, 0
 
+  // Fase visual final: la carga continúa hasta aquí. offsetM = 0: el apoyo (mitad de la altura visual
+  // de la caja sobre el terreno) lo agrega balloon.js según la escala de visualización.
+  const FINAL_OFFSET_M = 0;
+  playback.setFinalPhase({ lat: rescue.lat, lon: rescue.lon, groundM: 0, offsetM: FINAL_OFFSET_M });
+
   const rescueCartesian = () => Cesium.Cartesian3.fromDegrees(rescue.lon, rescue.lat, groundHeightM);
   // Último punto de la trayectoria principal tal como se dibuja (altura de render).
   const lastCartesian = () => {
@@ -84,7 +89,10 @@ export function addRecovery(viewer, { data, playback, map }) {
     if (map.baseMap.mode !== "ion") return;
     try {
       const h = await map.baseMap.sampleHeight(rescue.lat, rescue.lon);
-      if (h !== null) groundHeightM = h;
+      if (h !== null) {
+        groundHeightM = h;
+        playback.setFinalPhase({ lat: rescue.lat, lon: rescue.lon, groundM: h, offsetM: FINAL_OFFSET_M });
+      }
     } catch {
       /* sin relieve disponible: se queda en 0 */
     }

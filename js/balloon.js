@@ -74,8 +74,9 @@ export function createBalloonAssembly(viewer, { flight, playback, diameterModel,
   // Pose calculada para el instante de reproducción y la posición actual de la cámara.
   function getPose() {
     const p = visualPosition(flight, playback);
+    const finalF = playback.final ? playback.finalFraction : 0;
     const at = (altM) => Cesium.Cartesian3.fromDegrees(p.lon, p.lat, altM);
-    const payloadCenter = at(p.altM);
+    let payloadCenter = at(p.altM);
     const d = Cesium.Cartesian3.distance(camera.positionWC, payloadCenter);
 
     // Una única escala para todo el conjunto (proporción globo/carga constante): 1 de cerca.
@@ -87,6 +88,12 @@ export function createBalloonAssembly(viewer, { flight, playback, diameterModel,
       width: payloadPhysical.width * scale,
       height: payloadPhysical.height * scale,
     };
+    // Fase final no telemétrica: la carga acaba APOYADA en el terreno (centro = terreno + mitad de su
+    // altura visual), sea cual sea la escala de visualización; el ajuste crece con la fase.
+    if (finalF > 0) {
+      p.altM += finalF * (payload.height / 2 + 0.02 - playback.final.offsetM);
+      payloadCenter = at(p.altM);
+    }
     const payloadTop = p.altM + payload.height / 2;
     const payloadBottom = p.altM - payload.height / 2;
     const antennaOffset = VISUAL_AID.antennaOffsetM * scale;

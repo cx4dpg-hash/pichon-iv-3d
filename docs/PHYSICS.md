@@ -132,3 +132,14 @@ El tiempo de reproducción **no cambia**: 1x es tiempo real y las velocidades 1x
 | 3D (km/h) | 7,4 | 145,0 | 62,6 |
 
 **Comparación con la velocidad y el curso transmitidos** (velocidad APRS de 1 kt de resolución, promedio de los dos extremos): diferencia derivada − transmitida de −13,8 a +10,3 km/h (media −1,3). Mayores diferencias de velocidad: frames 140→141 (−13,8 km/h; descenso casi vertical de 1,6 km en 60 s con 4,7 km/h horizontales derivados), 114→115 (−11,0), 129→130 (−10,9), 146→147 (−10,6) y 145→146 (+10,3). El rumbo derivado difiere del curso transmitido 9,3° de media y más de 30° en 9 intervalos, todos con velocidad horizontal baja (de 3,8 a 17 km/h; por ejemplo 140→141: 171°, 4,7 km/h; 113→114: 75°, 5,7 km/h), donde el curso GPS es ruidoso. Esas diferencias **no se usan** para modificar nada: la velocidad y el curso transmitidos siguen siendo datos crudos, y la interpolación usa solo las posiciones.
+
+
+## Fase visual final no telemétrica (etapa 16)
+
+La última transmisión (frame 157, 13:23:46 hora local, 230 m GPS) sigue siendo la última telemetría real. La carga no queda detenida allí: al terminar la telemetría la reproducción entra en una fase **visual y reconstruida**, "Descenso final no telemétrico", en la que la carga recorre la recta violeta ya existente hasta el punto de recuperación (−34.3286667, −53.9865, APRS de CX5RN-5), a unos 151 m.
+
+- **Duración: 18 s de reproducción, elegida para la presentación, NO medida.** Es ≈ 151 m / 8,2 m/s (la última velocidad GPS transmitida, 29,6 km/h). No hay timestamp APRS para este tramo, no se agrega ninguna transmisión y `transmissions.json` no cambia. La fase corre siempre a 1x aunque la velocidad elegida sea mayor, y el reloj real queda congelado en 13:23:46 ("· fin de la telemetría"). La barra de tiempo se alarga esos 18 s.
+- **Trayectoria:** interpolación lineal (lat, lon, altura) entre la posición dibujada del frame 157 y el punto de recuperación; coincide con la línea violeta (desvío ≤ 0,3 m, solo por el apoyo final). La línea amarilla no se modifica.
+- **Altura final:** terreno consultado en el punto + la mitad de la altura visual de la caja (+ 2 cm), de modo que queda apoyada y no enterrada ni suspendida a cualquier escala de visualización. No se usa ninguna altitud GPS inventada. (Con relieve, terreno ≈ 11,6 m; sin relieve, 0 m.)
+- **Paracaídas:** no abrió (confirmado por el usuario); no se representa descenso bajo paracaídas.
+- **Panel:** "Transmisión 148 de 148 (última telemétrica) · tramo final no telemétrico"; fase "Descenso final no telemétrico (reconstrucción visual; duración no medida)" y, al terminar, "Recuperación / punto final (posición basada en recuperación CX5RN-5; tramo previo no telemétrico)". Los valores de telemetría que se ven siguen siendo los del frame 157.
