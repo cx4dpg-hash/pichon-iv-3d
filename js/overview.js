@@ -98,3 +98,30 @@ export function fitOverview({ points, frame, center, pitchDeg, width, height, fo
 export function safeRect({ width, height, leftInsetPx = 0, margin = 24, top = 52, bottom = 56 }) {
   return { left: Math.min(leftInsetPx + margin, width * 0.6), right: width - margin, top, bottom: height - bottom };
 }
+
+/**
+ * Área segura en móvil (px, respecto del lienzo): descuenta la cabecera superior y la parte del
+ * panel inferior (bottom sheet) que se superpone al mapa, más los márgenes de área segura laterales.
+ * `bottomPx` es la altura del lienzo tapada por la UI (0 si el panel está colapsado y queda fuera).
+ */
+export function mobileSafeRect({ width, height, topPx = 0, bottomPx = 0, leftPx = 0, rightPx = 0, margin = 12 }) {
+  const left = leftPx + margin;
+  const right = width - rightPx - margin;
+  const top = topPx + margin;
+  const bottom = height - Math.max(0, bottomPx) - margin;
+  return { left, right: Math.max(right, left + 1), top, bottom: Math.max(bottom, top + 1) };
+}
+
+/**
+ * Limita la holgura de las etiquetas: en una pantalla estrecha una etiqueta de ~330 px no puede
+ * reservar casi todo el ancho (el encuadre degeneraría en un acercamiento extremo).
+ */
+export function capPads(points, { maxSidePx, maxVerticalPx = Infinity }) {
+  return points.map((pt) => ({
+    ...pt,
+    padL: Math.min(pt.padL ?? 0, maxSidePx),
+    padR: Math.min(pt.padR ?? 0, maxSidePx),
+    padT: Math.min(pt.padT ?? 0, maxVerticalPx),
+    padB: Math.min(pt.padB ?? 0, maxVerticalPx),
+  }));
+}

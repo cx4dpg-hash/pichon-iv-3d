@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>PICHÓN IV 3D</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cesium@1.123.1/Build/Cesium/Widgets/widgets.css">
@@ -14,6 +14,13 @@
 </head>
 <body>
   <div id="app">
+    <!-- Cabecera compacta: solo se muestra en la presentación móvil (ver css/app.css, js/mobile.js). -->
+    <header id="mobileHeader">
+      <img class="logo logo-rcu" src="assets/branding/rcu-shield.png" alt="Radio Club Uruguayo" width="35" height="44">
+      <div class="mTitle"><strong>PICHÓN IV</strong><span>CX1AA-11</span></div>
+      <span class="logoChip"><img class="logo logo-pichon" src="assets/branding/pichon-iv-logo.png" alt="Pichón IV" width="39" height="28"></span>
+      <button type="button" id="btnInfoMobile" class="infoBtn" aria-haspopup="dialog" aria-controls="infoModal" title="Información: metodología, fuentes y limitaciones" aria-label="Información: metodología, fuentes y limitaciones">ⓘ</button>
+    </header>
     <div id="viewerWrap">
       <div id="cesiumContainer"></div>
 
@@ -157,14 +164,26 @@
       <div id="status" role="alert" hidden></div>
     </div>
 
+    <!-- Barra del bottom sheet (solo móvil): handle, pestañas y botón de tamaño. -->
+    <div id="sheetBar" role="group" aria-label="Panel inferior">
+      <button type="button" id="sheetHandle" aria-label="Abrir o cerrar el panel inferior" aria-expanded="false"><span class="grip"></span></button>
+      <div class="sheetTabs" role="tablist" aria-label="Contenido del panel">
+        <button type="button" role="tab" data-tab="data" aria-selected="true">Datos</button>
+        <button type="button" role="tab" data-tab="charts" aria-selected="false">Gráficos</button>
+      </div>
+      <button type="button" id="sheetStep" aria-label="Ampliar el panel" title="Ampliar / reducir el panel">⌃</button>
+    </div>
+
     <footer id="controls">
       <div class="row">
         <div class="group">
-          <button type="button" id="btnPrev" title="Transmisión anterior">&#9198; Anterior</button>
+          <button type="button" id="btnPrev" title="Transmisión anterior" aria-label="Transmisión anterior">&#9198;<span class="lbl"> Anterior</span></button>
           <button type="button" id="btnPlay">Play</button>
-          <button type="button" id="btnNext" title="Transmisión siguiente">Siguiente &#9197;</button>
+          <button type="button" id="btnNext" title="Transmisión siguiente" aria-label="Transmisión siguiente"><span class="lbl">Siguiente </span>&#9197;</button>
         </div>
         <div class="group" id="speeds" aria-label="Velocidad de reproducción"></div>
+        <div id="mCounter" class="mobileOnly" aria-live="off"><span id="mTx">—</span><span id="mTime">--:--:--</span></div>
+        <button type="button" id="btnSpeedM" class="mobileOnly" title="Cambiar la velocidad de reproducción">1x</button>
         <div class="group">
           <button type="button" id="btnOverview">Vista general</button>
           <button type="button" id="btnFollow">Seguir globo</button>
@@ -182,6 +201,12 @@
     <section id="telemetry" aria-label="Gráficos de telemetría">
       <div class="telemetryHeader">
         <button type="button" id="btnTelemetry" aria-expanded="true">Telemetría ▾</button>
+        <div id="chartTabs" class="mobileOnly" role="tablist" aria-label="Grupo de gráficos">
+          <button type="button" role="tab" data-page="0" aria-selected="true">Alt. · Temp.</button>
+          <button type="button" role="tab" data-page="1" aria-selected="false">Pres. · Hum.</button>
+          <button type="button" role="tab" data-page="2" aria-selected="false">Bat. · Vel.</button>
+          <button type="button" role="tab" data-page="3" aria-selected="false">Curso · GPS</button>
+        </div>
         <span id="chartsPager" class="pager" role="group" aria-label="Páginas de gráficos">
           <button type="button" id="chartsPrev" aria-label="Página anterior" title="Página anterior">‹</button>
           <span id="chartsPageLabel" aria-live="polite">Página 1 de 4</span>

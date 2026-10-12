@@ -912,3 +912,648 @@ button[aria-pressed="true"] {
   color: #8fb8ff;
   word-break: break-all;
 }
+
+/* ======================================================================================
+   Presentación móvil (data-layout="mobile-portrait" | "mobile-landscape", ver js/layout.js).
+   Todo lo de abajo cuelga de #app[data-layout^="mobile"]: en escritorio no tiene efecto.
+   ====================================================================================== */
+html,
+body {
+  overscroll-behavior: none;
+}
+
+#mobileHeader,
+#sheetBar,
+.mobileOnly {
+  display: none;
+}
+
+#app[data-layout^="mobile"] {
+  --sat: env(safe-area-inset-top, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+  --hdr-h: calc(48px + var(--sat));
+  --bar-h: 52px;
+  --ctl-h: calc(122px + var(--sab));
+  --sheet-h: 0px;
+  position: fixed;
+  inset: 0;
+  height: auto;
+  overflow: hidden;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+#app[data-layout="mobile-landscape"] {
+  --hdr-h: calc(40px + var(--sat));
+  --bar-h: 42px;
+  --ctl-h: calc(49px + var(--sab));
+}
+
+/* --- Mapa: ocupa todo salvo la barra del sheet y los controles (los créditos de Cesium quedan visibles) --- */
+#app[data-layout^="mobile"] #viewerWrap {
+  position: absolute;
+  inset: 0 0 calc(var(--ctl-h) + var(--bar-h)) 0;
+  flex: none;
+}
+
+#app[data-layout^="mobile"].presentation #viewerWrap {
+  bottom: var(--ctl-h);
+}
+
+#app[data-layout^="mobile"] #btnPanelToggle,
+#app[data-layout^="mobile"] #btnReception {
+  display: none;
+}
+
+/* --- Cabecera compacta --- */
+#app[data-layout^="mobile"] #mobileHeader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 7;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: var(--hdr-h);
+  padding: var(--sat) calc(var(--sar) + 154px) 0 calc(var(--sal) + 8px);
+  background: linear-gradient(rgba(11, 16, 32, 0.94), rgba(11, 16, 32, 0.78));
+  border-bottom: 1px solid rgba(42, 53, 88, 0.8);
+}
+
+#mobileHeader .logo-rcu {
+  flex: none;
+  height: 30px;
+  width: auto;
+}
+
+#mobileHeader .mTitle {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+#mobileHeader .mTitle strong {
+  font-size: 15px;
+}
+
+#mobileHeader .mTitle span {
+  font-size: 10px;
+  color: #9fb0d8;
+}
+
+#mobileHeader .logoChip {
+  flex: none;
+  display: inline-flex;
+  padding: 2px 4px;
+  background: #f4f7fb;
+  border-radius: 6px;
+}
+
+#mobileHeader .logo-pichon {
+  height: 20px;
+  width: auto;
+}
+
+#app[data-layout^="mobile"] #mobileHeader .infoBtn {
+  position: absolute;
+  top: calc(var(--sat) + 2px);
+  right: calc(var(--sar) + 4px);
+  width: 44px;
+  height: 44px;
+  font-size: 24px;
+  border-radius: 50%;
+}
+
+#app[data-layout="mobile-landscape"] #mobileHeader .infoBtn {
+  top: var(--sat);
+  height: 40px;
+  width: 40px;
+}
+
+#app[data-layout^="mobile"] #btnPresent {
+  position: fixed;
+  z-index: 8;
+  top: calc(var(--sat) + 5px);
+  right: calc(var(--sar) + 54px);
+  bottom: auto;
+  min-height: 38px;
+  padding: 0 10px;
+  font-size: 12px;
+  border-radius: 8px;
+}
+
+#app[data-layout="mobile-landscape"] #btnPresent {
+  top: calc(var(--sat) + 1px);
+  right: calc(var(--sar) + 50px);
+}
+
+#app[data-layout^="mobile"].presentation #btnPresent {
+  top: calc(var(--sat) + 8px);
+  left: calc(var(--sal) + 8px);
+  right: auto;
+}
+
+#app[data-layout^="mobile"].presentation #mobileHeader,
+#app[data-layout^="mobile"].presentation #sheetBar {
+  display: none;
+}
+
+/* --- Brújula: arriba a la derecha, más pequeña --- */
+#app[data-layout^="mobile"] #compass {
+  top: calc(var(--hdr-h) + 8px);
+  right: calc(var(--sar) + 8px);
+  bottom: auto;
+  padding: 3px 4px 4px;
+  z-index: 3;
+}
+
+#app[data-layout^="mobile"] #compass svg {
+  width: 46px;
+  height: 46px;
+}
+
+#app[data-layout^="mobile"] #compassPitch {
+  font-size: 9px;
+}
+
+#app[data-layout^="mobile"].presentation #compass {
+  top: calc(var(--sat) + 8px);
+}
+
+/* --- Chips informativos sobre el mapa --- */
+#app[data-layout^="mobile"] #mapMode {
+  top: calc(var(--hdr-h) + 8px);
+  bottom: auto;
+  left: calc(var(--sal) + 8px);
+  transform: none;
+  font-size: 10.5px;
+}
+
+#app[data-layout^="mobile"] #cloudNote {
+  top: calc(var(--hdr-h) + 34px);
+  bottom: auto;
+  left: calc(var(--sal) + 8px);
+  transform: none;
+  max-width: calc(100% - 90px - var(--sal) - var(--sar));
+}
+
+/* --- Bottom sheet: barra (handle + pestañas) --- */
+#app[data-layout^="mobile"] #sheetBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--ctl-h) + var(--sheet-h));
+  z-index: 5;
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: var(--bar-h);
+  padding: 0 calc(var(--sar) + 8px) 0 calc(var(--sal) + 8px);
+  background: rgba(20, 29, 60, 0.92);
+  border-top: 1px solid #34457a;
+  border-radius: 14px 14px 0 0;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  transform: translateY(var(--drag-y, 0px));
+}
+
+#sheetHandle {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 14px 14px 0 0;
+}
+
+#sheetHandle .grip {
+  position: absolute;
+  top: 5px;
+  left: 50%;
+  width: 40px;
+  height: 4px;
+  margin-left: -20px;
+  background: #6b7aa6;
+  border-radius: 2px;
+}
+
+#sheetBar .sheetTabs {
+  position: relative;
+  display: flex;
+  flex: 1;
+  gap: 4px;
+}
+
+#sheetBar button[role="tab"],
+#sheetStep {
+  position: relative;
+  min-height: 36px;
+  padding: 0 4px;
+  font-size: 13px;
+  border-radius: 8px 8px 0 0;
+  touch-action: manipulation;
+}
+
+#sheetBar .sheetTabs button {
+  flex: 1;
+  min-width: 0;
+}
+
+#sheetBar button[aria-selected="true"] {
+  background: #ffb000;
+  border-color: #ffb000;
+  color: #1a1200;
+}
+
+#sheetStep {
+  flex: none;
+  width: 40px;
+  font-size: 18px;
+}
+
+#app[data-layout="mobile-landscape"] #sheetBar button[role="tab"],
+#app[data-layout="mobile-landscape"] #sheetStep {
+  min-height: 31px;
+}
+
+/* --- Bottom sheet: contenido (datos / gráficos / recepción) --- */
+#app[data-layout^="mobile"] #receptionPanel {
+  display: none; /* "Mi recepción" solo existe en escritorio */
+}
+
+#app[data-layout^="mobile"] #infoPanel,
+#app[data-layout^="mobile"] #telemetry {
+  position: fixed;
+  top: auto;
+  left: 0;
+  right: 0;
+  bottom: var(--ctl-h);
+  z-index: 4;
+  display: none;
+  width: auto;
+  height: var(--sheet-h);
+  max-height: none;
+  padding: 8px calc(var(--sar) + 12px) 8px calc(var(--sal) + 12px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: rgba(15, 22, 48, 0.92);
+  border: 0;
+  border-radius: 0;
+  font-size: 13px;
+  line-height: 1.35;
+  transform: translateY(var(--drag-y, 0px));
+}
+
+#app[data-layout^="mobile"]:not([data-sheet="collapsed"])[data-sheet-tab="data"] #infoPanel {
+  display: block;
+}
+
+#app[data-layout^="mobile"]:not([data-sheet="collapsed"])[data-sheet-tab="charts"] #telemetry {
+  display: flex;
+}
+
+#app[data-layout^="mobile"].presentation #infoPanel,
+#app[data-layout^="mobile"].presentation #telemetry {
+  display: none !important;
+}
+
+#app[data-layout^="mobile"] #infoPanel .brand {
+  display: none;
+}
+
+#app[data-layout^="mobile"] #infoPanel .count {
+  font-size: 13px;
+}
+
+#app[data-layout^="mobile"] #infoPanel h2 {
+  font-size: 11px;
+}
+
+#app[data-layout^="mobile"] #infoPanel dl {
+  gap: 3px 10px;
+}
+
+/* Datos en dos columnas equilibradas (multicolumna); Globo (texto largo) ocupa todo el ancho */
+#app[data-layout^="mobile"] #infoPanel .groups {
+  display: block;
+  column-count: 2;
+  column-gap: 18px;
+}
+
+#app[data-layout^="mobile"] #infoPanel .groups section {
+  display: contents;
+}
+
+#app[data-layout^="mobile"] #infoPanel dl {
+  min-width: 0;
+  break-inside: avoid;
+}
+
+#app[data-layout^="mobile"] #infoPanel h2 {
+  break-after: avoid;
+}
+
+#app[data-layout^="mobile"] #infoPanel dd {
+  overflow-wrap: anywhere;
+}
+
+#app[data-layout^="mobile"] #infoPanel .groups section:last-child h2:last-of-type,
+#app[data-layout^="mobile"] #infoPanel .groups section:last-child dl:last-of-type {
+  column-span: all;
+}
+
+/* --- Gráficos: 4 pestañas de grupo, 2 gráficos por vista (apilados; en horizontal, lado a lado) --- */
+#app[data-layout^="mobile"] #telemetry {
+  flex-direction: column;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  overflow: hidden;
+  border-top: 0;
+}
+
+#app[data-layout^="mobile"] .telemetryHeader {
+  display: contents;
+}
+
+#app[data-layout^="mobile"] #btnTelemetry,
+#app[data-layout^="mobile"] #chartsPager {
+  display: none;
+}
+
+#app[data-layout^="mobile"] #chartTabs {
+  order: 1;
+  display: flex;
+  gap: 4px;
+}
+
+#chartTabs button {
+  flex: 1;
+  min-width: 0;
+  min-height: 36px;
+  padding: 0 2px;
+  font-size: 12px;
+  border-radius: 8px;
+  touch-action: manipulation;
+}
+
+#chartTabs button[aria-selected="true"] {
+  background: #ffb000;
+  border-color: #ffb000;
+  color: #1a1200;
+}
+
+#app[data-layout^="mobile"] #charts {
+  order: 2;
+  flex: 1 1 0;
+  min-height: 0;
+  margin-top: 6px;
+}
+
+#app[data-layout^="mobile"] #charts[hidden],
+#app[data-layout^="mobile"] .chartPage[hidden] {
+  display: none;
+}
+
+#app[data-layout^="mobile"] .chartPage {
+  height: 100%;
+  margin-top: 0;
+  grid-template-columns: 1fr;
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+#app[data-layout="mobile-landscape"] .chartPage {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: minmax(0, 1fr);
+  gap: 12px;
+}
+
+#app[data-layout^="mobile"] .chartBox {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+#app[data-layout^="mobile"] .chartBox h3 {
+  font-size: 12px;
+}
+
+#app[data-layout^="mobile"] .plot {
+  flex: 1;
+  height: auto;
+  min-height: 0;
+}
+
+#app[data-layout^="mobile"] .telemetryHeader .hint {
+  display: none;
+  order: 3;
+  flex: none;
+  margin-top: 4px;
+  font-size: 10px;
+}
+
+#app[data-layout^="mobile"][data-sheet="expanded"] .telemetryHeader .hint {
+  display: block;
+}
+
+/* --- Barra de controles compacta --- */
+#app[data-layout^="mobile"] #controls {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 6;
+  height: var(--ctl-h);
+  padding: 4px calc(var(--sar) + 8px) calc(var(--sab) + 4px) calc(var(--sal) + 8px);
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-template-rows: 26px 40px 40px;
+  gap: 4px;
+  background: #0f1630;
+  border-top: 1px solid #2a3558;
+}
+
+#app[data-layout^="mobile"] #controls .row,
+#app[data-layout^="mobile"] #controls .group {
+  display: contents;
+}
+
+#app[data-layout^="mobile"] #controls #speeds,
+#app[data-layout^="mobile"] #controls .now,
+#app[data-layout^="mobile"] #controls #tStart,
+#app[data-layout^="mobile"] #controls #tEnd,
+#app[data-layout^="mobile"] #controls .lbl {
+  display: none;
+}
+
+#app[data-layout^="mobile"] #controls button {
+  min-height: 40px;
+  padding: 0 4px;
+  font-size: 13px;
+  border-radius: 8px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#app[data-layout^="mobile"] #controls .timeline {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  margin: 0;
+  gap: 0;
+}
+
+#app[data-layout^="mobile"] #controls #slider {
+  width: 100%;
+  height: 26px;
+  margin: 0;
+  accent-color: #ffb000;
+}
+
+#app[data-layout^="mobile"] #btnPlay {
+  grid-column: 1 / 4;
+  grid-row: 2;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+#app[data-layout^="mobile"] #btnPrev {
+  grid-column: 4 / 6;
+  grid-row: 2;
+  font-size: 16px;
+}
+
+#app[data-layout^="mobile"] #mCounter {
+  grid-column: 6 / 9;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+}
+
+#mCounter #mTx {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+#mCounter #mTime {
+  font-size: 11px;
+  color: #9fb0d8;
+}
+
+#app[data-layout^="mobile"] #btnNext {
+  grid-column: 9 / 11;
+  grid-row: 2;
+  font-size: 16px;
+}
+
+#app[data-layout^="mobile"] #btnSpeedM {
+  display: block;
+  grid-column: 11 / 13;
+  grid-row: 2;
+  font-weight: 700;
+}
+
+#app[data-layout^="mobile"] #btnOverview {
+  grid-column: 1 / 5;
+  grid-row: 3;
+}
+
+#app[data-layout^="mobile"] #btnFollow {
+  grid-column: 5 / 9;
+  grid-row: 3;
+}
+
+#app[data-layout^="mobile"] #btnClouds3d {
+  grid-column: 9 / 13;
+  grid-row: 3;
+}
+
+/* Horizontal: una sola fila de controles */
+#app[data-layout="mobile-landscape"] #controls {
+  grid-template-columns: auto auto auto auto minmax(80px, 1fr) auto auto auto auto;
+  grid-template-rows: 40px;
+  align-items: center;
+}
+
+#app[data-layout="mobile-landscape"] #btnPlay { grid-column: 1; grid-row: 1; min-width: 60px; }
+#app[data-layout="mobile-landscape"] #btnPrev { grid-column: 2; grid-row: 1; min-width: 44px; }
+#app[data-layout="mobile-landscape"] #mCounter { grid-column: 3; grid-row: 1; min-width: 64px; }
+#app[data-layout="mobile-landscape"] #btnNext { grid-column: 4; grid-row: 1; min-width: 44px; }
+#app[data-layout="mobile-landscape"] #controls .timeline { grid-column: 5; grid-row: 1; }
+#app[data-layout="mobile-landscape"] #btnSpeedM { grid-column: 6; grid-row: 1; min-width: 48px; }
+#app[data-layout="mobile-landscape"] #btnOverview { grid-column: 7; grid-row: 1; padding: 0 10px; }
+#app[data-layout="mobile-landscape"] #btnFollow { grid-column: 8; grid-row: 1; padding: 0 10px; }
+#app[data-layout="mobile-landscape"] #btnClouds3d { grid-column: 9; grid-row: 1; padding: 0 10px; }
+
+/* --- Ventana de información en móvil --- */
+#app[data-layout^="mobile"] .modal {
+  padding: calc(var(--sat) + 8px) calc(var(--sar) + 8px) calc(var(--sab) + 8px) calc(var(--sal) + 8px);
+}
+
+#app[data-layout^="mobile"] .modalCard {
+  max-height: 100%;
+}
+
+#app[data-layout^="mobile"] .modalClose {
+  width: 44px;
+  height: 44px;
+  font-size: 18px;
+}
+
+#app[data-layout^="mobile"] .modalTabs button {
+  min-height: 40px;
+  padding: 0 8px;
+  font-size: 12px;
+}
+
+#app[data-layout^="mobile"] .modalBody {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+#app[data-layout="mobile-landscape"] #chartTabs button {
+  min-height: 30px;
+}
+
+#app[data-layout="mobile-landscape"] #telemetry {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#app[data-layout="mobile-landscape"] #charts {
+  margin-top: 4px;
+}
+
+/* Vertical: etiqueta sobre valor (las columnas son estrechas); el texto largo de Globo ocupa todo el ancho */
+#app[data-layout="mobile-portrait"] #infoPanel dl {
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+
+#app[data-layout="mobile-portrait"] #infoPanel dt {
+  margin-top: 4px;
+  font-size: 11.5px;
+  line-height: 1.2;
+}
+
+#app[data-layout="mobile-portrait"] #infoPanel dd#pBalloonState {
+  grid-column: auto;
+}
+
+#app[data-layout="mobile-portrait"] #infoPanel .groups section:last-child dl:last-of-type {
+  grid-template-columns: auto 1fr;
+  gap: 2px 10px;
+}
+
+#app[data-layout="mobile-portrait"] #infoPanel .groups section:last-child dl:last-of-type dd#pBalloonState {
+  grid-column: 1 / -1;
+}

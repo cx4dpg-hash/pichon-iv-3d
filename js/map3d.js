@@ -4,7 +4,7 @@ import { visualPosition, trajectorySamples } from "./playback.js";
 import { addStationEntities, describeFirstIgate } from "./stations.js";
 import { createBalloonAssembly, VISUAL_AID } from "./balloon.js";
 import { createBaseMap } from "./terrain.js";
-import { fitOverview, safeRect } from "./overview.js";
+import { fitOverview, safeRect, mobileSafeRect, capPads } from "./overview.js";
 
 const Cesium = window.Cesium;
 
@@ -245,10 +245,54 @@ export function createMap(containerId, data, playback, diameterModel, config = {
     return Math.max(0, panel.getBoundingClientRect().right - viewer.canvas.getBoundingClientRect().left);
   }
 
+  // --- Móvil: el área útil descuenta la cabecera, el bottom sheet y las áreas seguras ---
+  const isMobile = () => Boolean(document.getElementById("app")?.dataset.layout?.startsWith("mobile"));
+  let safeProbe = null;
+  function safeAreaInsetsPx() {
+    if (!safeProbe) {
+      safeProbe = document.createElement("div");
+      safeProbe.style.cssText =
+        "position:fixed;left:0;top:0;visibility:hidden;pointer-events:none;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)";
+      document.body.appendChild(safeProbe);
+    }
+    const cs = getComputedStyle(safeProbe);
+    return { right: parseFloat(cs.paddingRight) || 0, left: parseFloat(cs.paddingLeft) || 0 };
+  }
+  function mobileSafe(width, height) {
+    const canvas = viewer.canvas.getBoundingClientRect();
+    const shown = (id) => {
+      const el = document.getElementById(id);
+      return el && el.getClientRects().length > 0 ? el.getBoundingClientRect() : null;
+    };
+    const header = shown("mobileHeader");
+    const bar = shown("sheetBar");
+    const inset = safeAreaInsetsPx();
+    return mobileSafeRect({
+      width,
+      height,
+      topPx: header ? Math.max(0, header.bottom - canvas.top) : 0,
+      bottomPx: bar ? Math.max(0, canvas.bottom - bar.top) : 0, // 0 si el panel está colapsado (queda fuera del lienzo)
+      leftPx: inset.left,
+      rightPx: inset.right,
+    });
+  }
+
   /** Pose de la Vista general para el tamaño actual del visor y el ancho real del panel. */
   function overviewPose() {
     const width = viewer.canvas.clientWidth;
     const height = viewer.canvas.clientHeight;
+    if (isMobile()) {
+      return fitOverview({
+        points: capPads(overviewPoints, { maxSidePx: width * 0.3 }),
+        frame: overviewFrame,
+        center: [overviewCenter.x, overviewCenter.y, overviewCenter.z],
+        pitchDeg: OVERVIEW_PITCH_DEG,
+        width,
+        height,
+        fovy: viewer.camera.frustum.fovy,
+        safe: mobileSafe(width, height),
+      });
+    }
     return fitOverview({
       points: overviewPoints,
       frame: overviewFrame,
@@ -308,6 +352,8 @@ export function createMap(containerId, data, playback, diameterModel, config = {
     if (wrap) observer.observe(wrap);
     if (panelEl) observer.observe(panelEl);
   }
+  // Cambió la disposición móvil (orientación, pestaña, tamaño del bottom sheet): se reencuadra.
+  window.addEventListener("pichon:layoutchange", scheduleRefit);
   const markMoved = () => {
     userMoved = true;
   };

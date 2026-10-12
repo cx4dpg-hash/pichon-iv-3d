@@ -38,6 +38,9 @@ export function initPresentation({ viewer }) {
   const button = $("btnPresent");
   const status = $("status");
   const supported = Boolean(document.fullscreenEnabled && app.requestFullscreen);
+  // Sin Fullscreen API (p. ej. iPhone/Safari) en móvil: el modo presentación se aplica solo como
+  // clase de interfaz (sin pantalla completa real). En escritorio, sin soporte, sigue deshabilitado.
+  const classOnlyFallback = () => !supported && app.dataset.layout?.startsWith("mobile");
   let active = false;
 
   function apply(value) {
@@ -72,6 +75,8 @@ export function initPresentation({ viewer }) {
 
   if (supported) {
     button.addEventListener("click", toggle);
+  } else if (classOnlyFallback()) {
+    button.addEventListener("click", () => apply(!active));
   } else {
     button.disabled = true;
     button.title = "Este navegador no permite pantalla completa";

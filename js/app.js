@@ -14,6 +14,10 @@ import { initTerrainFloor } from "./terrainfloor.js";
 import { initClouds3D } from "./clouds3d.js";
 import { initInfo } from "./info.js";
 import { initPanelToggle, initPresentation } from "./presentation.js";
+import { initLayout, initMobileControls } from "./mobile.js";
+
+// Disposición (escritorio / móvil) lo antes posible, antes de crear el visor.
+const layoutController = initLayout();
 
 function showStatus(message) {
   const status = document.getElementById("status");
@@ -47,8 +51,9 @@ async function main() {
   const info = initInfo();
   const panelToggle = initPanelToggle();
   const presentation = initPresentation({ viewer: map.viewer });
+  initMobileControls({ playback, charts, panelToggle, total: data.flight.length, layoutController });
   // Acceso para depuración desde la consola del navegador.
-  window.pichon = { data, playback, map, diameterModel, charts, reception, verticalSpeeds, compass, clouds3d, info, panelToggle, presentation };
+  window.pichon = { data, playback, map, diameterModel, charts, reception, verticalSpeeds, compass, clouds3d, info, panelToggle, presentation, layout: layoutController };
 }
 
 main().catch((error) => {
