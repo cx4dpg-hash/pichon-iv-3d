@@ -20,13 +20,13 @@
       "Coordenadas convertidas de grados y minutos decimales: decimal = grados + minutos/60, negativo por S/W.",
       "Ya no es una estimación visual: está respaldado directamente por una trama APRS identificable de CX5RN-5. La trama elegida es la de 15:27:45 -03.",
       "Corroboración independiente con datos del proyecto: la transmisión postFlight frame 77 de CX1AA-11 (2026-10-11T17:40:18Z = 14:40:18 -03, recibida por CX3BP-8) está a ≈ 24 m de este punto."
-    ]
+    ],
+    "sourceFile": "imports/source/cx5rn-5-aprsfi-raw-2026-10-11.pdf"
   },
   "evidence": {
     "description": "Posiciones APRS de CX5RN-5 en el sector de recuperación (APRS.fi raw packet log). Varias posiciones contiguas corroboran la permanencia en el mismo sector.",
     "sourceCallsign": "CX5RN-5",
-    "source": "APRS.fi raw packet log (PDF de CX5RN-5 aportado por el usuario)",
-    "transcriptionNote": "Las tramas se transcriben del mensaje del usuario (fragmento de la porción de posición de cada trama); el PDF original no estaba en el espacio de trabajo al registrarlas. Pendiente de archivarlo en imports/source/ para verificación.",
+    "source": "APRS.fi raw packet log de CX5RN-5 (PDF archivado)",
     "packets": [
       {
         "timestampLocal": "2026-10-11T15:22:47-03:00",
@@ -35,7 +35,9 @@
         "lat": -34.3278333,
         "lon": -53.9856667,
         "rawPositionFragment": "=3419.67S/05359.14W",
-        "usedAsRescuePoint": false
+        "usedAsRescuePoint": false,
+        "rawPacket": "CX5RN-5>APDR16,TCPIP*,qAC,T2UK:=3419.67S/05359.14Wk257/001/A=000051 https://aprsdroid.org/",
+        "verifiedAgainstSourceFile": true
       },
       {
         "timestampLocal": "2026-10-11T15:24:51-03:00",
@@ -44,7 +46,9 @@
         "lat": -34.3283333,
         "lon": -53.9866667,
         "rawPositionFragment": "=3419.70S/05359.20W",
-        "usedAsRescuePoint": false
+        "usedAsRescuePoint": false,
+        "rawPacket": "CX5RN-5>APDR16,TCPIP*,qAC,T2KA:=3419.70S/05359.20Wk147/002/A=000043 https://aprsdroid.org/",
+        "verifiedAgainstSourceFile": true
       },
       {
         "timestampLocal": "2026-10-11T15:27:45-03:00",
@@ -53,7 +57,9 @@
         "lat": -34.3286667,
         "lon": -53.9865,
         "rawPositionFragment": "=3419.72S/05359.19W",
-        "usedAsRescuePoint": true
+        "usedAsRescuePoint": true,
+        "rawPacket": "CX5RN-5>APDR16,TCPIP*,qAC,T2KA:=3419.72S/05359.19Wk258/002/A=000043 https://aprsdroid.org/",
+        "verifiedAgainstSourceFile": true
       },
       {
         "timestampLocal": "2026-10-11T15:31:54-03:00",
@@ -62,7 +68,9 @@
         "lat": -34.3285,
         "lon": -53.9866667,
         "rawPositionFragment": "=3419.71S/05359.20W",
-        "usedAsRescuePoint": false
+        "usedAsRescuePoint": false,
+        "rawPacket": "CX5RN-5>APDR16,TCPIP*,qAC,T2KA:=3419.71S/05359.20Wk008/002/A=000050 https://aprsdroid.org/",
+        "verifiedAgainstSourceFile": true
       },
       {
         "timestampLocal": "2026-10-11T15:33:26-03:00",
@@ -71,7 +79,9 @@
         "lat": -34.3278333,
         "lon": -53.9861667,
         "rawPositionFragment": "=3419.67S/05359.17W",
-        "usedAsRescuePoint": false
+        "usedAsRescuePoint": false,
+        "rawPacket": "CX5RN-5>APDR16,TCPIP*,qAC,T2KA:=3419.67S/05359.17Wk252/002/A=000056 https://aprsdroid.org/",
+        "verifiedAgainstSourceFile": true
       }
     ],
     "dwell": {
@@ -80,7 +90,9 @@
       "durationMinutes": 10.7,
       "maxPairwiseDistanceM": 120,
       "note": "CX5RN-5 permaneció varios minutos (≈ 10 min 39 s entre 15:22 y 15:33) en el mismo sector; las cinco posiciones quedan a ≤ 120 m entre sí (a 0–120 m de la elegida)."
-    }
+    },
+    "sourceFile": "imports/source/cx5rn-5-aprsfi-raw-2026-10-11.pdf",
+    "verification": "Las cinco tramas se verificaron directamente contra el PDF archivado (coinciden hora local y posición APRS)."
   },
   "finalSegment": {
     "kind": "non-telemetry annotation",

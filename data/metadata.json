@@ -60,7 +60,8 @@
       ],
       "generalConfidence": "high",
       "url": null,
-      "notes": "PDF de APRS.fi aportado por el usuario. Las tramas se transcribieron del mensaje del usuario; el PDF no estaba en el espacio de trabajo (pendiente de archivarlo en imports/source/)."
+      "notes": "PDF de APRS.fi aportado por el usuario y archivado en imports/source/. Las cinco tramas usadas en recovery.json se verificaron directamente contra este archivo (15:22:47, 15:24:51, 15:27:45, 15:31:54 y 15:33:26 -03).",
+      "file": "imports/source/cx5rn-5-aprsfi-raw-2026-10-11.pdf"
     },
     {
       "id": "user-reported-rescue-point",
