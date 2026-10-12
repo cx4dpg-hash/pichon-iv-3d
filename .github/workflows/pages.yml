@@ -1,0 +1,62 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Assemble static site
+        # Solo lo que la aplicación necesita para ejecutarse (sin .git, docs, tests, tools ni imports).
+        run: |
+          mkdir _site
+          cp -r index.html css js data assets _site/
+
+      - name: Generate config.local.js from the CESIUM_ION_TOKEN secret
+        # El valor llega por variable de entorno y lo escribe un script que nunca lo imprime.
+        # El archivo solo existe en _site (artefacto de Pages): no se versiona ni se confirma.
+        env:
+          CESIUM_ION_TOKEN: ${{ secrets.CESIUM_ION_TOKEN }}
+        run: node .github/scripts/write-config.mjs _site/config.local.js
+
+      - name: Check site contents
+        run: |
+          test -f _site/index.html
+          test -f _site/config.local.js
+          test ! -e _site/.git
+          test ! -e _site/imports
+          find _site -type f | wc -l
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
