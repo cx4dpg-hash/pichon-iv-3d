@@ -3,7 +3,6 @@
 import { SPEEDS } from "./playback.js";
 import { describeFirstIgate } from "./stations.js";
 import { currentEstimate, isAscentPhase } from "./physics.js";
-import { VISUAL } from "./balloon.js";
 import { formatLocalTime } from "./format.js";
 
 const $ = (id) => document.getElementById(id);
@@ -27,8 +26,6 @@ function balloonStateText(model, index) {
 
 export function initUi({ data, playback, map, diameterModel }) {
   const { flight, stationByCallsign } = data;
-
-  $("visualScale").textContent = `×${VISUAL.scale}`;
 
   // --- Timeline ---
   const slider = $("slider");

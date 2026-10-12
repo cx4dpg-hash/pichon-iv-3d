@@ -2,7 +2,7 @@
 
 import { visualPosition } from "./playback.js";
 import { addStationEntities, describeFirstIgate } from "./stations.js";
-import { createBalloonAssembly } from "./balloon.js";
+import { createBalloonAssembly, VISUAL_AID } from "./balloon.js";
 
 const Cesium = window.Cesium;
 
@@ -11,7 +11,10 @@ const Cesium = window.Cesium;
 const OSM_URL = "https://tile.openstreetmap.org/";
 
 // El marcador simple del globo solo se ve con la cámara lejos; de cerca se ve el conjunto 3D.
-const MARKER_FAR_ONLY = new Cesium.DistanceDisplayCondition(2500, Number.MAX_VALUE);
+// Los marcadores de inicio/fin/máximo se ocultan de muy cerca para no tapar el conjunto 3D.
+const HIDE_WHEN_NEAR = new Cesium.DistanceDisplayCondition(300, Number.MAX_VALUE);
+
+const MARKER_FAR_ONLY = new Cesium.DistanceDisplayCondition(VISUAL_AID.maxAidDistanceM, Number.MAX_VALUE);
 
 function toCartesian(lat, lon, altM) {
   return Cesium.Cartesian3.fromDegrees(lon, lat, altM);
@@ -27,6 +30,7 @@ function labelledPoint(viewer, { id, position, text, color, pixelSize = 12 }) {
       outlineColor: Cesium.Color.BLACK,
       outlineWidth: 2,
       disableDepthTestDistance: Number.POSITIVE_INFINITY,
+      distanceDisplayCondition: HIDE_WHEN_NEAR,
     },
     label: {
       text,
@@ -38,6 +42,7 @@ function labelledPoint(viewer, { id, position, text, color, pixelSize = 12 }) {
       verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
       pixelOffset: new Cesium.Cartesian2(0, -14),
       disableDepthTestDistance: Number.POSITIVE_INFINITY,
+      distanceDisplayCondition: HIDE_WHEN_NEAR,
     },
   });
 }
@@ -106,7 +111,8 @@ export function createMap(containerId, data, playback, diameterModel) {
   const balloon = viewer.entities.add({
     id: "balloon",
     position: new Cesium.CallbackProperty(balloonPosition, false),
-    viewFrom: new Cesium.Cartesian3(-250, -400, 150),
+    // Offset ENU (este, norte, arriba) desde la carga: ≈ 90 m de distancia.
+    viewFrom: new Cesium.Cartesian3(-35, -70, 45),
     point: {
       pixelSize: 14,
       color: Cesium.Color.fromCssColorString("#ff4d4d"),

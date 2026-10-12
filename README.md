@@ -36,7 +36,7 @@ Panel agrupado (Vuelo, Altitud, Ambiente, Sistema, Globo, Recepción) y cuatro g
 
 ## Modelo físico del globo (etapa 5)
 
-El marcador simple se reemplazó por un conjunto aproximado (carga útil en la posición GPS, antena debajo y globo encima durante el ascenso). El diámetro estimado del globo crece con la presión y temperatura reales (gas ideal) solo hasta la altitud máxima; después se considera una transición estimada de ruptura/descenso y no se calcula ni se dibuja el globo. Es una estimación visual/física, no una medición, y se dibuja con tamaño exagerado ×20 solo para que sea visible. Detalles y limitaciones en [docs/PHYSICS.md](docs/PHYSICS.md).
+El marcador simple se reemplazó por un conjunto aproximado (carga útil en la posición GPS, antena debajo y globo encima durante el ascenso). El diámetro estimado del globo crece con la presión y temperatura reales (gas ideal) solo hasta la altitud máxima; después se considera una transición estimada de ruptura/descenso y no se calcula ni se dibuja el globo. Es una estimación visual/física, no una medición. No hay un factor de exageración fijo: de cerca el conjunto se dibuja con su tamaño físico y, al alejar la cámara, una ayuda de visibilidad dependiente de la distancia evita que desaparezca (ver [docs/PHYSICS.md](docs/PHYSICS.md)). Detalles y limitaciones en [docs/PHYSICS.md](docs/PHYSICS.md).
 
 ## Decisiones técnicas de la etapa 4
 
