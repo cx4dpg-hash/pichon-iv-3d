@@ -1,22 +1,86 @@
 {
   "schemaVersion": "1.0",
-  "description": "Anotación COMPLEMENTARIA sobre el final del vuelo: punto real de rescate/recuperación de la carga. No es telemetría del globo, no forma parte de transmissions.json ni de la trayectoria APRS principal.",
+  "description": "Anotación COMPLEMENTARIA sobre el final del vuelo: punto real de rescate/recuperación de la carga, respaldado por tramas APRS de CX5RN-5. No es telemetría del globo, no forma parte de transmissions.json ni de la trayectoria APRS principal.",
   "rescuePoint": {
     "label": "Rescate CX5RN-5",
     "rescueStation": "CX5RN-5",
-    "aprsLatitude": "34°19.69' S",
-    "aprsLongitude": "53°59.15' W",
-    "lat": -34.3281667,
-    "lon": -53.9858333,
-    "approximate": true,
-    "positionSource": "Ubicación aproximada confirmada por el usuario desde APRS.fi (rescate de CX5RN-5)",
-    "sourceRef": "user-reported-rescue-point",
-    "confidence": "medium",
+    "sourceCallsign": "CX5RN-5",
+    "timestampLocal": "2026-10-11T15:27:45-03:00",
+    "aprsLatitude": "34°19.72' S",
+    "aprsLongitude": "53°59.19' W",
+    "lat": -34.3286667,
+    "lon": -53.9865,
+    "approximate": false,
+    "positionResolutionNote": "La resolución de una posición APRS es 0.01' ≈ 18 m.",
+    "source": "APRS.fi raw packet log",
+    "positionSource": "Trama APRS de CX5RN-5 del 2026-10-11 15:27:45 -03 (APRS.fi raw packet log); posición sin marca de tiempo (:=3419.72S/05359.19W)",
+    "sourceRef": "cx5rn-5-aprsfi-log",
+    "confidence": "high",
     "notes": [
       "Coordenadas convertidas de grados y minutos decimales: decimal = grados + minutos/60, negativo por S/W.",
-      "Verificación independiente con datos del proyecto: la transmisión postFlight frame 77 (2026-10-11T17:40:18Z, recibida por CX3BP-8) está a ≈ 59 m de este punto, dentro de la incertidumbre de una posición APRS. Este punto no se deriva de esa transmisión: se usa la coordenada confirmada por el usuario.",
-      "El punto NO se reemplazó con la coordenada de la segunda captura de APRS.fi (ver additionalReferences): se mantiene hasta resolver la posición APRS exacta de CX5RN-5 correspondiente al rescate."
+      "Ya no es una estimación visual: está respaldado directamente por una trama APRS identificable de CX5RN-5. La trama elegida es la de 15:27:45 -03.",
+      "Corroboración independiente con datos del proyecto: la transmisión postFlight frame 77 de CX1AA-11 (2026-10-11T17:40:18Z = 14:40:18 -03, recibida por CX3BP-8) está a ≈ 24 m de este punto."
     ]
+  },
+  "evidence": {
+    "description": "Posiciones APRS de CX5RN-5 en el sector de recuperación (APRS.fi raw packet log). Varias posiciones contiguas corroboran la permanencia en el mismo sector.",
+    "sourceCallsign": "CX5RN-5",
+    "source": "APRS.fi raw packet log (PDF de CX5RN-5 aportado por el usuario)",
+    "transcriptionNote": "Las tramas se transcriben del mensaje del usuario (fragmento de la porción de posición de cada trama); el PDF original no estaba en el espacio de trabajo al registrarlas. Pendiente de archivarlo en imports/source/ para verificación.",
+    "packets": [
+      {
+        "timestampLocal": "2026-10-11T15:22:47-03:00",
+        "aprsLatitude": "34°19.67' S",
+        "aprsLongitude": "53°59.14' W",
+        "lat": -34.3278333,
+        "lon": -53.9856667,
+        "rawPositionFragment": "=3419.67S/05359.14W",
+        "usedAsRescuePoint": false
+      },
+      {
+        "timestampLocal": "2026-10-11T15:24:51-03:00",
+        "aprsLatitude": "34°19.70' S",
+        "aprsLongitude": "53°59.20' W",
+        "lat": -34.3283333,
+        "lon": -53.9866667,
+        "rawPositionFragment": "=3419.70S/05359.20W",
+        "usedAsRescuePoint": false
+      },
+      {
+        "timestampLocal": "2026-10-11T15:27:45-03:00",
+        "aprsLatitude": "34°19.72' S",
+        "aprsLongitude": "53°59.19' W",
+        "lat": -34.3286667,
+        "lon": -53.9865,
+        "rawPositionFragment": "=3419.72S/05359.19W",
+        "usedAsRescuePoint": true
+      },
+      {
+        "timestampLocal": "2026-10-11T15:31:54-03:00",
+        "aprsLatitude": "34°19.71' S",
+        "aprsLongitude": "53°59.20' W",
+        "lat": -34.3285,
+        "lon": -53.9866667,
+        "rawPositionFragment": "=3419.71S/05359.20W",
+        "usedAsRescuePoint": false
+      },
+      {
+        "timestampLocal": "2026-10-11T15:33:26-03:00",
+        "aprsLatitude": "34°19.67' S",
+        "aprsLongitude": "53°59.17' W",
+        "lat": -34.3278333,
+        "lon": -53.9861667,
+        "rawPositionFragment": "=3419.67S/05359.17W",
+        "usedAsRescuePoint": false
+      }
+    ],
+    "dwell": {
+      "from": "2026-10-11T15:22:47-03:00",
+      "to": "2026-10-11T15:33:26-03:00",
+      "durationMinutes": 10.7,
+      "maxPairwiseDistanceM": 120,
+      "note": "CX5RN-5 permaneció varios minutos (≈ 10 min 39 s entre 15:22 y 15:33) en el mismo sector; las cinco posiciones quedan a ≤ 120 m entre sí (a 0–120 m de la elegida)."
+    }
   },
   "finalSegment": {
     "kind": "non-telemetry annotation",
@@ -34,21 +98,31 @@
   "additionalReferences": [
     {
       "id": "aprsfi-capture-rescue-sector",
-      "description": "Segunda captura de APRS.fi aportada por el usuario: muestra visualmente el sector donde CX5RN-5 recuperó la carga.",
+      "role": "corroboración visual secundaria",
+      "description": "Captura de APRS.fi aportada por el usuario con el indicador superior del mapa en el sector de recuperación.",
       "visibleCoordinate": {
         "aprsLatitude": "34°19.72' S",
         "aprsLongitude": "53°59.19' W",
         "lat": -34.3286667,
         "lon": -53.9865
       },
-      "kind": "indicador superior de APRS.fi (posición del cursor/centro del mapa)",
       "usedAsRescuePoint": false,
-      "distanceToRescuePointM": 83,
-      "notes": "Está en el mismo sector que rescuePoint (≈ 83 m, mismo orden que la resolución de una posición APRS y la incertidumbre del indicador). Es una referencia visual, no una posición APRS identificada de CX5RN-5: no se usa para sustituir el punto existente."
+      "distanceToRescuePointM": 0,
+      "notes": "Coincide con la trama elegida de CX5RN-5. Es corroboración visual secundaria, no la fuente primaria."
     }
   ],
-  "pendingResolution": {
-    "status": "unresolved",
-    "text": "Falta resolver la coordenada exacta de recuperación si existe una trama APRS identificable de CX5RN-5 correspondiente al rescate. Hasta entonces rescuePoint se mantiene como ubicación aproximada confirmada por el usuario."
+  "supersededEstimate": {
+    "lat": -34.3281667,
+    "lon": -53.9858333,
+    "aprsLatitude": "34°19.69' S",
+    "aprsLongitude": "53°59.15' W",
+    "source": "Ubicación aproximada confirmada por el usuario desde APRS.fi (estimación visual)",
+    "replacedBy": "rescuePoint (trama APRS de CX5RN-5 de 15:27:45 -03)",
+    "distanceToRescuePointM": 83,
+    "note": "Estimación anterior, ya no se usa en el mapa."
+  },
+  "resolution": {
+    "status": "resolved",
+    "text": "La coordenada exacta de recuperación quedó resuelta con una trama APRS identificable de CX5RN-5 (15:27:45 -03). Ver rescuePoint y evidence."
   }
 }

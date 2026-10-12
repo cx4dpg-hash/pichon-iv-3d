@@ -26,7 +26,7 @@ El proyecto es un sitio web **estático** (HTML, CSS y JavaScript con módulos E
 
 ## Rescate final, arranque sobre el terreno, nubes y escudo RCU (etapa 10)
 
-- **Punto de rescate (CX5RN-5):** marcador y tramo final punteado (violeta) desde el último punto de la trayectoria hasta el punto de recuperación reportado. Es una anotación complementaria (`data/vuelo/recovery.json`), no telemetría ni parte de la trayectoria APRS principal.
+- **Punto de rescate (CX5RN-5):** marcador y tramo final punteado (violeta) desde el último punto de la trayectoria hasta el punto de recuperación, respaldado por tramas APRS de CX5RN-5 (15:27:45 -03). Es una anotación complementaria (`data/vuelo/recovery.json`), no telemetría ni parte de la trayectoria APRS principal.
 - **Arranque sobre el terreno:** con relieve activo, una corrección **solo visual** evita que la carga se dibuje enterrada en el lanzamiento (el dato GPS bruto no se modifica). Ver [docs/MAPPING.md](docs/MAPPING.md).
 - **Nubes (opcional):** botón "Nubes" con imágenes satelitales reales GOES-19 (NASA GIBS) empaquetadas en `assets/clouds/`; apagado por defecto. Ver [docs/CLOUDS_FEASIBILITY.md](docs/CLOUDS_FEASIBILITY.md).
 - **Branding:** el emblema del RCU del Boletín CX 918 sustituye al sello circular en el encabezado ([docs/BRANDING.md](docs/BRANDING.md)).
