@@ -4,16 +4,9 @@ Archivo: [`data/clouds/cloud-model.json`](../data/clouds/cloud-model.json) · Ge
 
 **Esto no es una nube 3D.** Es la base de evidencia (qué se sabe, con qué método y con qué confianza) sobre la nubosidad que atravesó PICHÓN IV, para decidir después si y cómo representarla en 3D. La aplicación todavía no lee este archivo.
 
-## Dos cosas distintas
+## Estado de la interfaz: sin nubes visibles
 
-| | Capa "Nubosidad satelital 2D" (botón de la interfaz) | Modelo meteorológico (`cloud-model.json`) |
-|---|---|---|
-| Qué es | Imágenes reales GOES-19 GeoColor (NASA GIBS) dibujadas sobre el terreno | Valores de cobertura, tope, base, espesor, fase y tipo por zona y hora |
-| Altura / volumen | **Ninguno**: es una foto vista desde el espacio | Sí, como números con incertidumbre (no hay geometría) |
-| Uso | Referencia visual de cuánta nube había y cómo se movía | Base para una futura representación 3D |
-| Código | `js/clouds.js`, `assets/clouds/` (sin cambios, solo renombrada la interfaz) | `data/clouds/` |
-
-La capa 2D se llamaba "Nubes"; se renombró a **Nubosidad satelital 2D** para que no se confunda con nubes tridimensionales. No se la modificó para parecer 3D.
+La antigua capa plana "Nubosidad satelital 2D" (imágenes GOES-19 GeoColor sobre el terreno, sin altura ni volumen) fue **retirada deliberadamente** de la interfaz y del modo presentación por decisión de producto: la nubosidad debe ser 3D y meteorológicamente representativa, y hasta entonces no se muestra ninguna nube. Se conservan, sin cargarse en el uso normal, `js/clouds.js` y `assets/clouds/` (22 fotogramas y manifiesto) como material de referencia para la futura implementación. La reconstrucción meteorológica de este documento está preparada; la representación volumétrica 3D está pendiente.
 
 ## Objetivo y periodo
 

@@ -32,14 +32,14 @@ La reproducción empieza en la **liberación** (frame 10, 13:21:39 UTC = 10:21:3
 
 - **Panel ocultable:** el botón "Ocultar panel / Mostrar panel" (arriba a la izquierda del visor) oculta o muestra el panel "PICHÓN IV — CX1AA-11". Es reversible, no persiste entre sesiones y no afecta a la reproducción ni a la cámara.
 - **Modo presentación:** el botón "Presentación" (junto a la brújula) pone la aplicación en pantalla completa real (Fullscreen API) y deja visor, brújula, línea de tiempo y controles (anterior/play/siguiente, 1x–64x, Vista general, Seguir globo y nubosidad); oculta panel, "Mi recepción", gráficos y rótulos auxiliares. Escape (o el botón) sale y restaura todo conservando tiempo, velocidad, cámara y seguimiento.
-- **"Nubosidad satelital 2D":** el antiguo botón "Nubes" se renombró: es una capa 2D de referencia (imagen GOES-19 sobre el terreno, sin altura ni volumen). No son nubes 3D.
-- **Modelo meteorológico (borrador):** `data/clouds/cloud-model.json` con cobertura, tope, base, espesor, fase y tipo probable por zona y cada 30 min, cada valor con método, estado (observed/derived/inferred/unknown) y confianza. No hay nubes 3D todavía. Ver [docs/CLOUD_MODEL.md](docs/CLOUD_MODEL.md).
+- **Nubosidad: sin capa visible (decisión de producto).** La antigua capa plana "Nubosidad satelital 2D" (imagen GOES-19 sobre el terreno) se **retiró deliberadamente** de la interfaz y del modo presentación. No se muestran nubes hasta que exista una representación volumétrica 3D meteorológicamente representativa.
+- **Modelo meteorológico (preparado, borrador):** `data/clouds/cloud-model.json` con cobertura, tope, base, espesor, fase y tipo probable por zona y cada 30 min, cada valor con método, estado (observed/derived/inferred/unknown) y confianza. La representación volumétrica 3D está **pendiente**; la app todavía no lee el modelo. Ver [docs/CLOUD_MODEL.md](docs/CLOUD_MODEL.md).
 
 ## Rescate final, arranque sobre el terreno, nubes y escudo RCU (etapa 10)
 
 - **Punto de rescate (CX5RN-5):** marcador y tramo final punteado (violeta) desde el último punto de la trayectoria hasta el punto de recuperación, respaldado por tramas APRS de CX5RN-5 (15:27:45 -03). Es una anotación complementaria (`data/vuelo/recovery.json`), no telemetría ni parte de la trayectoria APRS principal.
 - **Arranque sobre el terreno:** con relieve activo, una corrección **solo visual** evita que la carga se dibuje enterrada en el lanzamiento (el dato GPS bruto no se modifica). Ver [docs/MAPPING.md](docs/MAPPING.md).
-- **Nubosidad satelital 2D (opcional; botón antes llamado "Nubes"):** capa 2D de referencia con imágenes satelitales reales GOES-19 (NASA GIBS) empaquetadas en `assets/clouds/`; apagado por defecto. Ver [docs/CLOUDS_FEASIBILITY.md](docs/CLOUDS_FEASIBILITY.md).
+- **Nubes (retirado):** la capa 2D de esta etapa ya no está en la interfaz (ver etapa 14); `assets/clouds/` y `js/clouds.js` se conservan como material de referencia y no se cargan.
 - **Branding:** el emblema del RCU del Boletín CX 918 sustituye al sello circular en el encabezado ([docs/BRANDING.md](docs/BRANDING.md)).
 
 ## Brújula e identidad visual (etapa 9)

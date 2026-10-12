@@ -11,7 +11,6 @@ import { verticalSpeedsMs } from "./derived.js";
 import { initCompass } from "./compass.js";
 import { addRecovery } from "./recovery.js";
 import { initTerrainFloor } from "./terrainfloor.js";
-import { initClouds } from "./clouds.js";
 import { initPanelToggle, initPresentation } from "./presentation.js";
 
 function showStatus(message) {
@@ -42,11 +41,10 @@ async function main() {
   const compass = initCompass({ viewer: map.viewer });
   addRecovery(map.viewer, { data, playback, map });
   initTerrainFloor({ data, playback, map });
-  const clouds = initClouds({ viewer: map.viewer, playback });
   const panelToggle = initPanelToggle();
   const presentation = initPresentation({ viewer: map.viewer });
   // Acceso para depuración desde la consola del navegador.
-  window.pichon = { data, playback, map, diameterModel, charts, reception, verticalSpeeds, compass, clouds, panelToggle, presentation };
+  window.pichon = { data, playback, map, diameterModel, charts, reception, verticalSpeeds, compass, panelToggle, presentation };
 }
 
 main().catch((error) => {

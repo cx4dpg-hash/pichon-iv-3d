@@ -76,7 +76,7 @@ Fases posteriores, opcionales: (a) corregir el paralaje y/o dibujar una lámina 
 **Siguiente paso propuesto:** confirmar (1) GeoColor frente a visible en gris, (2) recorte y tamaño (el actual abarca lat −36 a −30, lon −59 a −52), (3) capa sobre el suelo frente a lámina elevada y (4) texto de atribución. Con eso se implementa la primera versión en una etapa corta.
 
 
-> **Actualización (etapa 14):** el botón se llama ahora **"Nubosidad satelital 2D"** y la capa se documenta como *capa satelital 2D de referencia* (sin altura ni volumen). La reconstrucción meteorológica de base, tope y espesor está en [CLOUD_MODEL.md](CLOUD_MODEL.md).
+> **Actualización:** la capa 2D descrita abajo fue **retirada de la interfaz** (decisión de producto: no se mostrarán nubes hasta tener una representación 3D). El código (`js/clouds.js`) y los fotogramas se conservan como referencia sin cargarse. La reconstrucción meteorológica está en [CLOUD_MODEL.md](CLOUD_MODEL.md).
 
 ## Implementación inicial (etapa 10)
 

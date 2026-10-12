@@ -1,3 +1,5 @@
+// RETIRADA DE LA INTERFAZ (decisión de producto: no se muestran nubes hasta tener una representación 3D).
+// Este módulo ya no se importa desde app.js ni descarga nada; se conserva solo como referencia.
 // "Nubosidad satelital 2D": capa de REFERENCIA con fotogramas satelitales GOES-19 (GeoColor, NASA GIBS)
 // del vuelo del 2026-10-11, empaquetados como activos estáticos (assets/clouds/). Es una imagen real
 // dibujada sobre el terreno: NO tiene altura ni volumen y NO son nubes 3D. NO es una simulación.
