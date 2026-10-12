@@ -703,3 +703,212 @@ button[aria-pressed="true"] {
 #app.presentation #cloudNote {
   display: none;
 }
+
+/* ---------- Panel compacto (sin scroll en escritorio) e información ---------- */
+#infoPanel {
+  padding: 7px 10px 8px;
+  font-size: 12.5px;
+  line-height: 1.25;
+  width: min(450px, calc(100% - 20px));
+}
+
+#infoPanel h2 {
+  margin: 6px 0 1px;
+  font-size: 10.5px;
+}
+
+#infoPanel h3 {
+  margin: 5px 0 1px;
+  font-size: 11.5px;
+}
+
+#infoPanel .groups {
+  gap: 0 12px;
+}
+
+#infoPanel dl {
+  gap: 1px 8px;
+}
+
+#infoPanel .count {
+  margin: 0 0 4px;
+  font-size: 12px;
+}
+
+#infoPanel .brand {
+  margin-bottom: 4px;
+  gap: 8px;
+}
+
+#infoPanel .brand .logo-rcu {
+  height: 38px;
+}
+
+#infoPanel h1 {
+  font-size: 15px;
+}
+
+#infoPanel #recoveryBox .recoveryText,
+#infoPanel #pWarnings {
+  font-size: 11.5px;
+  line-height: 1.25;
+}
+
+#infoPanel #pWarnings {
+  padding-left: 16px;
+}
+
+@media (max-height: 800px) {
+  #btnPanelToggle {
+    padding: 2px 8px;
+  }
+
+  #infoPanel {
+    top: 36px;
+    max-height: calc(100% - 44px);
+    padding: 5px 9px 6px;
+    font-size: 12px;
+    line-height: 1.2;
+  }
+
+  #infoPanel h2 {
+    margin-top: 4px;
+  }
+
+  #infoPanel .brand .logo-rcu {
+    height: 32px;
+  }
+
+  #infoPanel .brand .credit {
+    display: none;
+  }
+}
+
+.infoBtn {
+  flex: none;
+  align-self: flex-start;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  font-size: 16px;
+  line-height: 1;
+  border-radius: 50%;
+  color: #cfd8f5;
+  background: rgba(28, 39, 72, 0.8);
+}
+
+#app.presentation #btnInfo {
+  display: none;
+}
+
+.modal {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(5, 8, 18, 0.6);
+}
+
+.modal[hidden] {
+  display: none;
+}
+
+.modalCard {
+  display: flex;
+  flex-direction: column;
+  width: min(760px, 100%);
+  max-height: min(86vh, 100%);
+  background: #0f1630;
+  border: 1px solid #34457a;
+  border-radius: 8px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  font-size: 13px;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px 6px;
+}
+
+.modalHeader h2 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.modalClose {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  font-size: 15px;
+  line-height: 1;
+}
+
+.modalTabs {
+  display: flex;
+  gap: 4px;
+  padding: 0 14px 8px;
+  border-bottom: 1px solid #2a3558;
+}
+
+.modalTabs button[aria-selected="true"] {
+  background: #ffb000;
+  border-color: #ffb000;
+  color: #1a1200;
+}
+
+.modalBody {
+  padding: 10px 16px 16px;
+  overflow-y: auto;
+  line-height: 1.4;
+}
+
+.modalBody h3 {
+  margin: 14px 0 4px;
+  font-size: 13px;
+  color: #ffb000;
+}
+
+.modalBody h3:first-child {
+  margin-top: 0;
+}
+
+.modalBody p,
+.modalBody ul {
+  margin: 4px 0;
+}
+
+.modalBody ul {
+  padding-left: 18px;
+}
+
+.modalBody .src {
+  margin: 6px 0;
+  padding: 6px 8px;
+  background: rgba(28, 39, 72, 0.55);
+  border-left: 3px solid #34457a;
+  border-radius: 3px;
+  font-size: 12px;
+}
+
+.modalBody .src b {
+  color: #e8ecf5;
+}
+
+.modalBody .src .meta {
+  color: #9fb0d8;
+}
+
+.modalBody .src code {
+  color: #ffd27a;
+  word-break: break-all;
+}
+
+.modalBody a {
+  color: #8fb8ff;
+  word-break: break-all;
+}

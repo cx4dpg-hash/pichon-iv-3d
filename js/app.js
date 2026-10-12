@@ -12,6 +12,7 @@ import { initCompass } from "./compass.js";
 import { addRecovery } from "./recovery.js";
 import { initTerrainFloor } from "./terrainfloor.js";
 import { initClouds3D } from "./clouds3d.js";
+import { initInfo } from "./info.js";
 import { initPanelToggle, initPresentation } from "./presentation.js";
 
 function showStatus(message) {
@@ -43,10 +44,11 @@ async function main() {
   addRecovery(map.viewer, { data, playback, map });
   initTerrainFloor({ data, playback, map });
   const clouds3d = initClouds3D({ viewer: map.viewer, playback });
+  const info = initInfo();
   const panelToggle = initPanelToggle();
   const presentation = initPresentation({ viewer: map.viewer });
   // Acceso para depuración desde la consola del navegador.
-  window.pichon = { data, playback, map, diameterModel, charts, reception, verticalSpeeds, compass, clouds3d, panelToggle, presentation };
+  window.pichon = { data, playback, map, diameterModel, charts, reception, verticalSpeeds, compass, clouds3d, info, panelToggle, presentation };
 }
 
 main().catch((error) => {

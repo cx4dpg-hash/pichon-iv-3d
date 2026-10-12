@@ -119,7 +119,7 @@ export function initUi({ data, playback, map, diameterModel, verticalSpeeds }) {
     // batteryRaw es el dato original; los voltios son una interpretación probable (no confirmada).
     $("pBatteryRaw").textContent = `${tx.telemetry.batteryRaw} raw`;
     $("pBatteryV").textContent =
-      `≈ ${fmt(tx.telemetry.batteryV, 3)} V (interpretación ${tx.telemetry.batteryInterpretationStatus})`;
+      `≈ ${fmt(tx.telemetry.batteryV, 3)} V (${tx.telemetry.batteryInterpretationStatus})`;
     // Códigos GPS en bruto: no están documentados semánticamente.
     $("pGpsQuality").textContent = String(tx.telemetry.gpsQuality);
     $("pSatellites").textContent = String(tx.telemetry.satellites);
@@ -156,9 +156,8 @@ export function initUi({ data, playback, map, diameterModel, verticalSpeeds }) {
       const r = data.recovery.rescuePoint;
       const km = haversineKm(tx.position.lat, tx.position.lon, r.lat, r.lon);
       $("recoveryText").textContent =
-        `Tramo final no telemétrico hasta el punto de recuperación (${r.label}; APRS de CX5RN-5), a ≈ ${Math.round(km * 1000)} m del último punto. ` +
-        `${data.recovery.parachute.text}. Fuente: confirmación del usuario (no deriva del log APRS). ` +
-        `Posición final basada en recuperación CX5RN-5; tramo previo no telemétrico.`;
+        `Tramo final no telemétrico hasta el punto de recuperación (CX5RN-5), a ≈ ${Math.round(km * 1000)} m. ` +
+        `${data.recovery.parachute.text}; fuente: usuario, no el log APRS.`;
     }
     renderedIndex = index;
   }

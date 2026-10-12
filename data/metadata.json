@@ -11,8 +11,9 @@
         "balizas de posición propias de las estaciones terrestres fijas"
       ],
       "generalConfidence": "high",
-      "url": null,
-      "notes": "Datos derivados de logs APRS. Los tiempos de inicio/fin del vuelo principal se derivan de ellos y no son horarios oficiales."
+      "url": "https://aprs.fi",
+      "notes": "Datos derivados de logs APRS. Los tiempos de inicio/fin del vuelo principal se derivan de ellos y no son horarios oficiales. El archivo crudo de CX1AA-11 es un PDF de paquetes de APRS.fi archivado en el proyecto.",
+      "file": "imports/source/cx1aa-11-aprsfi-raw.pdf"
     },
     {
       "id": "pichon-project-pages",
@@ -89,14 +90,14 @@
     },
     {
       "id": "user-log-uploads",
-      "name": "Futuras cargas de logs de usuarios",
+      "name": "Logs de recepción cargados por el usuario (Mi recepción)",
       "type": "user_supplied_log",
       "provides": [
-        "tramas recibidas localmente por cada radioaficionado"
+        "tramas recibidas localmente por cada radioaficionado (importador local de logs)"
       ],
       "generalConfidence": "unknown",
       "url": null,
-      "notes": "No implementado. Se procesarán localmente en el navegador. La confianza dependerá de cada log y no se mezclarán con los datos maestros."
+      "notes": "Implementado. Se procesan localmente en el navegador, sin enviar nada a un servidor ni guardarlo; no se mezclan con los datos maestros."
     },
     {
       "id": "rcu-bulletin-918",
@@ -108,13 +109,16 @@
       ],
       "generalConfidence": "high",
       "url": null,
-      "notes": "Describe el plan, no el lugar efectivo de partida: este se deriva de la primera posición GPS válida (flight.json → actualLaunch)."
+      "notes": "Describe el plan, no el lugar efectivo de partida: este se deriva de la primera posición GPS válida (flight.json → actualLaunch).",
+      "file": "imports/source/Boletin CX 918.pdf"
     },
     {
       "id": "goes19-l2-cloud-products",
       "name": "GOES-19 ABI L2: ACHA (tope), ACTP (fase), ACHT (temperatura del tope), 10 min y 2 km",
       "type": "satellite_retrieval",
-      "provides": ["cobertura de columna, tope, fase y temperatura del tope por zona y hora (data/clouds/cloud-model.json)"],
+      "provides": [
+        "cobertura de columna, tope, fase y temperatura del tope por zona y hora (data/clouds/cloud-model.json)"
+      ],
       "generalConfidence": "medium",
       "url": "https://noaa-goes19.s3.amazonaws.com/",
       "notes": "Productos de algoritmo (no mediciones directas). Los NetCDF no se versionan; se versiona un extracto estadístico en data/clouds/sources/goes19-zone-stats.json."
@@ -123,7 +127,9 @@
       "id": "metar-uruguay-iem",
       "name": "METAR de aeropuertos de Uruguay (SULS, SUMU y otros) vía Iowa Environmental Mesonet",
       "type": "surface_observation",
-      "provides": ["techo de nubes (BKN/OVC), capas bajas y llovizna a 68–116 km de la trayectoria"],
+      "provides": [
+        "techo de nubes (BKN/OVC), capas bajas y llovizna a 68–116 km de la trayectoria"
+      ],
       "generalConfidence": "medium",
       "url": "https://mesonet.agron.iastate.edu/cgi-bin/request/asos.py",
       "notes": "Los METAR crudos están en data/clouds/sources/metar/. Son observaciones horarias en las estaciones, no a lo largo de la trayectoria: la base de nube del modelo es una inferencia."
@@ -139,6 +145,259 @@
       "generalConfidence": "medium",
       "url": null,
       "notes": "Las coordenadas leídas del indicador superior de APRS.fi son referencias visuales; no sustituyen posiciones APRS identificadas."
+    },
+    {
+      "id": "aprsfi-station-beacons",
+      "name": "Balizas propias de las estaciones terrestres (APRS.fi)",
+      "type": "aprs_aggregator",
+      "provides": [
+        "posición de las estaciones fijas CX2TN-1, CX4DPG-1, CX2CQ-1 y CX2ACB-1 (baliza de cada estación el 11/10/2026)"
+      ],
+      "generalConfidence": "high",
+      "url": "https://aprs.fi",
+      "file": [
+        "imports/source/cx2tn-1-2026-10-11.pdf",
+        "imports/source/cx4dpg-1-2026-10-11.pdf",
+        "imports/source/cx2cq-1-2026-10-11.pdf",
+        "imports/source/cx2acb-1-2026-10-11.pdf"
+      ],
+      "notes": "PDFs archivados localmente. Contienen solo balizas propias de cada estación, ningún paquete de CX1AA-11; no se usan como recepción. CX3BP-8 es móvil y no tiene posición en el dataset.",
+      "versioned": false
+    },
+    {
+      "id": "dw-cx4dpg-local-log",
+      "name": "Log de recepción local Dire Wolf de CX4DPG",
+      "type": "user_supplied_log",
+      "provides": [
+        "140 paquetes de CX1AA-11 recibidos localmente por CX4DPG, usados para validar el importador de \"Mi recepción\""
+      ],
+      "generalConfidence": "high",
+      "url": null,
+      "file": "imports/source/cx4dpg-local-2026-10-11.log",
+      "notes": "No se versiona (.gitignore excluye *.log). El formato CSV de Dire Wolf no trae la hora APRS interna, por lo que las coincidencias son \"probables\".",
+      "versioned": false
+    },
+    {
+      "id": "cloud-model",
+      "name": "Modelo meteorológico de nubosidad del proyecto (cloud-model.json)",
+      "type": "derived_model",
+      "provides": [
+        "cobertura, tope, base, espesor, fase y tipo probable por zona y cada 30 min, con método, estado y confianza; origen de las Nubes 3D"
+      ],
+      "generalConfidence": "low_to_medium",
+      "url": null,
+      "file": "data/clouds/cloud-model.json",
+      "notes": "Reconstrucción derivada de GOES-19 y METAR (ver docs/CLOUD_MODEL.md). Ningún valor es observado en la trayectoria: tope, cobertura y fase son derivados; base, espesor y tipo son inferidos."
+    },
+    {
+      "id": "cesiumjs",
+      "name": "CesiumJS 1.123.1",
+      "type": "software_library",
+      "provides": [
+        "visor 3D, cámara, entidades, nubes (CloudCollection) y gestión de la cartografía"
+      ],
+      "generalConfidence": "high",
+      "url": "https://cesium.com/platform/cesiumjs/",
+      "notes": "Cargado desde el CDN de jsDelivr con versión fija."
+    },
+    {
+      "id": "cesium-ion",
+      "name": "Cesium Ion: Cesium World Imagery y Cesium World Terrain",
+      "type": "map_service",
+      "provides": [
+        "imaginería satelital y relieve 3D (solo de representación)"
+      ],
+      "generalConfidence": "high",
+      "url": "https://cesium.com/platform/cesium-ion/",
+      "notes": "Requiere un token personal en config.local.js (no versionado; config.example.js es la plantilla). Las alturas de terreno no se guardan ni modifican datos de vuelo."
+    },
+    {
+      "id": "osm-basic",
+      "name": "OpenStreetMap sobre el elipsoide (mapa básico, respaldo)",
+      "type": "map_service",
+      "provides": [
+        "mapa de respaldo sin relieve cuando no hay token de Cesium Ion o falla"
+      ],
+      "generalConfidence": "high",
+      "url": "https://www.openstreetmap.org/copyright",
+      "notes": "Modo por defecto sin token (\"Mapa básico · sin relieve\")."
+    },
+    {
+      "id": "chartjs",
+      "name": "Chart.js 4.4.1",
+      "type": "software_library",
+      "provides": [
+        "gráficos de telemetría"
+      ],
+      "generalConfidence": "high",
+      "url": "https://www.chartjs.org",
+      "notes": "Cargado desde el CDN de jsDelivr con versión fija."
+    },
+    {
+      "id": "rcu-logo",
+      "name": "Escudo del Radio Club Uruguayo (logo-rcu.jpg)",
+      "type": "branding",
+      "provides": [
+        "escudo del RCU del encabezado"
+      ],
+      "generalConfidence": "high",
+      "url": null,
+      "file": "imports/source/logo-rcu.jpg",
+      "notes": "En el encabezado se usa el emblema del RCU del Boletín CX 918 (ver docs/BRANDING.md)."
     }
+  ],
+  "groups": [
+    {
+      "id": "telemetry",
+      "title": "Telemetría de vuelo (CX1AA-11)",
+      "sourceIds": [
+        "aprs.fi",
+        "pichon-project-pages"
+      ],
+      "points": [
+        "Balizas APRS del globo CX1AA-11 tal como las publica APRS.fi.",
+        "Archivo crudo archivado en el proyecto: PDF de paquetes de APRS.fi (183 líneas de recepción → 168 transmisiones únicas; 155 con posición GPS válida y 148 en el vuelo efectivo, frames 10 a 157).",
+        "Aportan: hora de emisión (timestamp APRS, UTC), posición, altitud GPS, velocidad, curso y telemetría ambiental (presión, temperaturas, humedad, altitud barométrica, batería y estado GPS).",
+        "El significado de los campos se contrastó con las páginas del proyecto; la escala de la batería y el significado de los modos G y P no están documentados."
+      ]
+    },
+    {
+      "id": "stations",
+      "title": "Estaciones y firstIgate",
+      "sourceIds": [
+        "aprsfi-station-beacons",
+        "user-confirmed-project-context"
+      ],
+      "points": [
+        "Estaciones fijas con posición conocida (baliza propia de cada una en APRS.fi, 11/10/2026): CX2TN-1, CX4DPG-1, CX2CQ-1 y CX2ACB-1.",
+        "CX3BP-8 es una estación móvil: su posición es desconocida en el dataset del proyecto y no se le asigna ninguna coordenada.",
+        "firstIgate es la primera estación en la que aparece cada transmisión en APRS-IS dentro del dataset disponible."
+      ]
+    },
+    {
+      "id": "reception",
+      "title": "Recepción local (Mi recepción)",
+      "sourceIds": [
+        "dw-cx4dpg-local-log",
+        "user-log-uploads"
+      ],
+      "points": [
+        "Log Dire Wolf de CX4DPG usado para validar el importador.",
+        "El matching se hace en el navegador; el archivo se procesa localmente, sin enviarse a ningún servidor ni guardarse.",
+        "El dataset maestro nunca se modifica; recibir una trama no implica ser su primer IGate."
+      ]
+    },
+    {
+      "id": "recovery",
+      "title": "Recuperación",
+      "sourceIds": [
+        "cx5rn-5-aprsfi-log",
+        "user-reported-rescue-point",
+        "user-aprsfi-screenshots"
+      ],
+      "points": [
+        "Punto de recuperación: trama APRS de CX5RN-5 de las 15:27:45 (-03), 34°19.72' S, 53°59.19' W (−34.3286667, −53.9865), verificada contra el PDF de APRS.fi archivado en el proyecto.",
+        "Paracaídas: no abrió (confirmado por el usuario; no deriva del log APRS).",
+        "Entre la última transmisión de CX1AA-11 (frame 157) y ese punto no hay telemetría: se dibuja como tramo final no telemétrico."
+      ]
+    },
+    {
+      "id": "launch",
+      "title": "Lanzamiento",
+      "sourceIds": [
+        "aprs.fi",
+        "rcu-bulletin-918"
+      ],
+      "points": [
+        "Lanzamiento efectivo: primera posición GPS válida de CX1AA-11 (frame 3, 13:14:41 UTC; −34.297167, −55.355333), en tierra. La reproducción empieza en la liberación (frame 10).",
+        "Lugar planificado previo (Aero Club de Mercedes, Soriano; domingo 11/10, 10:00): Boletín CX Nº 918. Es el plan, no el lugar efectivo."
+      ]
+    },
+    {
+      "id": "weather",
+      "title": "Meteorología y nubes 3D",
+      "sourceIds": [
+        "goes19-l2-cloud-products",
+        "metar-uruguay-iem",
+        "cloud-model"
+      ],
+      "points": [
+        "GOES-19 ABI L2: ACHA (altura del tope), ACTP (cobertura y fase) y ACHT (temperatura del tope).",
+        "METAR de aeropuertos uruguayos (SULS y SUMU entre otros) para el techo de nubes, a 68–116 km de la trayectoria.",
+        "Las Nubes 3D son una reconstrucción aproximada a partir de cloud-model.json (7 estados cada 30 min, 2 zonas); la región extendida es una extrapolación solo visual.",
+        "Estados del modelo: observado = observación directa; derivado = resultado de un algoritmo satelital o cálculo explícito; inferido = traslado espacial o regla con supuestos; desconocido = no sustentado. Aquí tope, cobertura y fase son derivados; base, espesor y tipo son inferidos."
+      ]
+    },
+    {
+      "id": "mapping",
+      "title": "Cartografía y software",
+      "sourceIds": [
+        "cesiumjs",
+        "cesium-ion",
+        "osm-basic",
+        "chartjs"
+      ],
+      "points": [
+        "Imaginería y relieve: Cesium World Imagery y Cesium World Terrain vía Cesium Ion (token local, no versionado).",
+        "Respaldo sin token: OpenStreetMap sobre el elipsoide, sin relieve.",
+        "El relieve es solo de representación y no modifica ningún dato de vuelo."
+      ]
+    },
+    {
+      "id": "branding",
+      "title": "Branding y documentación",
+      "sourceIds": [
+        "rcu-bulletin-918",
+        "rcu-logo"
+      ],
+      "points": [
+        "Radio Club Uruguayo: escudo (logo-rcu.jpg) y Boletín CX Nº 918.",
+        "Símbolo gráfico de Pichón IV: cabeza de ave extraída del Boletín CX Nº 918 (el boletín no lo rotula como logo oficial; a confirmar con el proyecto)."
+      ]
+    },
+    {
+      "id": "balloon-model",
+      "title": "Modelo del globo y estimaciones visuales",
+      "sourceIds": [
+        "visual-estimates"
+      ],
+      "points": [
+        "El diámetro inicial, el tamaño de la carga y la disposición de suspensión y antena son estimaciones visuales, no mediciones."
+      ]
+    }
+  ],
+  "methodology": [
+    {
+      "title": "Transmisiones reales y posición visual",
+      "text": "Los valores del panel son los de la transmisión real vigente y no se interpolan. La posición dibujada entre dos transmisiones sí se interpola (Hermite cúbica monótona): es solo visual, coincide exactamente en cada transmisión y no crea datos. La carga representa la posición GPS, y la línea amarilla y la carga usan la misma función positionAtTime."
+    },
+    {
+      "title": "Diámetro del globo",
+      "text": "Es una estimación física basada en presión, temperatura y diámetro inicial estimado; no es una medición directa y solo se calcula durante el ascenso."
+    },
+    {
+      "title": "Tamaño visual del conjunto",
+      "text": "El globo y la carga se dibujan con tamaño físico/modelado de cerca; solo a gran distancia se aplica una ayuda de visibilidad gradual y limitada (no es tamaño físico)."
+    },
+    {
+      "title": "Suspensión y antena",
+      "text": "Las separaciones de la suspensión y la antena son solo visuales; no representan longitudes medidas."
+    },
+    {
+      "title": "Tramo final violeta",
+      "text": "El tramo desde la última transmisión (frame 157) hasta el punto de recuperación es una reconstrucción no telemétrica: no es una trayectoria APRS medida. Su duración base de 18 s a 1x es reconstruida para presentación, no medida, y respeta la velocidad de reproducción elegida."
+    },
+    {
+      "title": "Nubes 3D",
+      "text": "Son una reconstrucción aproximada (GOES-19 + METAR, vía cloud-model.json), no una medición volumétrica real. Tope, cobertura y fase son derivados; base, espesor y tipo son inferidos; la región extendida es una extrapolación visual."
+    }
+  ],
+  "limitations": [
+    "APRS no registra una posición continua: hay una transmisión cada ≈ 1 a 2 minutos y la trayectoria entre tramas se interpola.",
+    "El tramo final hasta el punto de recuperación es una reconstrucción visual, sin tiempos ni trayectoria medidos.",
+    "Las nubes 3D son aproximadas: la base, el tope y el espesor son derivados o inferidos, y la base sale de estaciones a decenas de km.",
+    "El modelo del diámetro del globo es aproximado.",
+    "Puede haber diferencia entre la altitud GPS y la referencia vertical del terreno; por eso hay una corrección visual al terreno al lanzar y al apoyar la carga.",
+    "firstIgate significa primera aparición en APRS-IS dentro del dataset disponible, no necesariamente la primera estación RF que oyó el globo."
   ]
 }

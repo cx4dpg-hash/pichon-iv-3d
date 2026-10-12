@@ -27,6 +27,7 @@
             <p class="credit">Radio Club Uruguayo · Proyecto Pichón IV</p>
           </div>
           <span class="logoChip"><img class="logo logo-pichon" src="assets/branding/pichon-iv-logo.png" alt="Pichón IV" width="39" height="28"></span>
+          <button type="button" id="btnInfo" class="infoBtn" aria-haspopup="dialog" aria-controls="infoModal" title="Información: metodología, fuentes y limitaciones" aria-label="Información: metodología, fuentes y limitaciones">ⓘ</button>
         </header>
         <p id="pCount" class="count">Cargando…</p>
         <div class="groups">
@@ -49,12 +50,10 @@
               <dt>Barométrica</dt><dd id="pBaroAlt">—</dd>
               <dt title="Solo presentación: con relieve, a baja altitud la carga se dibuja sobre el terreno si la altitud GPS bruta queda bajo él. La altitud GPS mostrada arriba es siempre la bruta.">Corrección visual</dt><dd id="pAltAdjust">—</dd>
             </dl>
-            <h2>Ambiente</h2>
+            <h2>Recepción</h2>
             <dl>
-              <dt>Presión</dt><dd id="pPressure">—</dd>
-              <dt>Temp. interna</dt><dd id="pIntTemp">—</dd>
-              <dt>Temp. externa</dt><dd id="pExtTemp">—</dd>
-              <dt>Humedad</dt><dd id="pHumidity">—</dd>
+              <dt>First IGate</dt><dd id="pIgate">—</dd>
+              <dt title="Recepción local del log cargado; independiente de First IGate">Mi estación</dt><dd id="pMyStation">— (sin log cargado)</dd>
             </dl>
           </section>
           <section>
@@ -66,27 +65,28 @@
               <dt>Satélites</dt><dd id="pSatellites">—</dd>
               <dt>Estado GPS</dt><dd id="pGpsStatus">—</dd>
             </dl>
+            <h2>Ambiente</h2>
+            <dl>
+              <dt>Presión</dt><dd id="pPressure">—</dd>
+              <dt>Temp. interna</dt><dd id="pIntTemp">—</dd>
+              <dt>Temp. externa</dt><dd id="pExtTemp">—</dd>
+              <dt>Humedad</dt><dd id="pHumidity">—</dd>
+            </dl>
             <h2>Globo</h2>
             <dl>
               <dt>Fase</dt><dd id="pBalloonState">—</dd>
               <dt>Diámetro estimado</dt><dd id="pDiameter" title="Estimación física basada en presión, temperatura y diámetro inicial visual.">—</dd>
             </dl>
-            <h2>Recepción</h2>
-            <dl>
-              <dt>First IGate</dt><dd id="pIgate">—</dd>
-              <dt title="Recepción local del log cargado; independiente de First IGate">Mi estación</dt><dd id="pMyStation">— (sin log cargado)</dd>
-            </dl>
-            <div id="recoveryBox" hidden>
-              <h3>Después de esta transmisión</h3>
-              <p id="recoveryText" class="recoveryText"></p>
-            </div>
-            <div id="warningsBox" hidden>
-              <h3>Advertencias de APRS.fi</h3>
-              <ul id="pWarnings"></ul>
-            </div>
           </section>
         </div>
-        <p class="note">Valores de la transmisión real vigente (no se interpolan); la posición GPS es la de la carga útil. El marcador 3D se interpola solo visualmente entre transmisiones. Diámetro estimado: estimación física basada en presión, temperatura y diámetro inicial visual (no es una medición), solo durante el ascenso. El conjunto globo–carga se dibuja con tamaño físico/modelado de cerca; solo a gran distancia se aplica una ayuda de visibilidad gradual y limitada (no es tamaño físico). Las separaciones de suspensión y antena son solo visuales.</p>
+        <div id="recoveryBox" hidden>
+          <h3>Después de esta transmisión</h3>
+          <p id="recoveryText" class="recoveryText"></p>
+        </div>
+        <div id="warningsBox" hidden>
+          <h3>Advertencias de APRS.fi</h3>
+          <ul id="pWarnings"></ul>
+        </div>
       </aside>
 
       <aside id="receptionPanel" aria-label="Mi recepción">
@@ -209,6 +209,21 @@
         </div>
       </div>
     </section>
+
+    <div id="infoModal" class="modal" hidden>
+      <div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="infoTitle">
+        <header class="modalHeader">
+          <h2 id="infoTitle">Información, fuentes y metodología</h2>
+          <button type="button" id="btnInfoClose" class="modalClose" aria-label="Cerrar">✕</button>
+        </header>
+        <nav class="modalTabs" role="tablist" aria-label="Secciones">
+          <button type="button" role="tab" data-tab="methodology" aria-selected="true">Metodología</button>
+          <button type="button" role="tab" data-tab="sources" aria-selected="false">Fuentes de datos</button>
+          <button type="button" role="tab" data-tab="limitations" aria-selected="false">Limitaciones</button>
+        </nav>
+        <div id="infoBody" class="modalBody" role="tabpanel" tabindex="0">Cargando…</div>
+      </div>
+    </div>
   </div>
   <script type="module" src="js/app.js"></script>
 </body>

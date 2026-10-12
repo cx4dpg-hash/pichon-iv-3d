@@ -40,6 +40,7 @@ js/recovery.js  punto de rescate y tramo final no telemétrico (anotación compl
 js/floor.js     corrección visual de altura al terreno (función pura, con pruebas)
 js/terrainfloor.js aplica esa corrección cuando hay relieve activo
 js/clouds.js    infraestructura de la antigua capa satelital 2D (RETIRADA de la UI; no se importa ni se carga). Se conserva como referencia
+js/info.js      ventana ⓘ: metodología, fuentes y limitaciones desde data/metadata.json (etapa 17)
 js/presentation.js botón de ocultar/mostrar el panel izquierdo y modo presentación (Fullscreen API); solo visibilidad (etapa 14)
 data/clouds/    modelo meteorológico de nubosidad (cloud-model.json) y sus fuentes; lo lee js/clouds3d.js al activar "Nubes 3D"
 js/clouds3d.js  nubes 3D aproximadas (Cesium.CloudCollection/CumulusCloud) a partir de cloud-model.json; apagado por defecto (etapa 15)
@@ -70,6 +71,9 @@ Etapa 10:
 - **Altura de render.** `positionAtTime(flight, times, t, altitudes)` acepta altitudes de render por transmisión (`playback.displayAltM`); sin ellas usa `altitudeGpsM` tal cual. La corrección visual al terreno (`floor.js`, aplicada por `terrainfloor.js` solo con relieve) rellena ese arreglo; la carga, la línea amarilla, los marcadores y los puntos de "Mi recepción" leen la misma fuente, así que siguen coincidiendo. El dataset y los gráficos usan siempre el valor bruto.
 - **Rescate.** `recovery.json` se carga aparte de `transmissions.json`; `recovery.js` dibuja marcador, línea punteada y etiquetas sin tocar la trayectoria principal.
 - **Nubes.** La capa 2D fue retirada deliberadamente (decisión de producto): `app.js` no importa `clouds.js`, no hay botón ni rótulo, y no se descarga `assets/clouds/` en el uso normal. Los fotogramas y el manifiesto se conservan para la futura nube 3D.
+
+Etapa 17:
+- **Información y fuentes.** `info.js` (botón ⓘ del encabezado del panel, ventana modal dentro de `#app`) carga `data/metadata.json` al abrir por primera vez y dibuja tres pestañas (Metodología, Fuentes de datos, Limitaciones) solo con `textContent`. `metadata.json` es la ÚNICA fuente de procedencia: `sources` (nombre, tipo, qué sustenta, archivo, URL, confianza, notas), `groups` (cómo se agrupan en pantalla), `methodology` y `limitations`. `tools/docs/build-sources-md.mjs` genera `docs/SOURCES.md` desde ese JSON y `tests/sources.test.mjs` comprueba que están sincronizados y que los archivos citados existen. El panel de información (`ui.js`) ya no incluye texto metodológico y es más compacto (la nota larga pasó a la ventana ⓘ).
 
 Etapa 15:
 - **Nubes 3D.** `clouds3d.js` crea (al primer clic) una `CloudCollection` con 444 `CumulusCloud` (200 de la región core y 244 de una región extendida, extrapolada solo visualmente con falloff suave); `cloudfield.js` calcula, sin Cesium, la geometría de cada elemento (centro, espesor, visibilidad) desde `cloud-model.json`: zonas con transición suave, interpolación temporal lineal entre los 7 estados, variación determinista entre elementos y cobertura. Solo se actualizan los elementos cuando cambian los parámetros (≥ 5 m) o la elevación de la cámara (≥ 3°). La capa 2D (`clouds.js`) sigue sin importarse.

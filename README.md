@@ -28,6 +28,12 @@ El proyecto es un sitio web **estático** (HTML, CSS y JavaScript con módulos E
 
 La reproducción empieza en la **liberación** (frame 10, 13:21:39 UTC = 10:21:39 hora local, última posición en tierra antes del ascenso sostenido) y no en la primera posición GPS válida (frame 3, 10:14:41). Las transmisiones anteriores (frames 3 a 9) siguen en `transmissions.json` y en memoria como fase `preLaunch` (en tierra). El punto de lanzamiento (−34.297167, −55.355333) se mantiene como sitio real y se marca en el mapa. El criterio es reproducible y está documentado en [docs/DATA_QUALITY.md](docs/DATA_QUALITY.md).
 
+## Panel limpio y fuentes trazables (etapa 17)
+
+- **Panel izquierdo compacto, sin scroll en escritorio** (probado en 1920×1080, 1600×900 y 1366×768; solo en 1366×768, en la última transmisión con aviso de APRS.fi y nota de recuperación, necesita unos 20 px de scroll). El texto metodológico largo salió del panel.
+- **Botón ⓘ** (encabezado del panel): abre una ventana con **Metodología**, **Fuentes de datos** y **Limitaciones**; se cierra con ✕, Escape o clic fuera, y no altera la reproducción ni la cámara. En modo Presentación no se muestra.
+- **Trazabilidad:** todo el contenido sale de `data/metadata.json` (fuentes, grupos, metodología, limitaciones) y [docs/SOURCES.md](docs/SOURCES.md) se genera de ese mismo archivo (`node tools/docs/build-sources-md.mjs`).
+
 ## Nubes 3D, movimiento suave y paracaídas (etapa 15)
 
 - **Nubes 3D (botón "Nubes 3D", apagado por defecto):** reconstrucción 3D **aproximada** basada en GOES-19 + METAR, dibujada con `Cesium.CloudCollection` a partir de `data/clouds/cloud-model.json` (base, tope, espesor, cobertura y zonas por hora; transiciones suaves). Disponible también en el modo Presentación. No son nubes reales ni una observación. Ver [docs/CLOUD_MODEL.md](docs/CLOUD_MODEL.md).
