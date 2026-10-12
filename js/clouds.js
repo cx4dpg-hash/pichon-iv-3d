@@ -97,6 +97,7 @@ export function initClouds({ viewer, playback }) {
     const key = `${k}|${Math.round(f * 100)}|${layers.get(k) ? 1 : 0}${layers.get(next) ? 1 : 0}`;
     if (key === lastKey) return;
     lastKey = key;
+    viewer.scene.requestRender(); // render bajo demanda: las transparencias de capa no avisan solas
     const base = layers.get(k);
     const top = next !== k ? layers.get(next) : null;
     if (base) {

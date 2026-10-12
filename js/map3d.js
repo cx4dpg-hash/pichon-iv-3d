@@ -71,8 +71,14 @@ export function createMap(containerId, data, playback, diameterModel, config = {
     fullscreenButton: false,
     infoBox: false,
     selectionIndicator: false,
+    // Render bajo demanda: con la escena estática (pausa, sin gestos) no se redibuja. Se pide un
+    // fotograma al cambiar el instante de reproducción (ver más abajo); la cámara, la carga de
+    // teselas y las animaciones de cámara lo piden solas. El reloj de Cesium no avanza.
+    requestRenderMode: true,
+    maximumRenderTimeChange: Number.POSITIVE_INFINITY,
   });
   viewer.scene.globe.depthTestAgainstTerrain = false;
+  const requestRender = () => viewer.scene.requestRender();
   const baseMap = createBaseMap(viewer, osmLayer, { token: config.cesiumIonToken, flight, stations });
 
   // --- Trayectoria completa (altitud GPS real, sin exageración vertical) ---
@@ -138,13 +144,27 @@ export function createMap(containerId, data, playback, diameterModel, config = {
     } catch {
       /* sin relieve disponible */
     }
+    requestRender(); // las alturas de terreno consultadas cambian posiciones dinámicas
   });
 
   // Si cambia la geometría de render (corrección visual al terreno), se vuelve a dibujar la línea
   // con el mismo remuestreo de positionAtTime; los marcadores y la carga la leen en cada fotograma.
   playback.onGeometryChange(() => {
     pathEntity.polyline.positions = samplePositions();
+    requestRender();
   });
+
+  // Las posiciones de la carga y los enlaces son CallbackProperty (no avisan al cambiar): se pide
+  // un fotograma solo cuando cambió el instante o la fase final (no al cambiar velocidad/pausa).
+  let lastOffset = Number.NaN;
+  let lastFinal = null;
+  playback.onChange((p) => {
+    if (p.offset === lastOffset && p.final === lastFinal) return;
+    lastOffset = p.offset;
+    lastFinal = p.final;
+    requestRender();
+  });
+  baseMap.ready.then(requestRender);
 
   // --- Estaciones terrestres fijas ---
   addStationEntities(viewer, stations);
@@ -348,12 +368,18 @@ export function createMap(containerId, data, playback, diameterModel, config = {
   const wrap = document.getElementById("viewerWrap");
   const panelEl = document.getElementById("infoPanel");
   if (typeof ResizeObserver !== "undefined") {
-    const observer = new ResizeObserver(scheduleRefit);
+    const observer = new ResizeObserver(() => {
+      requestRender();
+      scheduleRefit();
+    });
     if (wrap) observer.observe(wrap);
     if (panelEl) observer.observe(panelEl);
   }
   // Cambió la disposición móvil (orientación, pestaña, tamaño del bottom sheet): se reencuadra.
-  window.addEventListener("pichon:layoutchange", scheduleRefit);
+  window.addEventListener("pichon:layoutchange", () => {
+    requestRender();
+    scheduleRefit();
+  });
   const markMoved = () => {
     userMoved = true;
   };

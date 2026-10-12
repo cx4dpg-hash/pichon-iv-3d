@@ -42,6 +42,10 @@ export function initClouds3D({ viewer, playback }) {
   let enabled = false;
   let lastKey = "";
   let updates = 0;
+  // Temporales reutilizados: los setters de CumulusCloud copian el valor, no guardan la referencia.
+  const scratchColor = new Cesium.Color(0.93, 0.95, 0.97, 1);
+  const scratchScale = new Cesium.Cartesian2();
+  const scratchSize = new Cesium.Cartesian3();
 
   async function load() {
     if (states) return;
@@ -88,7 +92,10 @@ export function initClouds3D({ viewer, playback }) {
       const c = clouds[i];
       c.show = g.visible;
       if (!g.visible) return;
-      if (c.color.alpha !== g.alpha) c.color = new Cesium.Color(0.93, 0.95, 0.97, g.alpha);
+      if (c.color.alpha !== g.alpha) {
+        scratchColor.alpha = g.alpha;
+        c.color = scratchColor;
+      }
       const widthM = CLOUD_TUNING.footprintM * el.widthK;
       // Alto aparente del sprite: de canto = espesor de la capa; desde arriba = su extensión
       // horizontal en profundidad. Se interpola con el ángulo de elevación de la cámara.
@@ -99,12 +106,24 @@ export function initClouds3D({ viewer, playback }) {
       );
       const aspect = heightM / widthM;
       c.position = Cesium.Cartesian3.fromDegrees(el.lon, el.lat, g.centerAltM, undefined, c.position);
-      c.scale = new Cesium.Cartesian2(widthM, heightM);
-      c.maximumSize = new Cesium.Cartesian3(
-        CLOUD_TUNING.unitsX,
-        Math.max(CLOUD_TUNING.unitsX * aspect * 1.5, CLOUD_TUNING.unitsYMin),
-        CLOUD_TUNING.unitsZ,
-      );
+      scratchScale.x = widthM;
+      scratchScale.y = heightM;
+      c.scale = scratchScale;
+      scratchSize.x = CLOUD_TUNING.unitsX;
+      scratchSize.y = Math.max(CLOUD_TUNING.unitsX * aspect * 1.5, CLOUD_TUNING.unitsYMin);
+      scratchSize.z = CLOUD_TUNING.unitsZ;
+      c.maximumSize = scratchSize;
+    });
+  }
+
+  // Render bajo demanda: CloudCollection genera su textura de ruido en el primer fotograma y recién
+  // dibuja en los siguientes, sin pedirlos por sí sola. Al activar/desactivar se piden unos fotogramas.
+  function requestFrames(count) {
+    let left = count;
+    scene.requestRender();
+    const remove = scene.postRender.addEventListener(() => {
+      if (left-- > 0) scene.requestRender();
+      else remove();
     });
   }
 
@@ -134,6 +153,7 @@ export function initClouds3D({ viewer, playback }) {
       button.setAttribute("aria-pressed", "false");
       note.hidden = true;
     }
+    requestFrames(3); // el cambio llega tras un await, fuera del clic
   }
 
   button.addEventListener("click", () => setEnabled(!enabled));

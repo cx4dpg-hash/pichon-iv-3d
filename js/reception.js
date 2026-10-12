@@ -80,7 +80,10 @@ export function initReception({ data, playback, map }) {
     heightTimer = setTimeout(async () => {
       try {
         const h = await map.baseMap.sampleHeight(target.lat, target.lon);
-        if (h !== null && state.station === target) target.heightM = h;
+        if (h !== null && state.station === target) {
+          target.heightM = h;
+          viewer.scene.requestRender(); // la posición de "Mi estación" es dinámica (render bajo demanda)
+        }
       } catch {
         /* sin relieve disponible: se queda en 0 */
       }
@@ -150,13 +153,14 @@ export function initReception({ data, playback, map }) {
     });
     points.show = state.showMine;
     stationEntity.show = state.showMine && state.type === "fixed" && !!state.station;
+    viewer.scene.requestRender(); // render bajo demanda: mostrar/ocultar y la posición de "Mi estación" no avisan solos
   }
 
   // --- Fila "Mi estación" del panel (recepción local; distinta de First IGate) ---
   function renderPanelRow() {
     const cell = $("pMyStation");
     if (!state.imported) {
-      cell.textContent = "— (sin log cargado)";
+      if (cell.textContent !== "— (sin log cargado)") cell.textContent = "— (sin log cargado)";
       return;
     }
     const id = flight[playback.index].id;
@@ -167,7 +171,7 @@ export function initReception({ data, playback, map }) {
     else text = `Recibida · ${rec.count} registros`;
     const amb = state.imported.index.ambiguous.get(id);
     if (amb) text += ` (posible coincidencia ambigua en ${amb} línea${amb > 1 ? "s" : ""})`;
-    cell.textContent = text;
+    if (cell.textContent !== text) cell.textContent = text;
   }
 
   // --- Estadísticas y tabla ---

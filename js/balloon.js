@@ -71,12 +71,33 @@ export function createBalloonAssembly(viewer, { flight, playback, diameterModel,
   const payloadPhysical = payloadDimensionsM;
   const eggCubeRoot = Math.cbrt(VISUAL_AID.eggElongation);
 
-  // Pose calculada para el instante de reproducción y la posición actual de la cámara.
+  // Pose calculada para el instante de reproducción y la posición actual de la cámara. Las ~15
+  // propiedades dinámicas de las entidades la piden en cada fotograma: se memoiza por
+  // (instante, altitudes de render, fase final, posición de cámara); el objeto es de solo lectura.
+  let cached = null;
+  const cachedKey = { offset: NaN, alt: null, final: null, x: NaN, y: NaN, z: NaN };
   function getPose() {
+    const cam = camera.positionWC;
+    const k = cachedKey;
+    if (cached && k.offset === playback.offset && k.alt === playback.displayAltM && k.final === playback.final && k.x === cam.x && k.y === cam.y && k.z === cam.z) {
+      return cached;
+    }
+    cached = computePose();
+    k.offset = playback.offset;
+    k.alt = playback.displayAltM;
+    k.final = playback.final;
+    k.x = cam.x;
+    k.y = cam.y;
+    k.z = cam.z;
+    return cached;
+  }
+
+  function computePose() {
     const p = visualPosition(flight, playback);
+    let altM = p.altM; // copia local: p es el objeto compartido/memoizado
     const finalF = playback.final ? playback.finalFraction : 0;
-    const at = (altM) => Cesium.Cartesian3.fromDegrees(p.lon, p.lat, altM);
-    let payloadCenter = at(p.altM);
+    const at = (a) => Cesium.Cartesian3.fromDegrees(p.lon, p.lat, a);
+    let payloadCenter = at(altM);
     const d = Cesium.Cartesian3.distance(camera.positionWC, payloadCenter);
 
     // Una única escala para todo el conjunto (proporción globo/carga constante): 1 de cerca.
@@ -91,11 +112,11 @@ export function createBalloonAssembly(viewer, { flight, playback, diameterModel,
     // Fase final no telemétrica: la carga acaba APOYADA en el terreno (centro = terreno + mitad de su
     // altura visual), sea cual sea la escala de visualización; el ajuste crece con la fase.
     if (finalF > 0) {
-      p.altM += finalF * (payload.height / 2 + 0.02 - playback.final.offsetM);
-      payloadCenter = at(p.altM);
+      altM += finalF * (payload.height / 2 + 0.02 - playback.final.offsetM);
+      payloadCenter = at(altM);
     }
-    const payloadTop = p.altM + payload.height / 2;
-    const payloadBottom = p.altM - payload.height / 2;
+    const payloadTop = altM + payload.height / 2;
+    const payloadBottom = altM - payload.height / 2;
     const antennaOffset = VISUAL_AID.antennaOffsetM * scale;
 
     // Globo: solo mientras la fase es de ascenso (después del máximo no se dibuja).
@@ -132,7 +153,7 @@ export function createBalloonAssembly(viewer, { flight, playback, diameterModel,
       radiusV,
       neckLength,
       payloadCenter,
-      payloadCenterAltM: p.altM,
+      payloadCenterAltM: altM,
       payloadTop: at(payloadTop),
       payloadBottom: at(payloadBottom),
       antennaEnd: at(payloadBottom - antennaOffset),

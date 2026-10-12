@@ -283,26 +283,34 @@ export function createCharts({ data, playback, diameterModel, seekToIndex }) {
   const isVisible = (entry) => entry.canvas.clientWidth > 0 && entry.canvas.clientHeight > 0;
 
   // Cursor vertical: un <div> superpuesto que se reposiciona (no se redibuja el gráfico).
-  function placeCursor(entry) {
+  // Solo se escribe lo que cambió (a 1/100 px: por debajo del paso de maquetación del navegador).
+  function placeCursor(entry, visible) {
     const { chart, cursor } = entry;
-    if (!chart || !isVisible(entry)) return; // onResize puede dispararse durante la construcción
+    if (!chart || !(visible ?? isVisible(entry))) return; // onResize puede dispararse durante la construcción
     const area = chart.chartArea;
     if (!area) return;
-    const x = chart.scales.x.getPixelForValue(playback.absoluteMs);
-    cursor.style.left = `${x}px`;
-    cursor.style.top = `${area.top}px`;
-    cursor.style.height = `${area.bottom - area.top}px`;
+    const x = Math.round(chart.scales.x.getPixelForValue(playback.absoluteMs) * 100) / 100;
+    if (entry.cursorX !== x) {
+      entry.cursorX = x;
+      cursor.style.left = `${x}px`;
+    }
+    if (entry.areaTop !== area.top || entry.areaBottom !== area.bottom) {
+      entry.areaTop = area.top;
+      entry.areaBottom = area.bottom;
+      cursor.style.top = `${area.top}px`;
+      cursor.style.height = `${area.bottom - area.top}px`;
+    }
   }
 
   // Pone al día un gráfico visible: si la transmisión vigente cambió mientras estaba oculto, solo
   // se actualiza el resaltado (sin reconstruir ni tocar datasets); luego se coloca el cursor.
-  function refreshEntry(entry) {
-    if (!entry.chart || !isVisible(entry)) return;
+  function refreshEntry(entry, visible) {
+    if (!entry.chart || !(visible ?? isVisible(entry))) return; // durante la construcción chart es null
     if (entry.stale) {
       entry.stale = false;
       entry.chart.update("none");
     }
-    placeCursor(entry);
+    placeCursor(entry, visible);
   }
 
   /** Llamar en cada cambio de reproducción. Los 8 gráficos siguen sincronizados. */
@@ -312,8 +320,11 @@ export function createCharts({ data, playback, diameterModel, seekToIndex }) {
       state.index = index;
       for (const entry of entries) entry.stale = true; // los ocultos se actualizan al mostrarse
     }
+    // Primero se leen todos los tamaños y después se escribe: intercalar lecturas de clientWidth con
+    // escrituras de estilo fuerza un reflujo por gráfico y por fotograma.
+    const visible = entries.map(isVisible);
     // Después del update: el layout puede cambiar y el cursor debe usar la escala vigente.
-    for (const entry of entries) refreshEntry(entry);
+    entries.forEach((entry, k) => refreshEntry(entry, visible[k]));
   }
 
   // --- Paginación (4 gráficos por página): solo cambia la visibilidad de los grupos ---

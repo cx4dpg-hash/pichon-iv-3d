@@ -8,6 +8,16 @@ import { haversineKm } from "./importer/stats.js";
 
 const $ = (id) => document.getElementById(id);
 
+// Escrituras al DOM solo si el valor cambió: asignar el mismo texto/atributo igualmente genera
+// mutaciones y re-estilos, y render() corre en cada fotograma de la reproducción.
+function setText(el, text) {
+  if (el.textContent !== text) el.textContent = text;
+}
+
+function setAttr(el, name, value) {
+  if (el.getAttribute(name) !== value) el.setAttribute(name, value);
+}
+
 function fmt(value, decimals) {
   return Number.isFinite(value) ? value.toFixed(decimals) : "—";
 }
@@ -39,6 +49,8 @@ export function initUi({ data, playback, map, diameterModel, verticalSpeeds }) {
   $("tStart").textContent = formatLocalTime(playback.t0);
   $("tEnd").textContent = formatLocalTime(playback.t0 + playback.duration);
 
+  const tNow = $("tNow");
+  const tNowPanel = $("tNowPanel");
   let dragging = false;
   slider.addEventListener("pointerdown", () => (dragging = true));
   window.addEventListener("pointerup", () => (dragging = false));
@@ -163,7 +175,10 @@ export function initUi({ data, playback, map, diameterModel, verticalSpeeds }) {
   }
 
   function render() {
-    if (!dragging) slider.value = String(Math.round(playback.offset));
+    if (!dragging) {
+      const sliderValue = String(Math.round(playback.offset));
+      if (slider.value !== sliderValue) slider.value = sliderValue;
+    }
     // Fase visual final (no telemétrica): el reloj real queda en la última transmisión.
     const finalState = !playback.inFinalPhase ? "" : playback.finalFraction >= 1 ? "done" : "moving";
     if (finalState !== lastFinalState) {
@@ -171,11 +186,11 @@ export function initUi({ data, playback, map, diameterModel, verticalSpeeds }) {
       renderedIndex = -1; // vuelve a pintar el panel con los textos base
     }
     const nowText = formatLocalTime(playback.absoluteMs) + (finalState ? " · fin de la telemetría" : "");
-    $("tNow").textContent = nowText;
-    $("tNowPanel").textContent = nowText;
-    playButton.textContent = playback.playing ? "Pausa" : "Play";
+    setText(tNow, nowText);
+    setText(tNowPanel, nowText);
+    setText(playButton, playback.playing ? "Pausa" : "Play");
     for (const button of speedButtons) {
-      button.setAttribute("aria-pressed", String(Number(button.dataset.speed) === playback.speed));
+      setAttr(button, "aria-pressed", String(Number(button.dataset.speed) === playback.speed));
     }
     const index = playback.index;
     if (index !== renderedIndex) {

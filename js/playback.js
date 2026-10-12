@@ -282,11 +282,23 @@ export function positionAtTimeLinear(flight, times, ms, altitudes = null) {
   };
 }
 
-/** Posición visual de la carga en el instante actual de la reproducción. */
+/**
+ * Posición visual de la carga en el instante actual de la reproducción. Se memoiza por instante
+ * (offset, altitudes de render y fase final): varias entidades la piden en el mismo fotograma y el
+ * resultado es idéntico. El objeto devuelto es compartido: los consumidores no deben mutarlo.
+ */
 export function visualPosition(flight, playback) {
+  const c = playback._vpCache;
+  if (c && c.flight === flight && c.offset === playback.offset && c.alt === playback.displayAltM && c.final === playback.final) {
+    return c.value;
+  }
   const f = playback.finalFraction;
-  if (f > 0 && playback.final) return finalPosition(flight, playback, f);
-  return positionAtTime(flight, playback.times, playback.absoluteMs, playback.displayAltM);
+  const value =
+    f > 0 && playback.final
+      ? finalPosition(flight, playback, f)
+      : positionAtTime(flight, playback.times, playback.absoluteMs, playback.displayAltM);
+  playback._vpCache = { flight, offset: playback.offset, alt: playback.displayAltM, final: playback.final, value };
+  return value;
 }
 
 /**

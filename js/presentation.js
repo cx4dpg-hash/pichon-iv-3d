@@ -52,7 +52,10 @@ export function initPresentation({ viewer }) {
       ? "Salir del modo presentación (Esc)"
       : "Modo presentación: pantalla completa con el visor y los controles principales";
     // El tamaño del contenedor cambia: se pide a Cesium que lo recalcule (no mueve la cámara).
-    requestAnimationFrame(() => viewer.resize());
+    requestAnimationFrame(() => {
+      viewer.resize();
+      viewer.scene.requestRender();
+    });
   }
 
   async function enter() {
