@@ -52,7 +52,7 @@
       "notes": "Son estimaciones, no mediciones. Cada valor lleva su propia incertidumbre y nivel de confianza en flight.json."
     },
     {
-      "id": "project-identification",
+      "id": "user-confirmed-project-context",
       "name": "Identificación del proyecto",
       "type": "project_definition",
       "provides": [

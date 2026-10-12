@@ -83,8 +83,8 @@
         "terrainHeightM": null
       },
       "source": "identificación del proyecto",
-      "sourceRef": "project-identification",
-      "confidence": "not_applicable",
+      "sourceRef": "user-confirmed-project-context",
+      "confidence": "unknown",
       "comment": "estación móvil, posición desconocida"
     }
   ]

@@ -17,8 +17,9 @@ Datos estáticos en JSON, consumibles directamente por el navegador (rutas relat
 | `data/estaciones/stations.json` | Cinco estaciones terrestres: cuatro fijas con posición conocida y CX3BP-8 (móvil, posición desconocida). |
 | `data/telemetria/telemetry-schema.json` | Definición de campos de telemetría APRS y su estado de interpretación. Sin tramas. |
 | `data/metadata.json` | Procedencia: fuentes, qué aportan, confianza general. |
+| `data/vuelo/transmissions.json` | Dataset maestro de tramas: `preFlight`, `flight`, `postFlight` (transmisiones con sus recepciones). Fuente: `imports/source/cx1aa-11-aprsfi-raw.pdf` (APRS.fi). Ver `docs/DATA_QUALITY.md`. |
 
-Aún no existe archivo de tramas.
+La fuente cruda está en `imports/source/` y no se modifica. El fuente `user-confirmed-project-context` (en `metadata.json`) agrupa los datos aportados por el equipo del proyecto.
 
 ## Clasificación de los datos
 
@@ -46,9 +47,19 @@ Aún no existe archivo de tramas.
 - Sintaxis exacta del payload APRS (separadores y formato).
 - Aporte concreto del boletín del Radio Club Uruguayo (fuente registrada, sin datos cargados).
 
+## Transmission y reception
+
+- **Transmission**: una emisión única de CX1AA-11.
+- **Reception**: una copia de esa emisión que llegó a APRS-IS por un IGate (`qAO,<igate>`), con su `receivedAtLocal`, `rawPacket` y `warnings` de APRS.fi.
+- `firstIgate` / `firstReceivedAtLocal` salen de la recepción más temprana; una copia posterior (aunque esté marcada como retrasada) nunca la reemplaza.
+- `frameNumber` no es único en la jornada (se reinicia).
+- Clave de deduplicación implementada en `transmissions.json` (`dedupKey`): `packetTimestampUtc|frameNumber|lat|lon|altitudeGpsFt`. Para transmisiones sin posición válida se usa `invalid|fecha local|frame|payload`, porque no tienen hora real y sus cinco campos coincidirían entre jornadas.
+- `packetTimestampUtc`: el timestamp APRS (`hhmmssh`) trae solo hora UTC; la fecha se infiere de la recepción.
+- `batteryV = batteryRaw / 1000`, con estado `probable`.
+
 ## Identificación de tramas
 
-*No implementado todavía.* El sistema futuro deberá identificar una trama mediante una combinación robusta de:
+La identificación de arriba cubre este dataset. El sistema futuro (logs de usuarios) deberá identificar una trama mediante una combinación robusta de:
 
 - timestamp interno APRS;
 - frame number;
