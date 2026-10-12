@@ -16,7 +16,7 @@ Datos estáticos en JSON, consumibles directamente por el navegador (rutas relat
 | `data/vuelo/flight.json` | Metadata general del vuelo, estimaciones visuales, suspensión de la carga. Sin tramas. |
 | `data/estaciones/stations.json` | Cinco estaciones terrestres: cuatro fijas con posición conocida y CX3BP-8 (móvil, posición desconocida). |
 | `data/telemetria/telemetry-schema.json` | Definición de campos de telemetría APRS y su estado de interpretación. Sin tramas. |
-| `data/vuelo/recovery.json` | **Anotación complementaria** del final del vuelo: punto real de rescate de CX5RN-5 (34°19.69' S, 53°59.15' W → −34.3281667, −53.9858333; ubicación aproximada confirmada por el usuario desde APRS.fi), nota de que el tramo final no es telemétrico y la observación operativa **no confirmada** ("el paracaídas aparentemente no abrió"). No es telemetría, no forma parte de `transmissions.json` ni de la trayectoria principal. |
+| `data/vuelo/recovery.json` (ver también `additionalReferences` y `pendingResolution`) | **Anotación complementaria** del final del vuelo: punto real de rescate de CX5RN-5 (34°19.69' S, 53°59.15' W → −34.3281667, −53.9858333; ubicación aproximada confirmada por el usuario desde APRS.fi), nota de que el tramo final no es telemétrico y la observación operativa **no confirmada** ("el paracaídas aparentemente no abrió"). No es telemetría, no forma parte de `transmissions.json` ni de la trayectoria principal. |
 | `data/metadata.json` | Procedencia: fuentes, qué aportan, confianza general. |
 | `data/vuelo/transmissions.json` | Dataset maestro de tramas: `preFlight`, `flight`, `postFlight` (transmisiones con sus recepciones). Fuente: `imports/source/cx1aa-11-aprsfi-raw.pdf` (APRS.fi). Ver `docs/DATA_QUALITY.md`. |
 
@@ -25,11 +25,13 @@ La fuente cruda está en `imports/source/` y no se modifica. El fuente `user-con
 ## Clasificación de los datos
 
 ### Exactos (dados por la fuente)
-- Misión, indicativo CX1AA-11, fecha local de lanzamiento, zona horaria, lugar (Aero Club de Mercedes, Soriano, Uruguay).
+- Misión, indicativo CX1AA-11, fecha local del lanzamiento, zona horaria y país.
+- **Lugar planificado** (`flight.json` → `plannedLaunchSite`): Aero Club de Mercedes, Soriano, según el Boletín CX 918. Estado `planned`: **no** es el lugar efectivo de partida.
 - Indicativos, tipos y posiciones APRS de las cuatro estaciones fijas (tomadas de sus balizas propias en APRS.fi). Las coordenadas decimales son conversión directa de grados y minutos decimales: `decimal = grados + minutos/60`, negativo por S/W, redondeado a 6 decimales.
 - Campos de telemetría confirmados: `frameNumber`, `mode`, `internalTemperatureC`, `externalTemperatureC`, `pressureHpa`, `humidityPercent`, `barometricAltitudeM`, `gpsQuality`, `satellites`, `gpsStatus`.
 
 ### Derivados
+- **Punto efectivo de partida** (`flight.json` → `actualLaunch`): lat −34.297167, lon −55.355333 (34°17.83' S, 55°21.32' W), derivado de la **primera posición GPS válida** de CX1AA-11 (frame 3, 2026-10-11T13:14:41Z); confianza alta. Corroborado por una captura de APRS.fi aportada por el usuario (≈ 34°17.84' S, 55°21.32' W, diferencia ≈ 18 m). Sin nombre de localidad (no hay uno documentalmente confirmado).
 - `flightMainStartLocal` y `flightMainEndLocal`: derivados de logs APRS (primera posición GPS válida y última posición de la caída antes de las tramas post-aterrizaje). Aproximados; **no** son horarios oficiales de lanzamiento ni aterrizaje.
 - `altitudeGpsM`: del campo APRS `A=xxxxxx` (pies) convertido a metros.
 - `lat`/`lon`: de la posición APRS. `speed`/`course`: de la parte APRS de curso/velocidad.

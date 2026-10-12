@@ -14,7 +14,8 @@
     "confidence": "medium",
     "notes": [
       "Coordenadas convertidas de grados y minutos decimales: decimal = grados + minutos/60, negativo por S/W.",
-      "Verificación independiente con datos del proyecto: la transmisión postFlight frame 77 (2026-10-11T17:40:18Z, recibida por CX3BP-8) está a ≈ 59 m de este punto, dentro de la incertidumbre de una posición APRS. Este punto no se deriva de esa transmisión: se usa la coordenada confirmada por el usuario."
+      "Verificación independiente con datos del proyecto: la transmisión postFlight frame 77 (2026-10-11T17:40:18Z, recibida por CX3BP-8) está a ≈ 59 m de este punto, dentro de la incertidumbre de una posición APRS. Este punto no se deriva de esa transmisión: se usa la coordenada confirmada por el usuario.",
+      "El punto NO se reemplazó con la coordenada de la segunda captura de APRS.fi (ver additionalReferences): se mantiene hasta resolver la posición APRS exacta de CX5RN-5 correspondiente al rescate."
     ]
   },
   "finalSegment": {
@@ -29,5 +30,25 @@
       "status": "reported_unconfirmed",
       "source": "Observación reportada por el usuario; sin soporte en la telemetría disponible. No se afirma como hecho."
     }
-  ]
+  ],
+  "additionalReferences": [
+    {
+      "id": "aprsfi-capture-rescue-sector",
+      "description": "Segunda captura de APRS.fi aportada por el usuario: muestra visualmente el sector donde CX5RN-5 recuperó la carga.",
+      "visibleCoordinate": {
+        "aprsLatitude": "34°19.72' S",
+        "aprsLongitude": "53°59.19' W",
+        "lat": -34.3286667,
+        "lon": -53.9865
+      },
+      "kind": "indicador superior de APRS.fi (posición del cursor/centro del mapa)",
+      "usedAsRescuePoint": false,
+      "distanceToRescuePointM": 83,
+      "notes": "Está en el mismo sector que rescuePoint (≈ 83 m, mismo orden que la resolución de una posición APRS y la incertidumbre del indicador). Es una referencia visual, no una posición APRS identificada de CX5RN-5: no se usa para sustituir el punto existente."
+    }
+  ],
+  "pendingResolution": {
+    "status": "unresolved",
+    "text": "Falta resolver la coordenada exacta de recuperación si existe una trama APRS identificable de CX5RN-5 correspondiente al rescate. Hasta entonces rescuePoint se mantiene como ubicación aproximada confirmada por el usuario."
+  }
 }

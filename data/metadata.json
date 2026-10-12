@@ -85,6 +85,30 @@
       "generalConfidence": "unknown",
       "url": null,
       "notes": "No implementado. Se procesarán localmente en el navegador. La confianza dependerá de cada log y no se mezclarán con los datos maestros."
+    },
+    {
+      "id": "rcu-bulletin-918",
+      "name": "Boletín CX Nº 918 del Radio Club Uruguayo (12 de setiembre de 2026)",
+      "type": "bulletin",
+      "provides": [
+        "lugar PLANIFICADO del lanzamiento (Aero Club de Mercedes, Soriano) y hora prevista (domingo 11 de octubre, 10:00 CX)",
+        "identidad gráfica del RCU y de Pichón IV (logos)"
+      ],
+      "generalConfidence": "high",
+      "url": null,
+      "notes": "Describe el plan, no el lugar efectivo de partida: este se deriva de la primera posición GPS válida (flight.json → actualLaunch)."
+    },
+    {
+      "id": "user-aprsfi-screenshots",
+      "name": "Capturas de APRS.fi aportadas por el usuario",
+      "type": "user_supplied_screenshots",
+      "provides": [
+        "corroboración visual del punto de partida (≈ 34°17.84' S, 55°21.32' W)",
+        "referencia visual del sector de recuperación de la carga por CX5RN-5 (≈ 34°19.72' S, 53°59.19' W)"
+      ],
+      "generalConfidence": "medium",
+      "url": null,
+      "notes": "Las coordenadas leídas del indicador superior de APRS.fi son referencias visuales; no sustituyen posiciones APRS identificadas."
     }
   ]
 }
