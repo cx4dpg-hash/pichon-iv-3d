@@ -2,20 +2,39 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { FIELD, buildField, parseModel, paramsAtTime, elementGeometry, eastWeight, footprintCoverage } from "../js/cloudfield.js";
+import { FIELD, buildField, regionPresence, extRadius, parseModel, paramsAtTime, elementGeometry, eastWeight, footprintCoverage } from "../js/cloudfield.js";
 
 const model = JSON.parse(readFileSync(new URL("../data/clouds/cloud-model.json", import.meta.url), "utf8"));
 const states = parseModel(model);
 const elements = buildField();
 
-test("campo determinista, acotado y con pocos elementos", () => {
+test("campo determinista: core denso + región extendida, acotado", () => {
   const again = buildField();
   assert.deepEqual(elements.slice(0, 5), again.slice(0, 5));
-  assert.ok(elements.length >= 100 && elements.length <= 400, `n=${elements.length}`);
-  for (const e of elements) {
-    assert.ok(e.lon > FIELD.minLon - 0.1 && e.lon < FIELD.maxLon + 0.1);
-    assert.ok(e.lat > FIELD.minLat - 0.1 && e.lat < FIELD.maxLat + 0.1);
+  const core = elements.filter((e) => e.region === "core");
+  const ext = elements.filter((e) => e.region === "extended");
+  assert.equal(core.length, 200); // el core no cambia
+  assert.ok(ext.length > 200 && elements.length <= 900, `n=${elements.length}`);
+  const lons = elements.map((e) => e.lon), lats = elements.map((e) => e.lat);
+  assert.ok(Math.min(...lons) < -56 && Math.max(...lons) > -53.2, "cubre bastante más que el corredor");
+  assert.ok(Math.min(...lats) < -34.9 && Math.max(...lats) > -33.7);
+  for (const e of ext) assert.ok(e.presence > 0 && e.presence < 1.0001 && e.widthK > 0.8);
+});
+
+test("sin borde rectangular: la presencia cae suavemente y el borde es irregular", () => {
+  assert.equal(regionPresence(-54.8, -34.3), 1);
+  let prev = 1;
+  for (let lon = -54.85; lon >= -57.0; lon -= 0.02) {
+    const p = regionPresence(lon, -34.9);
+    assert.ok(p <= prev + 0.2, "sin saltos grandes");
+    prev = p;
   }
+  assert.equal(regionPresence(-58, -34.3), 0);
+  // el borde (presencia 0) no cae en un meridiano/paralelo único: varía con la latitud
+  const edgeLon = (lat) => { for (let lon = -54.8; lon > -58; lon -= 0.01) if (regionPresence(lon, lat) === 0) return lon; return null; };
+  const edges = [-34.6, -34.4, -34.2, -34.0, -33.8].map(edgeLon);
+  assert.ok(Math.max(...edges) - Math.min(...edges) > 0.1, JSON.stringify(edges));
+  assert.ok(extRadius(-54.85, -34.3) < 0.2);
 });
 
 test("los límites verticales salen del modelo: por zona, con transición suave", () => {
@@ -68,7 +87,7 @@ test("evolución temporal gradual entre los siete estados", () => {
 test("cobertura: ≈ 98–100 % de los elementos visibles y huella casi cerrada", () => {
   for (const s of states) {
     const p = paramsAtTime(states, s.ms);
-    const interior = elements.filter((e) => e.lon > FIELD.minLon + 0.3 && e.lon < FIELD.maxLon - 0.3 && e.lat > FIELD.minLat + 0.1 && e.lat < FIELD.maxLat - 0.1);
+    const interior = elements.filter((e) => e.region === "core" && e.lon > FIELD.minLon + 0.3 && e.lon < FIELD.maxLon - 0.3 && e.lat > FIELD.minLat + 0.1 && e.lat < FIELD.maxLat - 0.1);
     const visible = interior.filter((e) => elementGeometry(e, p).visible).length / interior.length;
     assert.ok(visible > 0.94, `visibles ${visible}`);
   }

@@ -88,6 +88,7 @@ export function initClouds3D({ viewer, playback }) {
       const c = clouds[i];
       c.show = g.visible;
       if (!g.visible) return;
+      if (c.color.alpha !== g.alpha) c.color = new Cesium.Color(0.93, 0.95, 0.97, g.alpha);
       const widthM = CLOUD_TUNING.footprintM * el.widthK;
       // Alto aparente del sprite: de canto = espesor de la capa; desde arriba = su extensión
       // horizontal en profundidad. Se interpola con el ángulo de elevación de la cámara.

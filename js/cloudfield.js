@@ -6,6 +6,10 @@
 // solapados, con variación natural entre ellos. NO se inventa viento ni forma interna fuera de lo
 // que sustentan los datos. Es una reconstrucción aproximada, no una observación.
 
+// REGIÓN CORE (minLon…maxLat): corredor del vuelo, modelado directamente (confianza del cloud-model).
+// REGIÓN EXTENDIDA (elipse `ext`): área adyacente con la MISMA situación extrapolada solo visualmente
+// (menor confianza, sin observación propia): más ralos, más grandes y con densidad/opacidad que cae
+// suavemente hasta un borde irregular. No cambia ningún valor del modelo.
 export const FIELD = {
   minLon: -55.52,
   maxLon: -53.82,
@@ -19,7 +23,18 @@ export const FIELD = {
   topVariationFraction: 0.25, // variación del tope entre elementos = ±25 % de (p90−p10), limitada
   topVariationMaxM: 200,
   baseVariationFraction: 0.12, // variación de la base entre elementos = ±12 % del espesor
-  edgeFadeDeg: 0.15, // los bordes del campo se deshilachan (la nube modelada no termina en recta)
+  ext: {
+    centerLon: -54.85,
+    centerLat: -34.3,
+    semiLonDeg: 1.9, // ≈ 175 km
+    semiLatDeg: 0.85, // ≈ 94 km
+    coreRadius: 0.5, // radio normalizado hasta el que la densidad es plena
+    borderNoise: 0.1, // irregularidad del borde (radio normalizado)
+    spacingLonDeg: 0.14, // ≈ 13 km
+    spacingLatDeg: 0.12, // ≈ 13 km
+    sizeK: 1.6, // sprites más grandes que en el core
+    minAlpha: 0.5, // opacidad mínima de los elementos del borde
+  },
   seed: 20261011,
 };
 
@@ -44,23 +59,57 @@ export function eastWeight(lon, field = FIELD) {
   return smoothstep((lon - (field.transitionLon - field.transitionHalfWidthDeg)) / (2 * field.transitionHalfWidthDeg));
 }
 
-/** Elementos del campo: posiciones, tamaños relativos y valores aleatorios fijos (deterministas). */
+const inCore = (lon, lat, f = FIELD) => lon >= f.minLon && lon <= f.maxLon && lat >= f.minLat && lat <= f.maxLat;
+
+/** Radio normalizado (0 = centro, 1 = borde) de la región extendida, con borde irregular suave. */
+export function extRadius(lon, lat, f = FIELD) {
+  const e = f.ext;
+  const x = (lon - e.centerLon) / e.semiLonDeg;
+  const y = (lat - e.centerLat) / e.semiLatDeg;
+  const noise =
+    0.5 * Math.sin(2.1 * lon + 1.3) * Math.cos(3.3 * lat + 0.7) + 0.35 * Math.sin(5.2 * lon - 2.0 * lat + 2.4) + 0.15 * Math.sin(9.1 * lat + 4.0 * lon);
+  return Math.hypot(x, y) + e.borderNoise * noise;
+}
+
+/** Presencia 0–1 por posición: 1 en el core y en el centro de la región extendida; cae suavemente hasta 0 en el borde. */
+export function regionPresence(lon, lat, f = FIELD) {
+  if (inCore(lon, lat, f)) return 1;
+  const r = extRadius(lon, lat, f);
+  return 1 - smoothstep((r - f.ext.coreRadius) / (1 - f.ext.coreRadius));
+}
+
+/** Elementos del campo: core (denso) + región extendida (rala, más grande), deterministas. */
 export function buildField(field = FIELD) {
   const rand = mulberry32(field.seed);
   const elements = [];
+  const make = (lon, lat, region, sizeK, presence) => ({
+    lon,
+    lat,
+    region,
+    rank: rand(), // para la cobertura: visible si rank < cobertura × presencia
+    widthK: (0.8 + rand() * 0.7) * sizeK, // factor de ancho (más variación en la extensión)
+    depthK: 0.8 + rand() * 0.6,
+    topU: rand() * 2 - 1,
+    baseU: rand() * 2 - 1,
+    presence,
+  });
   for (let lat = field.minLat; lat <= field.maxLat + 1e-9; lat += field.spacingLatDeg) {
     for (let lon = field.minLon; lon <= field.maxLon + 1e-9; lon += field.spacingLonDeg) {
       const jl = (rand() * 2 - 1) * field.jitterFraction * field.spacingLonDeg;
       const ja = (rand() * 2 - 1) * field.jitterFraction * field.spacingLatDeg;
-      elements.push({
-        lon: lon + jl,
-        lat: lat + ja,
-        rank: rand(), // para la cobertura: visible si rank < cobertura
-        widthK: 0.85 + rand() * 0.45, // factor de ancho
-        depthK: 0.85 + rand() * 0.45,
-        topU: rand() * 2 - 1,
-        baseU: rand() * 2 - 1,
-      });
+      elements.push(make(lon + jl, lat + ja, "core", 1, 1));
+    }
+  }
+  const e = field.ext;
+  for (let lat = e.centerLat - e.semiLatDeg * 1.15; lat <= e.centerLat + e.semiLatDeg * 1.15; lat += e.spacingLatDeg) {
+    for (let lon = e.centerLon - e.semiLonDeg * 1.15; lon <= e.centerLon + e.semiLonDeg * 1.15; lon += e.spacingLonDeg) {
+      const jl = (rand() * 2 - 1) * 0.45 * e.spacingLonDeg;
+      const ja = (rand() * 2 - 1) * 0.45 * e.spacingLatDeg;
+      const lo = lon + jl, la = lat + ja;
+      if (inCore(lo, la, field) || inCore(lon, lat, field)) continue; // el core ya está cubierto
+      const presence = regionPresence(lo, la, field);
+      if (presence <= 0) continue; // fuera del borde irregular: no se crea
+      elements.push(make(lo, la, "extended", e.sizeK, presence));
     }
   }
   return elements;
@@ -106,12 +155,6 @@ export function paramsAtTime(states, ms) {
   return out;
 }
 
-/** Factor 0–1 de presencia cerca del borde del campo (1 en el interior). */
-export function edgeFactor(el, field = FIELD) {
-  const d = Math.min(el.lon - field.minLon, field.maxLon - el.lon, (el.lat - field.minLat) * 1.2, (field.maxLat - el.lat) * 1.2);
-  return smoothstep(d / field.edgeFadeDeg + 0.3);
-}
-
 /** Geometría de un elemento en el instante dado: altura de centro, tamaños y visibilidad. */
 export function elementGeometry(el, params, field = FIELD) {
   const w = eastWeight(el.lon, field);
@@ -129,7 +172,9 @@ export function elementGeometry(el, params, field = FIELD) {
     topM: base + height,
     thicknessM: height,
     centerAltM: base + height / 2,
-    visible: el.rank < mix("coverage") * edgeFactor(el, field),
+    visible: el.rank < mix("coverage") * el.presence,
+    alpha: el.region === "core" ? 1 : field.ext.minAlpha + (1 - field.ext.minAlpha) * el.presence,
+    region: el.region,
   };
 }
 
