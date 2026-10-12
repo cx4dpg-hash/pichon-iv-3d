@@ -1,98 +1,46 @@
 # PICHÓN IV 3D
 
-Aplicación web interactiva que reconstruirá en 3D el vuelo real del globo estratosférico **PICHÓN IV** (indicativo APRS **CX1AA-11**), lanzado el 11 de octubre de 2026 en Uruguay.
+Reconstrucción interactiva 3D del vuelo **Pichón IV** del **Radio Club Uruguayo** (indicativo APRS **CX1AA-11**), un globo estratosférico lanzado el **11 de octubre de 2026** en Uruguay. Muestra la trayectoria real reconstruida a partir de las tramas APRS, con reproducción temporal, telemetría sincronizada y la recepción de cada trama por las estaciones terrestres.
 
-## Objetivo general
+Es un sitio web **estático** (HTML, CSS y JavaScript con módulos ES; CesiumJS y Chart.js desde CDN): sin backend, sin Node/npm ni paso de compilación.
 
-Mostrar posición, altitud, trayectoria, telemetría sincronizada y enlaces del globo con las estaciones terrenas que reportaron cada trama a APRS-IS, con reproducción temporal interactiva. A futuro, permitirá que un radioaficionado cargue su propio log local y vea resaltadas las tramas que recibió.
+## Características
 
-## Estado
+- **Trayectoria 3D** del vuelo (148 transmisiones, de la liberación a la última telemetría) con reproducción temporal 1x–64x, cámara de vista general y de seguimiento, y brújula.
+- **Terreno e imagery** de Cesium (World Terrain / World Imagery con token propio de Cesium Ion; sin token, mapa básico de OpenStreetMap).
+- **Telemetría**: ocho gráficos sincronizados y panel con los valores de cada transmisión real.
+- **APRS / firstIgate**: enlace a la primera estación en la que apareció cada transmisión en APRS-IS (CX3BP-8 es móvil y de posición desconocida).
+- **Recepción local ("Mi recepción")**: el radioaficionado carga su propio log y ve qué tramas recibió; se procesa en el navegador, sin enviar nada a un servidor.
+- **Lanzamiento, liberación y recuperación CX5RN-5**, con el **tramo final no telemétrico** (reconstrucción visual) hasta el punto de recuperación; paracaídas: no abrió (confirmado por el usuario).
+- **Modelo físico aproximado del globo** (diámetro estimado durante el ascenso).
+- **Nubes 3D aproximadas**, reconstruidas a partir de GOES-19 y METAR (no son una medición volumétrica real).
+- **Modo Presentación** (pantalla completa) y panel ocultable.
+- **Fuentes y metodología** accesibles desde el botón ⓘ de la interfaz.
 
-**En desarrollo.** Hay una primera visualización 3D funcional (etapa 4): trayectoria real del vuelo con altitud GPS, estaciones fijas, marcador del globo con reproducción (Play/Pausa, anterior/siguiente, cursor, velocidades 1x, 2x, 4x, 8x, 16x, 32x y 64x), línea temporal estación → globo para el primer IGate de la transmisión vigente y dos modos de cámara (vista general / seguir globo). El diseño visual y el resto de funciones están pendientes.
-
-## Cómo ejecutarla localmente
-
-La aplicación usa módulos ES y `fetch`, por lo que **no funciona abriendo `index.html` con `file://`**: hay que servir la carpeta por HTTP. Opciones sin instalar nada adicional (desde la carpeta del proyecto):
+## Uso rápido
 
 ```
+git clone https://github.com/cx4dpg-hash/pichon-iv-3d.git
+cd pichon-iv-3d
 python -m http.server 8000
 ```
 
-y abrir <http://localhost:8000/>. También sirve cualquier otro servidor estático (`npx serve`, la extensión Live Server de VS Code, etc.); la aplicación no depende de ninguno en particular. Se necesita conexión a Internet para cargar CesiumJS y Chart.js (CDN) y las teselas del mapa.
-
-## Publicación
-
-El proyecto es un sitio web **estático** (HTML, CSS y JavaScript con módulos ES; CesiumJS 1.123.1 y Chart.js 4.4.1 desde CDN), sin backend, publicable en un hosting convencional (por ejemplo `/RCU/pichon4/`). Solo usa rutas relativas.
-
-## Inicio efectivo del vuelo (preLaunch vs vuelo)
-
-La reproducción empieza en la **liberación** (frame 10, 13:21:39 UTC = 10:21:39 hora local, última posición en tierra antes del ascenso sostenido) y no en la primera posición GPS válida (frame 3, 10:14:41). Las transmisiones anteriores (frames 3 a 9) siguen en `transmissions.json` y en memoria como fase `preLaunch` (en tierra). El punto de lanzamiento (−34.297167, −55.355333) se mantiene como sitio real y se marca en el mapa. El criterio es reproducible y está documentado en [docs/DATA_QUALITY.md](docs/DATA_QUALITY.md).
-
-## Panel limpio y fuentes trazables (etapa 17)
-
-- **Panel izquierdo compacto, sin scroll en escritorio** (probado en 1920×1080, 1600×900 y 1366×768; solo en 1366×768, en la última transmisión con aviso de APRS.fi y nota de recuperación, necesita unos 20 px de scroll). El texto metodológico largo salió del panel.
-- **Botón ⓘ** (encabezado del panel): abre una ventana con **Metodología**, **Fuentes de datos** y **Limitaciones**; se cierra con ✕, Escape o clic fuera, y no altera la reproducción ni la cámara. En modo Presentación no se muestra.
-- **Trazabilidad:** todo el contenido sale de `data/metadata.json` (fuentes, grupos, metodología, limitaciones) y [docs/SOURCES.md](docs/SOURCES.md) se genera de ese mismo archivo (`node tools/docs/build-sources-md.mjs`).
-
-## Nubes 3D, movimiento suave y paracaídas (etapa 15)
-
-- **Nubes 3D (botón "Nubes 3D", apagado por defecto):** reconstrucción 3D **aproximada** basada en GOES-19 + METAR, dibujada con `Cesium.CloudCollection` a partir de `data/clouds/cloud-model.json` (base, tope, espesor, cobertura y zonas por hora; transiciones suaves). Disponible también en el modo Presentación. No son nubes reales ni una observación. Ver [docs/CLOUD_MODEL.md](docs/CLOUD_MODEL.md).
-- **Movimiento de la carga:** `positionAtTime` usa ahora interpolación Hermite cúbica monótona (PCHIP) en lugar de lineal: la velocidad es continua en cada transmisión (se acelera y frena de forma suave), sin sobreimpulso y pasando exactamente por cada transmisión real; el tiempo de reproducción y las velocidades 1x–64x no cambian. Ver [docs/PHYSICS.md](docs/PHYSICS.md).
-- **Final de la carga (etapa 16):** tras el frame 157 la carga continúa en una fase visual "Descenso final no telemétrico" (18 s a 1x, reconstruida, no medida, respeta la velocidad elegida; sin timestamp ni transmisiones nuevas) por la línea violeta hasta el punto de recuperación de CX5RN-5, y queda apoyada en el terreno. Ver [docs/PHYSICS.md](docs/PHYSICS.md).
-- **Paracaídas:** el estado "no abrió" está **confirmado por el usuario** (no deriva de APRS) y se muestra así en el panel del último punto ([docs/DATA_QUALITY.md](docs/DATA_QUALITY.md)).
-
-## Modo presentación y modelo meteorológico de nubosidad (etapa 14)
-
-- **Panel ocultable:** el botón "Ocultar panel / Mostrar panel" (arriba a la izquierda del visor) oculta o muestra el panel "PICHÓN IV — CX1AA-11". Es reversible, no persiste entre sesiones y no afecta a la reproducción ni a la cámara.
-- **Modo presentación:** el botón "Presentación" (junto a la brújula) pone la aplicación en pantalla completa real (Fullscreen API) y deja visor, brújula, línea de tiempo y controles (anterior/play/siguiente, 1x–64x, Vista general, Seguir globo y nubosidad); oculta panel, "Mi recepción", gráficos y rótulos auxiliares. Escape (o el botón) sale y restaura todo conservando tiempo, velocidad, cámara y seguimiento.
-- **Capa 2D retirada:** la antigua capa plana "Nubosidad satelital 2D" (imagen GOES-19 sobre el terreno) se **retiró deliberadamente**; el código y los fotogramas se conservan sin cargarse.
-- **Modelo meteorológico (preparado, borrador):** `data/clouds/cloud-model.json` con cobertura, tope, base, espesor, fase y tipo probable por zona y cada 30 min, cada valor con método, estado (observed/derived/inferred/unknown) y confianza. Ver [docs/CLOUD_MODEL.md](docs/CLOUD_MODEL.md).
-
-## Rescate final, arranque sobre el terreno, nubes y escudo RCU (etapa 10)
-
-- **Punto de rescate (CX5RN-5):** marcador y tramo final punteado (violeta) desde el último punto de la trayectoria hasta el punto de recuperación, respaldado por tramas APRS de CX5RN-5 (15:27:45 -03). Es una anotación complementaria (`data/vuelo/recovery.json`), no telemetría ni parte de la trayectoria APRS principal.
-- **Arranque sobre el terreno:** con relieve activo, una corrección **solo visual** evita que la carga se dibuje enterrada en el lanzamiento (el dato GPS bruto no se modifica). Ver [docs/MAPPING.md](docs/MAPPING.md).
-- **Nubes (retirado):** la capa 2D de esta etapa ya no está en la interfaz (ver etapa 14); `assets/clouds/` y `js/clouds.js` se conservan como material de referencia y no se cargan.
-- **Branding:** el emblema del RCU del Boletín CX 918 sustituye al sello circular en el encabezado ([docs/BRANDING.md](docs/BRANDING.md)).
-
-## Brújula e identidad visual (etapa 9)
-
-Brújula propia de la cámara en la esquina inferior derecha del visor (indica el Norte según `camera.heading`, un clic pone "Norte arriba" conservando posición, distancia e inclinación, también en Seguir globo) y logos del Radio Club Uruguayo y de Pichón IV en el encabezado del panel. Los recursos están en `assets/branding/` y se prepararon a partir de `imports/source/logo-rcu.jpg` y del Boletín CX 918. Ver [docs/BRANDING.md](docs/BRANDING.md).
-
-## Mapa satélite + relieve y ocho gráficos de telemetría (etapa 8)
-
-- **Mapa:** por defecto, OpenStreetMap sobre elipsoide ("Mapa básico · sin relieve"). Con un token de Cesium Ion en `config.local.js` (copia de `config.example.js`, ignorado por Git) se activan imaginería satelital y relieve 3D ("Satélite + relieve 3D"). Sin token o con token inválido todo funciona igual. El relieve no modifica latitud, longitud, altitud GPS ni la trayectoria. Ver [docs/MAPPING.md](docs/MAPPING.md).
-- **Telemetría:** ocho gráficos finos en 4 páginas de 2 gráficos (altitud y temperaturas / presión y humedad / batería y velocidad GPS / curso GPS y recepción GPS) con cursor sincronizado, tooltips y clic para saltar a una transmisión; el panel agrega la velocidad vertical derivada. Ver [docs/TELEMETRY.md](docs/TELEMETRY.md).
-
-## Mi recepción: importación local de logs (etapa 7)
-
-Un radioaficionado puede cargar su propio log (`.log`, `.txt`, `.csv`) desde el panel "Mi recepción" y ver qué transmisiones recibió: se resaltan sobre la trayectoria, el panel indica "recibida" / "no registrada" durante la reproducción y se calculan cobertura y otras estadísticas. **El archivo se procesa localmente en el navegador y no se envía a ningún servidor** (ni se guarda). Formatos soportados: CSV de Dire Wolf (probado con un log real) y paquetes APRS en texto. Detalles, reglas de coincidencia y limitaciones en [docs/LOG_IMPORT.md](docs/LOG_IMPORT.md).
-
-Pruebas del importador (sin dependencias, Node 18+): `node --test tests/importer.test.mjs tests/derived.test.mjs`.
-
-## Telemetría sincronizada (etapa 6)
-
-Panel agrupado (Vuelo, Altitud, Ambiente, Sistema, Globo, Recepción) y cuatro gráficos temporales (altitud GPS/barométrica, temperatura, presión y batería) bajo el visor, con cursor sincronizado con la reproducción, tooltips, marcadores de advertencias de APRS.fi y clic en un punto para saltar a esa transmisión. La telemetría no se interpola; la batería se muestra como `raw` (dato original) y en voltios solo como interpretación probable. Los gráficos usan Chart.js 4.4.1 por CDN. Detalles en [docs/TELEMETRY.md](docs/TELEMETRY.md).
-
-## Modelo físico del globo (etapa 5)
-
-El marcador simple se reemplazó por un conjunto aproximado (carga útil en la posición GPS, antena debajo y globo encima durante el ascenso). El diámetro estimado del globo crece con la presión y temperatura reales (gas ideal) solo hasta la altitud máxima; después se considera una transición estimada de ruptura/descenso y no se calcula ni se dibuja el globo. Es una estimación visual/física, no una medición. No hay un factor de exageración fijo ni un tamaño angular constante: el conjunto se dibuja con su tamaño físico (cerca) y solo a gran distancia (300–2500 m) se aplica una ayuda de visibilidad gradual y limitada; más lejos se usa el marcador del indicativo (ver [docs/PHYSICS.md](docs/PHYSICS.md)). La cámara usa los controles por defecto de Cesium (ver [docs/MAPPING.md](docs/MAPPING.md)). Detalles y limitaciones en [docs/PHYSICS.md](docs/PHYSICS.md).
-
-## Decisiones técnicas de la etapa 4
-
-- **Mapa base:** teselas de OpenStreetMap (`tile.openstreetmap.org`), sin credenciales. Está pensado para pruebas y uso moderado; para una publicación con tráfico real habrá que revisar la política de uso de OSM o elegir otro proveedor.
-- **Sin terreno 3D:** el terreno de Cesium requiere un token de Cesium Ion, que no se usa. El suelo es el elipsoide, y las estaciones se dibujan a altura 0 (su altura de terreno es desconocida). La altitud GPS se usa tal cual para posicionar el globo, sin exageración vertical.
-- **Eje de tiempo:** el instante de cada transmisión es su `packetTimestampUtc` (hora de emisión). La interpolación entre transmisiones es solo visual (posición y altitud); frame, telemetría, primer IGate y advertencias son siempre los de la transmisión real vigente.
-- **Datos:** la reproducción principal usa el **vuelo efectivo**: las 148 transmisiones desde la liberación (frames 10 a 157). Las 7 transmisiones en tierra anteriores (frames 3 a 9, `preLaunch`) se conservan sin mostrarse en la reproducción; `preFlight` (sin GPS) y `postFlight` se cargan pero no se muestran. Ver [docs/DATA_QUALITY.md](docs/DATA_QUALITY.md).
-- **Depuración:** el objeto `window.pichon` expone datos, reproducción y mapa para inspección desde la consola del navegador.
+y abrir <http://127.0.0.1:8000/>. No abre con `file://` (usa módulos ES y `fetch`). Para activar terreno e imagery de Cesium hay que crear `config.local.js` con un token propio de Cesium Ion; sin él la aplicación funciona con el mapa básico. Detalles de instalación y publicación (Apache, Nginx, hosting estático, subdirectorio, GitHub Pages) y de cómo restringir el token en [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ## Documentación
 
+- [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md): instalación, configuración de Cesium Ion y publicación.
+- [docs/SOURCES.md](docs/SOURCES.md): fuentes de datos, metodología y limitaciones (generado desde `data/metadata.json`).
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): arquitectura y módulos.
+- [docs/DATA_MODEL.md](docs/DATA_MODEL.md) y [docs/DATA_QUALITY.md](docs/DATA_QUALITY.md): datos y su calidad.
+- [docs/PHYSICS.md](docs/PHYSICS.md): modelo del globo, interpolación del movimiento y fase final.
+- [docs/CLOUD_MODEL.md](docs/CLOUD_MODEL.md): modelo meteorológico y nubes 3D.
+- [docs/TELEMETRY.md](docs/TELEMETRY.md), [docs/LOG_IMPORT.md](docs/LOG_IMPORT.md), [docs/MAPPING.md](docs/MAPPING.md), [docs/BRANDING.md](docs/BRANDING.md): telemetría, importación de logs, cartografía y branding.
+- [docs/DEVELOPMENT_HISTORY.md](docs/DEVELOPMENT_HISTORY.md): historial de desarrollo por etapas.
 - [CLAUDE.md](CLAUDE.md): reglas de trabajo del desarrollo técnico.
-- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): arquitectura preliminar.
-- [docs/PHYSICS.md](docs/PHYSICS.md): modelo físico aproximado del globo.
-- [docs/TELEMETRY.md](docs/TELEMETRY.md): telemetría, gráficos y sincronización.
-- [docs/LOG_IMPORT.md](docs/LOG_IMPORT.md): importación local de logs de recepción.
-- [docs/MAPPING.md](docs/MAPPING.md): mapa básico, satélite y relieve 3D (Cesium Ion).
-- [docs/BRANDING.md](docs/BRANDING.md): logos (origen y preparación) y brújula.
-- [docs/CLOUDS_FEASIBILITY.md](docs/CLOUDS_FEASIBILITY.md): análisis de viabilidad de la nubosidad histórica (GOES-19); aún no implementada.
+
+Pruebas unitarias (opcionales; solo Node): `node --test tests/*.test.mjs`.
+
+## Licencia
+
+**No se ha definido una licencia todavía.** Los materiales de terceros (Boletín CX 918, imágenes GOES-19/NASA GIBS, mapas y bibliotecas) conservan sus propias condiciones.

@@ -7,3 +7,9 @@ Thumbs.db
 
 # Configuración local (token de Cesium Ion): no versionar
 config.local.js
+
+# PDF de balizas de estaciones terrestres de APRS.fi: archivos locales de trabajo, aún sin versionar
+imports/source/cx2acb-1-2026-10-11.pdf
+imports/source/cx2cq-1-2026-10-11.pdf
+imports/source/cx2tn-1-2026-10-11.pdf
+imports/source/cx4dpg-1-2026-10-11.pdf
