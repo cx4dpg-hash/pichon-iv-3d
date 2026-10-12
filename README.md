@@ -8,13 +8,29 @@ Mostrar posición, altitud, trayectoria, telemetría sincronizada y enlaces del 
 
 ## Estado
 
-**En desarrollo.** Actualmente solo existe la fundación técnica del proyecto (estructura de carpetas y una página mínima). Ninguna función final está implementada todavía.
+**En desarrollo.** Hay una primera visualización 3D funcional (etapa 4): trayectoria real del vuelo con altitud GPS, estaciones fijas, marcador del globo con reproducción (Play/Pausa, anterior/siguiente, cursor, velocidades 1x–16x), línea temporal estación → globo para el primer IGate de la transmisión vigente y dos modos de cámara (vista general / seguir globo). El diseño visual y el resto de funciones están pendientes.
+
+## Cómo ejecutarla localmente
+
+La aplicación usa módulos ES y `fetch`, por lo que **no funciona abriendo `index.html` con `file://`**: hay que servir la carpeta por HTTP. Opciones sin instalar nada adicional (desde la carpeta del proyecto):
+
+```
+python -m http.server 8000
+```
+
+y abrir <http://localhost:8000/>. También sirve cualquier otro servidor estático (`npx serve`, la extensión Live Server de VS Code, etc.); la aplicación no depende de ninguno en particular. Se necesita conexión a Internet para cargar CesiumJS (CDN) y las teselas del mapa.
 
 ## Publicación
 
-El proyecto es un sitio web **estático** (HTML, CSS y JavaScript con módulos ES; visualización prevista con CesiumJS), sin backend, publicable en un hosting convencional (por ejemplo `/RCU/pichon4/`). Debe usar únicamente rutas relativas.
+El proyecto es un sitio web **estático** (HTML, CSS y JavaScript con módulos ES; CesiumJS 1.123.1 desde CDN), sin backend, publicable en un hosting convencional (por ejemplo `/RCU/pichon4/`). Solo usa rutas relativas.
 
-Nota: al usar módulos ES, para probarlo localmente hay que servirlo por HTTP (no abrir el archivo con `file://`).
+## Decisiones técnicas de la etapa 4
+
+- **Mapa base:** teselas de OpenStreetMap (`tile.openstreetmap.org`), sin credenciales. Está pensado para pruebas y uso moderado; para una publicación con tráfico real habrá que revisar la política de uso de OSM o elegir otro proveedor.
+- **Sin terreno 3D:** el terreno de Cesium requiere un token de Cesium Ion, que no se usa. El suelo es el elipsoide, y las estaciones se dibujan a altura 0 (su altura de terreno es desconocida). La altitud GPS se usa tal cual para posicionar el globo, sin exageración vertical.
+- **Eje de tiempo:** el instante de cada transmisión es su `packetTimestampUtc` (hora de emisión). La interpolación entre transmisiones es solo visual (posición y altitud); frame, telemetría, primer IGate y advertencias son siempre los de la transmisión real vigente.
+- **Datos:** solo se dibuja `flight` (155 transmisiones). `preFlight` y `postFlight` se cargan pero no se muestran.
+- **Depuración:** el objeto `window.pichon` expone datos, reproducción y mapa para inspección desde la consola del navegador.
 
 ## Documentación
 
