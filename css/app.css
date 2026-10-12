@@ -32,7 +32,7 @@ body {
   position: absolute;
   top: 10px;
   left: 10px;
-  width: min(300px, calc(100% - 20px));
+  width: min(480px, calc(100% - 20px));
   max-height: calc(100% - 20px);
   overflow-y: auto;
   padding: 10px 12px;
@@ -49,8 +49,38 @@ body {
 
 #infoPanel h2 {
   margin: 8px 0 2px;
-  font-size: 13px;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
   color: #ffb000;
+}
+
+#infoPanel section:first-child h2:first-child,
+#infoPanel section:last-child h2:first-child {
+  margin-top: 0;
+}
+
+#infoPanel h3 {
+  margin: 8px 0 2px;
+  font-size: 12px;
+  color: #ffb000;
+}
+
+#infoPanel .groups {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 14px;
+}
+
+#infoPanel dd#pBalloonState {
+  grid-column: 1 / -1;
+  font-size: 12px;
+  color: #cfd8f5;
+}
+
+#infoPanel .probable {
+  color: #ffd27a;
+  font-size: 11px;
 }
 
 #infoPanel .count {
@@ -159,7 +189,70 @@ button[aria-pressed="true"] {
   text-align: center;
 }
 
+#telemetry {
+  background: #0b1020;
+  border-top: 1px solid #2a3558;
+  padding: 4px 12px 8px;
+}
+
+.telemetryHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.telemetryHeader .hint {
+  font-size: 11px;
+  color: #7f8db3;
+}
+
+#charts {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 4px;
+}
+
+#charts[hidden] {
+  display: none;
+}
+
+.chartBox h3 {
+  margin: 0;
+  font-size: 12px;
+  color: #9fb0d8;
+}
+
+.plot {
+  position: relative;
+  height: 170px;
+}
+
+.plot canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.plot .cursor {
+  position: absolute;
+  width: 0;
+  border-left: 2px solid #ffffff;
+  pointer-events: none;
+  top: 0;
+  height: 0;
+}
+
+@media (max-width: 1000px) {
+  #charts {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 600px) {
+  #infoPanel .groups {
+    grid-template-columns: 1fr;
+  }
+
   #infoPanel {
     font-size: 12px;
     max-height: 45%;

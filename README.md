@@ -18,11 +18,15 @@ La aplicación usa módulos ES y `fetch`, por lo que **no funciona abriendo `ind
 python -m http.server 8000
 ```
 
-y abrir <http://localhost:8000/>. También sirve cualquier otro servidor estático (`npx serve`, la extensión Live Server de VS Code, etc.); la aplicación no depende de ninguno en particular. Se necesita conexión a Internet para cargar CesiumJS (CDN) y las teselas del mapa.
+y abrir <http://localhost:8000/>. También sirve cualquier otro servidor estático (`npx serve`, la extensión Live Server de VS Code, etc.); la aplicación no depende de ninguno en particular. Se necesita conexión a Internet para cargar CesiumJS y Chart.js (CDN) y las teselas del mapa.
 
 ## Publicación
 
-El proyecto es un sitio web **estático** (HTML, CSS y JavaScript con módulos ES; CesiumJS 1.123.1 desde CDN), sin backend, publicable en un hosting convencional (por ejemplo `/RCU/pichon4/`). Solo usa rutas relativas.
+El proyecto es un sitio web **estático** (HTML, CSS y JavaScript con módulos ES; CesiumJS 1.123.1 y Chart.js 4.4.1 desde CDN), sin backend, publicable en un hosting convencional (por ejemplo `/RCU/pichon4/`). Solo usa rutas relativas.
+
+## Telemetría sincronizada (etapa 6)
+
+Panel agrupado (Vuelo, Altitud, Ambiente, Sistema, Globo, Recepción) y cuatro gráficos temporales (altitud GPS/barométrica, temperatura, presión y batería) bajo el visor, con cursor sincronizado con la reproducción, tooltips, marcadores de advertencias de APRS.fi y clic en un punto para saltar a esa transmisión. La telemetría no se interpola; la batería se muestra como `raw` (dato original) y en voltios solo como interpretación probable. Los gráficos usan Chart.js 4.4.1 por CDN. Detalles en [docs/TELEMETRY.md](docs/TELEMETRY.md).
 
 ## Modelo físico del globo (etapa 5)
 
@@ -41,3 +45,4 @@ El marcador simple se reemplazó por un conjunto aproximado (carga útil en la p
 - [CLAUDE.md](CLAUDE.md): reglas de trabajo del desarrollo técnico.
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): arquitectura preliminar.
 - [docs/PHYSICS.md](docs/PHYSICS.md): modelo físico aproximado del globo.
+- [docs/TELEMETRY.md](docs/TELEMETRY.md): telemetría, gráficos y sincronización.

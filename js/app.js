@@ -5,6 +5,7 @@ import { Playback } from "./playback.js";
 import { buildDiameterModel } from "./physics.js";
 import { createMap } from "./map3d.js";
 import { initUi } from "./ui.js";
+import { createCharts } from "./charts.js";
 
 function showStatus(message) {
   const status = document.getElementById("status");
@@ -21,8 +22,16 @@ async function main() {
   const diameterModel = buildDiameterModel(data.flight, data.initialBalloonDiameterM, data.maxIndex);
   const map = createMap("cesiumContainer", data, playback, diameterModel);
   initUi({ data, playback, map, diameterModel });
+  const charts = createCharts({
+    data,
+    playback,
+    diameterModel,
+    // Clic en un punto: salta a esa transmisión sin iniciar Play.
+    seekToIndex: (index) => playback.seekToIndex(index),
+  });
+  playback.onChange(() => charts.sync());
   // Acceso para depuración desde la consola del navegador.
-  window.pichon = { data, playback, map, diameterModel };
+  window.pichon = { data, playback, map, diameterModel, charts };
 }
 
 main().catch((error) => {

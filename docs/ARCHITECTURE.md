@@ -34,9 +34,13 @@ js/balloon.js   representación 3D: globo, suspensión, carga útil, antena, esc
 js/map3d.js     visor CesiumJS, trayectoria, marcadores, enlace al primer IGate, cámara
 js/stations.js  estaciones terrestres y resolución del primer IGate
 js/ui.js        panel de información, controles y timeline
+js/charts.js    gráficos de telemetría (Chart.js) con cursor sincronizado (etapa 6)
+js/format.js    formateo de horas locales (UTC−3) compartido por ui.js y charts.js
 ```
 
 La física (`physics.js`) está separada de la representación (`balloon.js`). Ver `docs/PHYSICS.md`.
+
+Telemetría (etapa 6): `charts.js` crea los cuatro gráficos una sola vez a partir de `flight` y expone `sync()`, que `app.js` engancha a `playback.onChange`. Solo se mueve el cursor (un `<div>` superpuesto) y se resalta el punto de la transmisión vigente; el clic en un punto llama a `playback.seekToIndex` (sin Play). Chart.js 4.4.1 se carga por CDN con versión fijada. Ver `docs/TELEMETRY.md`.
 
 Decisiones del modelo del conjunto de vuelo:
 

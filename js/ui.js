@@ -4,19 +4,7 @@ import { SPEEDS } from "./playback.js";
 import { describeFirstIgate } from "./stations.js";
 import { currentEstimate, isAscentPhase } from "./physics.js";
 import { VISUAL } from "./balloon.js";
-
-const TIME_ZONE = "America/Montevideo";
-const timeFormat = new Intl.DateTimeFormat("es-UY", {
-  timeZone: TIME_ZONE,
-  hour: "2-digit",
-  minute: "2-digit",
-  second: "2-digit",
-  hourCycle: "h23",
-});
-
-export function formatLocalTime(ms) {
-  return timeFormat.format(new Date(ms));
-}
+import { formatLocalTime } from "./format.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -90,6 +78,15 @@ export function initUi({ data, playback, map, diameterModel }) {
     }
   }
 
+  // --- Sección de telemetría plegable ---
+  const telemetryToggle = $("btnTelemetry");
+  telemetryToggle.addEventListener("click", () => {
+    const open = telemetryToggle.getAttribute("aria-expanded") !== "true";
+    telemetryToggle.setAttribute("aria-expanded", String(open));
+    telemetryToggle.textContent = open ? "Telemetría ▾" : "Telemetría ▸";
+    $("charts").hidden = !open;
+  });
+
   // --- Panel de información (valores de la transmisión real vigente) ---
   let renderedIndex = -1;
   function renderPanel(index) {
@@ -107,6 +104,15 @@ export function initUi({ data, playback, map, diameterModel }) {
     $("pExtTemp").textContent = `${fmt(tx.telemetry.externalTemperatureC, 0)} °C`;
     $("pIntTemp").textContent = `${fmt(tx.telemetry.internalTemperatureC, 0)} °C`;
     $("pBaroAlt").textContent = `${fmt(tx.telemetry.barometricAltitudeM, 0)} m`;
+    $("pHumidity").textContent = `${fmt(tx.telemetry.humidityPercent, 0)} %`;
+    // batteryRaw es el dato original; los voltios son una interpretación probable (no confirmada).
+    $("pBatteryRaw").textContent = `${tx.telemetry.batteryRaw} raw`;
+    $("pBatteryV").textContent =
+      `≈ ${fmt(tx.telemetry.batteryV, 3)} V (interpretación ${tx.telemetry.batteryInterpretationStatus})`;
+    // Códigos GPS en bruto: no están documentados semánticamente.
+    $("pGpsQuality").textContent = String(tx.telemetry.gpsQuality);
+    $("pSatellites").textContent = String(tx.telemetry.satellites);
+    $("pGpsStatus").textContent = String(tx.telemetry.gpsStatus);
     const estimate = currentEstimate(diameterModel, index);
     if (estimate.diameterM === null) {
       $("pDiameter").textContent = "—";
