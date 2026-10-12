@@ -4,3 +4,6 @@ Thumbs.db
 *.log
 .vscode/
 .claude/settings.local.json
+
+# Configuración local (token de Cesium Ion): no versionar
+config.local.js

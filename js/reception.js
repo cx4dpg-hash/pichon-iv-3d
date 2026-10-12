@@ -67,8 +67,25 @@ export function initReception({ data, playback, map }) {
   );
 
   // Estación fija del usuario y su enlace (solo si es fija y con coordenadas válidas).
+  // Con relieve activo se usa la altura de terreno consultada (solo representación); si no, 0.
   const stationCartesian = () =>
-    state.station ? Cesium.Cartesian3.fromDegrees(state.station.lon, state.station.lat, 0) : undefined;
+    state.station
+      ? Cesium.Cartesian3.fromDegrees(state.station.lon, state.station.lat, state.station.heightM ?? 0)
+      : undefined;
+  let heightTimer = null;
+  function requestStationHeight() {
+    clearTimeout(heightTimer);
+    if (!state.station || map.baseMap.mode !== "ion") return;
+    const target = state.station;
+    heightTimer = setTimeout(async () => {
+      try {
+        const h = await map.baseMap.sampleHeight(target.lat, target.lon);
+        if (h !== null && state.station === target) target.heightM = h;
+      } catch {
+        /* sin relieve disponible: se queda en 0 */
+      }
+    }, 400);
+  }
   const stationEntity = viewer.entities.add({
     id: "my-station",
     show: false,
@@ -304,6 +321,7 @@ export function initReception({ data, playback, map }) {
     // Móvil o desconocida: nunca se inventa ni se usa una posición.
     state.station =
       state.type === "fixed" ? validCoords($("myLat").value, $("myLon").value) : null;
+    requestStationHeight();
     const coordsGiven = $("myLat").value.trim() !== "" || $("myLon").value.trim() !== "";
     $("coordsMessage").textContent =
       state.type === "fixed" && coordsGiven && !state.station ? "Coordenadas no válidas: se ignoran." : "";

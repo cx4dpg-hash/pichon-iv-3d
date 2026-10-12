@@ -148,6 +148,7 @@ body {
 }
 
 button {
+  white-space: nowrap;
   padding: 5px 10px;
   font: inherit;
   font-size: 13px;
@@ -193,12 +194,19 @@ button[aria-pressed="true"] {
   background: #0b1020;
   border-top: 1px solid #2a3558;
   padding: 4px 12px 8px;
+  max-height: 36vh;
+  overflow-y: auto;
 }
 
 .telemetryHeader {
   display: flex;
   align-items: center;
   gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 2px 0;
+  background: #0b1020;
 }
 
 .telemetryHeader .hint {
@@ -208,8 +216,8 @@ button[aria-pressed="true"] {
 
 #charts {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px 14px;
   margin-top: 4px;
 }
 
@@ -225,7 +233,7 @@ button[aria-pressed="true"] {
 
 .plot {
   position: relative;
-  height: 170px;
+  height: 160px;
 }
 
 .plot canvas {
@@ -236,15 +244,36 @@ button[aria-pressed="true"] {
 .plot .cursor {
   position: absolute;
   width: 0;
-  border-left: 2px solid #ffffff;
+  border-left: 1.5px solid rgba(255, 255, 255, 0.7);
   pointer-events: none;
   top: 0;
   height: 0;
 }
 
-@media (max-width: 1000px) {
+#mapMode {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 10px;
+  white-space: nowrap;
+  padding: 2px 8px;
+  font-size: 11px;
+  color: #cfd8f5;
+  background: rgba(11, 16, 32, 0.7);
+  border: 1px solid #2a3558;
+  border-radius: 10px;
+  pointer-events: auto;
+}
+
+@media (min-width: 2200px) {
   #charts {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  #charts {
+    grid-template-columns: 1fr;
   }
 }
 

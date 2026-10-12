@@ -3,11 +3,13 @@
 import { visualPosition } from "./playback.js";
 import { addStationEntities, describeFirstIgate } from "./stations.js";
 import { createBalloonAssembly, VISUAL_AID } from "./balloon.js";
+import { createBaseMap } from "./terrain.js";
 
 const Cesium = window.Cesium;
 
-// Base cartográfica pública sin credenciales: teselas de OpenStreetMap.
-// Sin terreno 3D (elipsoide) porque el terreno de Cesium requiere token de Cesium Ion.
+// Base cartográfica por defecto, sin credenciales: teselas de OpenStreetMap sobre el elipsoide.
+// Con token de Cesium Ion (config.local.js) js/terrain.js la reemplaza por imaginería satelital
+// y relieve 3D; si falla, se conserva esta base.
 const OSM_URL = "https://tile.openstreetmap.org/";
 
 // El marcador simple del globo solo se ve con la cámara lejos; de cerca se ve el conjunto 3D.
@@ -47,11 +49,12 @@ function labelledPoint(viewer, { id, position, text, color, pixelSize = 12 }) {
   });
 }
 
-export function createMap(containerId, data, playback, diameterModel) {
+export function createMap(containerId, data, playback, diameterModel, config = {}) {
   const { flight, stations, stationByCallsign, maxIndex } = data;
 
+  const osmLayer = new Cesium.ImageryLayer(new Cesium.OpenStreetMapImageryProvider({ url: OSM_URL }));
   const viewer = new Cesium.Viewer(containerId, {
-    baseLayer: new Cesium.ImageryLayer(new Cesium.OpenStreetMapImageryProvider({ url: OSM_URL })),
+    baseLayer: osmLayer,
     baseLayerPicker: false,
     geocoder: false,
     homeButton: false,
@@ -64,6 +67,7 @@ export function createMap(containerId, data, playback, diameterModel) {
     selectionIndicator: false,
   });
   viewer.scene.globe.depthTestAgainstTerrain = false;
+  const baseMap = createBaseMap(viewer, osmLayer, { token: config.cesiumIonToken, flight, stations });
 
   // --- Trayectoria completa (altitud GPS real, sin exageración vertical) ---
   // La posición APRS/GPS es la de la carga útil: esta trayectoria es la de la carga.
@@ -194,6 +198,7 @@ export function createMap(containerId, data, playback, diameterModel) {
 
   return {
     viewer,
+    baseMap,
     balloon,
     assembly,
     link,

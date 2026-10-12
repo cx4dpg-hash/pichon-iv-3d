@@ -7,22 +7,30 @@ export function hasKnownPosition(station) {
   return !!station && station.position.lat !== null && station.position.lon !== null;
 }
 
+// Alturas de terreno consultadas en tiempo de ejecución (solo con relieve activo). Son solo
+// de representación: no se guardan en stations.json ni son mediciones de la estación.
+const terrainHeights = new Map();
+
+export function setStationHeight(callsign, heightM) {
+  terrainHeights.set(callsign, heightM);
+}
+
 /** Posición de una estación fija en Cartesian3, o null si es desconocida. */
 export function stationCartesian(station) {
   if (!hasKnownPosition(station)) return null;
-  // No se conoce la altura de terreno de las estaciones (terrainHeightM = null):
-  // se dibujan sobre la altura 0 del elipsoide.
-  return Cesium.Cartesian3.fromDegrees(station.position.lon, station.position.lat, 0);
+  // La altura de terreno de las estaciones es desconocida en los datos (terrainHeightM = null):
+  // sin relieve se dibujan a altura 0 del elipsoide; con relieve, sobre el terreno consultado.
+  const height = terrainHeights.get(station.callsign) ?? 0;
+  return Cesium.Cartesian3.fromDegrees(station.position.lon, station.position.lat, height);
 }
 
 export function addStationEntities(viewer, stations) {
   for (const station of stations) {
-    const position = stationCartesian(station);
-    if (!position) continue;
+    if (!hasKnownPosition(station)) continue;
     viewer.entities.add({
       id: `station-${station.callsign}`,
       name: station.callsign,
-      position,
+      position: new Cesium.CallbackProperty(() => stationCartesian(station), false),
       point: {
         pixelSize: 9,
         color: Cesium.Color.CYAN,

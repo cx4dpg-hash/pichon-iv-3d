@@ -24,7 +24,7 @@ function balloonStateText(model, index) {
     : "Fase de descenso; modelo de expansión no aplicable";
 }
 
-export function initUi({ data, playback, map, diameterModel }) {
+export function initUi({ data, playback, map, diameterModel, verticalSpeeds }) {
   const { flight, stationByCallsign } = data;
 
   // --- Timeline ---
@@ -96,6 +96,10 @@ export function initUi({ data, playback, map, diameterModel }) {
     $("pAlt").textContent = `${fmt(tx.altitudeGpsM, 0)} m (${tx.altitudeGpsFt} ft)`;
     $("pSpeed").textContent = `${fmt(tx.speedKmh, 1)} km/h (${tx.speedAprsKnotsRaw} kt)`;
     $("pCourse").textContent = `${tx.courseDeg}°`;
+    // Dato DERIVADO (no es telemetría original); en la primera transmisión no existe muestra anterior.
+    const vs = verticalSpeeds[index];
+    $("pVertical").textContent =
+      vs === null ? "—" : `${vs >= 0 ? "+" : "−"}${Math.abs(vs).toFixed(1)} m/s (derivada)`;
     $("pMode").textContent = tx.telemetry.mode;
     $("pPressure").textContent = `${fmt(tx.telemetry.pressureHpa, 0)} hPa`;
     $("pExtTemp").textContent = `${fmt(tx.telemetry.externalTemperatureC, 0)} °C`;

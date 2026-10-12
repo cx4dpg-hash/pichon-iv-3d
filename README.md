@@ -24,11 +24,16 @@ y abrir <http://localhost:8000/>. También sirve cualquier otro servidor estáti
 
 El proyecto es un sitio web **estático** (HTML, CSS y JavaScript con módulos ES; CesiumJS 1.123.1 y Chart.js 4.4.1 desde CDN), sin backend, publicable en un hosting convencional (por ejemplo `/RCU/pichon4/`). Solo usa rutas relativas.
 
+## Mapa satélite + relieve y ocho gráficos de telemetría (etapa 8)
+
+- **Mapa:** por defecto, OpenStreetMap sobre elipsoide ("Mapa básico · sin relieve"). Con un token de Cesium Ion en `config.local.js` (copia de `config.example.js`, ignorado por Git) se activan imaginería satelital y relieve 3D ("Satélite + relieve 3D"). Sin token o con token inválido todo funciona igual. El relieve no modifica latitud, longitud, altitud GPS ni la trayectoria. Ver [docs/MAPPING.md](docs/MAPPING.md).
+- **Telemetría:** ocho gráficos finos (altitud, temperaturas, presión, humedad, batería, velocidad GPS, curso GPS y recepción GPS) con cursor sincronizado, tooltips y clic para saltar a una transmisión; el panel agrega la velocidad vertical derivada. Ver [docs/TELEMETRY.md](docs/TELEMETRY.md).
+
 ## Mi recepción: importación local de logs (etapa 7)
 
 Un radioaficionado puede cargar su propio log (`.log`, `.txt`, `.csv`) desde el panel "Mi recepción" y ver qué transmisiones recibió: se resaltan sobre la trayectoria, el panel indica "recibida" / "no registrada" durante la reproducción y se calculan cobertura y otras estadísticas. **El archivo se procesa localmente en el navegador y no se envía a ningún servidor** (ni se guarda). Formatos soportados: CSV de Dire Wolf (probado con un log real) y paquetes APRS en texto. Detalles, reglas de coincidencia y limitaciones en [docs/LOG_IMPORT.md](docs/LOG_IMPORT.md).
 
-Pruebas del importador (sin dependencias, Node 18+): `node --test tests/importer.test.mjs`.
+Pruebas del importador (sin dependencias, Node 18+): `node --test tests/importer.test.mjs tests/derived.test.mjs`.
 
 ## Telemetría sincronizada (etapa 6)
 
@@ -53,3 +58,4 @@ El marcador simple se reemplazó por un conjunto aproximado (carga útil en la p
 - [docs/PHYSICS.md](docs/PHYSICS.md): modelo físico aproximado del globo.
 - [docs/TELEMETRY.md](docs/TELEMETRY.md): telemetría, gráficos y sincronización.
 - [docs/LOG_IMPORT.md](docs/LOG_IMPORT.md): importación local de logs de recepción.
+- [docs/MAPPING.md](docs/MAPPING.md): mapa básico, satélite y relieve 3D (Cesium Ion).

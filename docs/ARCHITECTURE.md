@@ -34,7 +34,10 @@ js/balloon.js   representación 3D: globo, suspensión, carga útil, antena, esc
 js/map3d.js     visor CesiumJS, trayectoria, marcadores, enlace al primer IGate, cámara
 js/stations.js  estaciones terrestres y resolución del primer IGate
 js/ui.js        panel de información, controles y timeline
-js/charts.js    gráficos de telemetría (Chart.js) con cursor sincronizado (etapa 6)
+js/charts.js    ocho gráficos de telemetría (Chart.js) con cursor sincronizado (etapas 6 y 8)
+js/derived.js   datos derivados (velocidad vertical entre transmisiones consecutivas)
+js/terrain.js   base cartográfica: mapa básico u, opcionalmente, Cesium Ion (satélite + relieve)
+config.example.js / config.local.js   configuración local (token de Cesium Ion); config.local.js no se versiona
 js/format.js    formateo de horas locales (UTC−3) compartido por ui.js y charts.js
 js/reception.js "Mi recepción": interfaz de carga de logs, capa 3D de recepciones y fila del panel (etapa 7)
 js/importer/    importador local de logs, sin DOM ni red:
@@ -49,7 +52,9 @@ La física (`physics.js`) está separada de la representación (`balloon.js`). V
 
 Importador de logs (etapa 7): el log se lee con la File API y se procesa en el navegador (`js/importer/`, módulos puros que también corren en Node para `tests/importer.test.mjs`). El maestro nunca se modifica; la recepción local (`reception.js`) es independiente de `firstIgate`. Ver `docs/LOG_IMPORT.md`.
 
-Telemetría (etapa 6): `charts.js` crea los cuatro gráficos una sola vez a partir de `flight` y expone `sync()`, que `app.js` engancha a `playback.onChange`. Solo se mueve el cursor (un `<div>` superpuesto) y se resalta el punto de la transmisión vigente; el clic en un punto llama a `playback.seekToIndex` (sin Play). Chart.js 4.4.1 se carga por CDN con versión fijada. Ver `docs/TELEMETRY.md`.
+Cartografía (etapa 8): `terrain.js` mantiene OpenStreetMap + elipsoide por defecto y, si `config.local.js` aporta un token válido, cambia a Cesium World Imagery + World Terrain; si falla, conserva el modo básico. El relieve es solo de representación (no toca lat/lon/altitudeGpsM). Las alturas de terreno de las estaciones se consultan en tiempo de ejecución y no se guardan. Ver `docs/MAPPING.md`.
+
+Telemetría (etapas 6 y 8): `charts.js` crea los ocho gráficos una sola vez a partir de `flight` y expone `sync()`, que `app.js` engancha a `playback.onChange`. Solo se mueve el cursor (un `<div>` superpuesto) y se resalta el punto de la transmisión vigente; el clic en un punto llama a `playback.seekToIndex` (sin Play). Chart.js 4.4.1 se carga por CDN con versión fijada. Ver `docs/TELEMETRY.md`.
 
 Decisiones del modelo del conjunto de vuelo:
 

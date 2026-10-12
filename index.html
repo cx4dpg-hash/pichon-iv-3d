@@ -8,6 +8,8 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cesium@1.123.1/Build/Cesium/Widgets/widgets.css">
   <link rel="stylesheet" href="css/app.css">
   <script src="https://cdn.jsdelivr.net/npm/cesium@1.123.1/Build/Cesium/Cesium.js"></script>
+  <!-- Configuración local opcional (token de Cesium Ion). Copie config.example.js como config.local.js; no se versiona. -->
+  <script src="config.local.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
@@ -28,6 +30,7 @@
               <dt>Latitud</dt><dd id="pLat">—</dd>
               <dt>Longitud</dt><dd id="pLon">—</dd>
               <dt>Velocidad</dt><dd id="pSpeed">—</dd>
+              <dt title="Dato derivado, no es telemetría original: (altitud GPS − altitud GPS anterior) / (hora de emisión − hora de emisión anterior)">Vel. vertical</dt><dd id="pVertical">—</dd>
               <dt>Curso</dt><dd id="pCourse">—</dd>
               <dt>Modo</dt><dd id="pMode">—</dd>
             </dl>
@@ -112,6 +115,8 @@
         </div>
       </aside>
 
+      <div id="mapMode" aria-live="polite">Mapa básico · sin relieve</div>
+
       <div id="status" role="alert" hidden></div>
     </div>
 
@@ -139,13 +144,17 @@
     <section id="telemetry" aria-label="Gráficos de telemetría">
       <div class="telemetryHeader">
         <button type="button" id="btnTelemetry" aria-expanded="true">Telemetría ▾</button>
-        <span class="hint">Eje: hora de emisión de la trama (hora local, UTC−3). Cada punto es una transmisión real; ▲ = con advertencia de APRS.fi; franja roja = transición estimada de ruptura/descenso (inferida del perfil de vuelo). Clic en un punto para saltar a esa transmisión.</span>
+        <span class="hint">Eje: hora de emisión de la trama (hora local, UTC−3). Los datos son los de las transmisiones reales (sin interpolar; los puntos son seleccionables); ▲ = con advertencia de APRS.fi; franja roja = transición estimada de ruptura/descenso (inferida del perfil de vuelo). Clic en un punto para saltar a esa transmisión.</span>
       </div>
       <div id="charts">
-        <div class="chartBox"><h3>Altitud</h3><div class="plot"><canvas id="chartAltitude"></canvas><div class="cursor"></div></div></div>
-        <div class="chartBox"><h3>Temperatura</h3><div class="plot"><canvas id="chartTemperature"></canvas><div class="cursor"></div></div></div>
-        <div class="chartBox"><h3>Presión</h3><div class="plot"><canvas id="chartPressure"></canvas><div class="cursor"></div></div></div>
-        <div class="chartBox"><h3>Batería</h3><div class="plot"><canvas id="chartBattery"></canvas><div class="cursor"></div></div></div>
+        <div class="chartBox"><h3>Altitud (m)</h3><div class="plot"><canvas id="chartAltitude"></canvas><div class="cursor"></div></div></div>
+        <div class="chartBox"><h3>Temperaturas (°C)</h3><div class="plot"><canvas id="chartTemperature"></canvas><div class="cursor"></div></div></div>
+        <div class="chartBox"><h3>Presión atmosférica (hPa)</h3><div class="plot"><canvas id="chartPressure"></canvas><div class="cursor"></div></div></div>
+        <div class="chartBox"><h3>Humedad externa (%)</h3><div class="plot"><canvas id="chartHumidity"></canvas><div class="cursor"></div></div></div>
+        <div class="chartBox"><h3>Batería (raw · ≈ V probable)</h3><div class="plot"><canvas id="chartBattery"></canvas><div class="cursor"></div></div></div>
+        <div class="chartBox"><h3>Velocidad GPS (km/h)</h3><div class="plot"><canvas id="chartSpeed"></canvas><div class="cursor"></div></div></div>
+        <div class="chartBox"><h3>Curso GPS (°)</h3><div class="plot"><canvas id="chartCourse"></canvas><div class="cursor"></div></div></div>
+        <div class="chartBox"><h3>Recepción GPS (valores brutos)</h3><div class="plot"><canvas id="chartGps"></canvas><div class="cursor"></div></div></div>
       </div>
     </section>
   </div>

@@ -7,6 +7,7 @@ import { createMap } from "./map3d.js";
 import { initUi } from "./ui.js";
 import { createCharts } from "./charts.js";
 import { initReception } from "./reception.js";
+import { verticalSpeedsMs } from "./derived.js";
 
 function showStatus(message) {
   const status = document.getElementById("status");
@@ -21,8 +22,9 @@ async function main() {
   const data = await loadData();
   const playback = new Playback(data.times);
   const diameterModel = buildDiameterModel(data.flight, data.initialBalloonDiameterM, data.maxIndex);
-  const map = createMap("cesiumContainer", data, playback, diameterModel);
-  initUi({ data, playback, map, diameterModel });
+  const map = createMap("cesiumContainer", data, playback, diameterModel, window.PICHON_CONFIG ?? {});
+  const verticalSpeeds = verticalSpeedsMs(data.flight, data.times);
+  initUi({ data, playback, map, diameterModel, verticalSpeeds });
   const charts = createCharts({
     data,
     playback,
@@ -33,7 +35,7 @@ async function main() {
   playback.onChange(() => charts.sync());
   const reception = initReception({ data, playback, map });
   // Acceso para depuración desde la consola del navegador.
-  window.pichon = { data, playback, map, diameterModel, charts, reception };
+  window.pichon = { data, playback, map, diameterModel, charts, reception, verticalSpeeds };
 }
 
 main().catch((error) => {
