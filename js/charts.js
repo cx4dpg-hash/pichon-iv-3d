@@ -87,7 +87,7 @@ export function createCharts({ data, playback, diameterModel, seekToIndex }) {
 
   /**
    * Serie con línea fina. Opciones por serie (s): label, color, value(tx), unit, decimals,
-   * axis, width, dash, segment, pickable.
+   * axis, width, dash, pickable.
    */
   const buildSeries = (s) => ({
     label: s.label,
@@ -109,7 +109,6 @@ export function createCharts({ data, playback, diameterModel, seekToIndex }) {
     pointBorderWidth: (ctx) => (ctx.raw.i === state.index ? 1.5 : 1),
     pointHoverRadius: s.pickable === false ? 0 : 3,
     pointHitRadius: s.pickable === false ? 0 : 7,
-    segment: s.segment,
     // metadatos para el tooltip
     _unit: s.unit ?? "",
     _decimals: s.decimals ?? 0,
@@ -139,12 +138,6 @@ export function createCharts({ data, playback, diameterModel, seekToIndex }) {
   const batteryRaws = flight.map((tx) => tx.telemetry.batteryRaw);
   const bMin = Math.floor(Math.min(...batteryRaws) / 100) * 100;
   const bMax = Math.ceil(Math.max(...batteryRaws) / 100) * 100;
-
-  // Curso: variable circular. El paso 359°→0° no se dibuja como una caída (segmento oculto) y
-  // los puntos conservan su valor real.
-  const hideWrap = {
-    borderColor: (ctx) => (Math.abs(ctx.p1.parsed.y - ctx.p0.parsed.y) > 180 ? "rgba(0,0,0,0)" : undefined),
-  };
 
   const tick = { color: TEXT, font: { size: 10 } };
   const definitions = [
@@ -204,7 +197,7 @@ export function createCharts({ data, playback, diameterModel, seekToIndex }) {
     },
     {
       canvasId: "chartCourse",
-      series: [{ label: "Curso GPS", color: "#f78fb3", value: (tx) => tx.courseDeg, unit: "°", segment: hideWrap, width: LINE_THIN }],
+      series: [{ label: "Curso GPS", color: "#f78fb3", value: (tx) => tx.courseDeg, unit: "°", width: LINE_THIN }],
       scales: { y: yAxis("°", { min: 0, max: 360, ticks: { ...tick, stepSize: 90 } }) },
     },
     {

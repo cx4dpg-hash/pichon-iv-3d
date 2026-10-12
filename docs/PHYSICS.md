@@ -12,7 +12,7 @@ La posición APRS/GPS (`lat`, `lon`, `altitudeGpsM`) corresponde a la electróni
 - la antena se dibuja debajo de la carga;
 - la línea estación → globo (primer IGate) termina en la posición GPS, es decir, en la carga, porque es la posición transmitida.
 
-Los datos originales no se modifican.
+Los datos originales no se modifican. La carga está en todo momento exactamente sobre la trayectoria dibujada: carga y línea usan la misma función de posición (`positionAtTime`, ver `docs/ARCHITECTURE.md`).
 
 ## Fórmula (solo durante el ascenso)
 

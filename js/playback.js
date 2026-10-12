@@ -1,7 +1,7 @@
 // Motor temporal: reloj de reproducción, búsqueda de la transmisión vigente e
 // interpolación exclusivamente VISUAL de posición/altitud. Nunca crea tramas.
 
-export const SPEEDS = [1, 2, 3, 4, 5, 6, 8, 16];
+export const SPEEDS = [1, 2, 4, 8, 16, 32, 64];
 
 export class Playback {
   /** @param {number[]} times instantes (ms) de cada transmisión, en orden estricto */
@@ -117,21 +117,66 @@ export class Playback {
 }
 
 /**
- * Posición visual interpolada linealmente entre dos transmisiones reales.
- * Solo lat, lon y altitud GPS (m). El resto de campos pertenecen siempre a la
- * transmisión vigente y no se interpolan.
+ * ÚNICA FUENTE GEOMÉTRICA de la posición visual de la carga útil en un instante t (ms).
+ *
+ * Interpolación lineal en lat, lon y altitudeGpsM entre las dos transmisiones reales que
+ * rodean a t (en t = instante de una transmisión devuelve exactamente su posición GPS; fuera
+ * del rango devuelve la primera/última). Es exclusivamente VISUAL: no crea transmisiones ni
+ * telemetría. La carga animada (`visualPosition`) y la trayectoria dibujada
+ * (`trajectorySamples`) dependen de esta misma función.
+ *
+ * @param {object[]} flight transmisiones de vuelo
+ * @param {number[]} times instantes (ms) de cada transmisión, en orden estricto
+ * @param {number} ms instante absoluto (ms)
+ * @returns {{lat:number, lon:number, altM:number}}
  */
-export function visualPosition(flight, playback) {
-  const i = playback.index;
-  const a = flight[i];
-  if (i >= flight.length - 1) {
+export function positionAtTime(flight, times, ms) {
+  const last = flight.length - 1;
+  if (ms <= times[0]) {
+    const a = flight[0];
     return { lat: a.position.lat, lon: a.position.lon, altM: a.altitudeGpsM };
   }
-  const b = flight[i + 1];
-  const f = playback.fraction;
+  if (ms >= times[last]) {
+    const a = flight[last];
+    return { lat: a.position.lat, lon: a.position.lon, altM: a.altitudeGpsM };
+  }
+  let lo = 0;
+  let hi = last;
+  while (lo < hi) {
+    const mid = (lo + hi + 1) >> 1;
+    if (times[mid] <= ms) lo = mid;
+    else hi = mid - 1;
+  }
+  const a = flight[lo];
+  const b = flight[lo + 1];
+  const f = (ms - times[lo]) / (times[lo + 1] - times[lo]);
   return {
     lat: a.position.lat + (b.position.lat - a.position.lat) * f,
     lon: a.position.lon + (b.position.lon - a.position.lon) * f,
     altM: a.altitudeGpsM + (b.altitudeGpsM - a.altitudeGpsM) * f,
   };
+}
+
+/** Posición visual de la carga en el instante actual de la reproducción. */
+export function visualPosition(flight, playback) {
+  return positionAtTime(flight, playback.times, playback.absoluteMs);
+}
+
+/**
+ * Geometría visible de la trayectoria: remuestreo de `positionAtTime`. Conserva SIEMPRE las
+ * transmisiones reales y agrega, solo para dibujar, puntos intermedios cada `stepMs` ms. Esos
+ * puntos NO son transmisiones, no se agregan al dataset y no tienen telemetría.
+ *
+ * @returns {{lat:number, lon:number, altM:number, real:boolean}[]}
+ */
+export function trajectorySamples(flight, times, stepMs = 5000) {
+  const out = [];
+  for (let i = 0; i < flight.length; i++) {
+    out.push({ ...positionAtTime(flight, times, times[i]), real: true });
+    if (i === flight.length - 1) break;
+    for (let t = times[i] + stepMs; t < times[i + 1]; t += stepMs) {
+      out.push({ ...positionAtTime(flight, times, t), real: false });
+    }
+  }
+  return out;
 }

@@ -1,6 +1,6 @@
 // Visualización 3D (CesiumJS): globo base, trayectoria, marcadores, globo y enlace al primer IGate.
 
-import { visualPosition } from "./playback.js";
+import { visualPosition, trajectorySamples } from "./playback.js";
 import { addStationEntities, describeFirstIgate } from "./stations.js";
 import { createBalloonAssembly, VISUAL_AID } from "./balloon.js";
 import { createBaseMap } from "./terrain.js";
@@ -71,11 +71,14 @@ export function createMap(containerId, data, playback, diameterModel, config = {
 
   // --- Trayectoria completa (altitud GPS real, sin exageración vertical) ---
   // La posición APRS/GPS es la de la carga útil: esta trayectoria es la de la carga.
+  // Posiciones reales (marcadores, encuadre) y geometría visible: la línea es un remuestreo de la
+  // MISMA función positionAtTime que mueve la carga, por lo que la carga siempre queda sobre ella.
   const pathCartesians = flight.map((tx) => toCartesian(tx.position.lat, tx.position.lon, tx.altitudeGpsM));
+  const pathVisual = trajectorySamples(flight, data.times).map((s) => toCartesian(s.lat, s.lon, s.altM));
   viewer.entities.add({
     id: "flight-path",
     polyline: {
-      positions: pathCartesians,
+      positions: pathVisual,
       width: 3,
       material: Cesium.Color.fromCssColorString("#ffb000"),
       arcType: Cesium.ArcType.NONE,

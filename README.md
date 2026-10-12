@@ -8,7 +8,7 @@ Mostrar posición, altitud, trayectoria, telemetría sincronizada y enlaces del 
 
 ## Estado
 
-**En desarrollo.** Hay una primera visualización 3D funcional (etapa 4): trayectoria real del vuelo con altitud GPS, estaciones fijas, marcador del globo con reproducción (Play/Pausa, anterior/siguiente, cursor, velocidades 1x–16x), línea temporal estación → globo para el primer IGate de la transmisión vigente y dos modos de cámara (vista general / seguir globo). El diseño visual y el resto de funciones están pendientes.
+**En desarrollo.** Hay una primera visualización 3D funcional (etapa 4): trayectoria real del vuelo con altitud GPS, estaciones fijas, marcador del globo con reproducción (Play/Pausa, anterior/siguiente, cursor, velocidades 1x, 2x, 4x, 8x, 16x, 32x y 64x), línea temporal estación → globo para el primer IGate de la transmisión vigente y dos modos de cámara (vista general / seguir globo). El diseño visual y el resto de funciones están pendientes.
 
 ## Cómo ejecutarla localmente
 
