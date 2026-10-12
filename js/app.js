@@ -6,6 +6,7 @@ import { buildDiameterModel } from "./physics.js";
 import { createMap } from "./map3d.js";
 import { initUi } from "./ui.js";
 import { createCharts } from "./charts.js";
+import { initReception } from "./reception.js";
 
 function showStatus(message) {
   const status = document.getElementById("status");
@@ -30,8 +31,9 @@ async function main() {
     seekToIndex: (index) => playback.seekToIndex(index),
   });
   playback.onChange(() => charts.sync());
+  const reception = initReception({ data, playback, map });
   // Acceso para depuración desde la consola del navegador.
-  window.pichon = { data, playback, map, diameterModel, charts };
+  window.pichon = { data, playback, map, diameterModel, charts, reception };
 }
 
 main().catch((error) => {

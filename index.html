@@ -61,6 +61,7 @@
             <h2>Recepción</h2>
             <dl>
               <dt>First IGate</dt><dd id="pIgate">—</dd>
+              <dt title="Recepción local del log cargado; independiente de First IGate">Mi estación</dt><dd id="pMyStation">— (sin log cargado)</dd>
             </dl>
             <div id="warningsBox" hidden>
               <h3>Advertencias de APRS.fi</h3>
@@ -69,6 +70,46 @@
           </section>
         </div>
         <p class="note">Valores de la transmisión real vigente (no se interpolan); la posición GPS es la de la carga útil. El marcador 3D se interpola solo visualmente entre transmisiones. Diámetro estimado: estimación física basada en presión, temperatura y diámetro inicial visual (no es una medición), solo durante el ascenso. El conjunto se dibuja con tamaño exagerado (<span id="visualScale">×20</span>) y con separaciones solo visuales, únicamente para que sea visible.</p>
+      </aside>
+
+      <aside id="receptionPanel" aria-label="Mi recepción">
+        <button type="button" id="btnReception" aria-expanded="false">Mi recepción ▸</button>
+        <div id="receptionBody" hidden>
+          <p class="privacy">El archivo se procesa localmente en este navegador y no se envía a ningún servidor.</p>
+          <div class="row">
+            <button type="button" id="btnLoadLog">Cargar log</button>
+            <input type="file" id="logFile" accept=".log,.txt,.csv" hidden>
+            <span id="logFileName">Ningún archivo</span>
+          </div>
+          <div id="importMessage" role="status"></div>
+          <label class="field">Indicativo
+            <input type="text" id="myCallsign" maxlength="16" autocomplete="off" spellcheck="false" placeholder="p. ej. CX0ABC-1">
+          </label>
+          <label class="field">Tipo de estación
+            <select id="myType">
+              <option value="unknown">desconocida</option>
+              <option value="fixed">fija</option>
+              <option value="mobile">móvil</option>
+            </select>
+          </label>
+          <div id="fixedCoords" hidden>
+            <label class="field">Latitud (grados decimales, S negativo; opcional)
+              <input type="text" id="myLat" inputmode="decimal" autocomplete="off" placeholder="-34.9">
+            </label>
+            <label class="field">Longitud (grados decimales, W negativo; opcional)
+              <input type="text" id="myLon" inputmode="decimal" autocomplete="off" placeholder="-56.1">
+            </label>
+            <div id="coordsMessage" class="error"></div>
+          </div>
+          <label class="check"><input type="checkbox" id="toggleMine" checked> Mi recepción (resaltar en la trayectoria)</label>
+          <dl id="importStats" hidden></dl>
+          <details id="importResults" hidden>
+            <summary id="resultsSummary">Resultados</summary>
+            <div class="tableWrap"><table id="resultsTable"></table></div>
+            <p id="resultsNote" class="note"></p>
+          </details>
+          <p class="note">Las coincidencias exactas requieren los cinco campos (hora APRS, frame, lat, lon, altitud). "Probable" indica que falta algún campo; "ambigua" no se asigna a ninguna transmisión. Recibir una trama no implica ser su primer IGate.</p>
+        </div>
       </aside>
 
       <div id="status" role="alert" hidden></div>

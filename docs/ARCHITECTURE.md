@@ -36,9 +36,18 @@ js/stations.js  estaciones terrestres y resolución del primer IGate
 js/ui.js        panel de información, controles y timeline
 js/charts.js    gráficos de telemetría (Chart.js) con cursor sincronizado (etapa 6)
 js/format.js    formateo de horas locales (UTC−3) compartido por ui.js y charts.js
+js/reception.js "Mi recepción": interfaz de carga de logs, capa 3D de recepciones y fila del panel (etapa 7)
+js/importer/    importador local de logs, sin DOM ni red:
+  adapters.js     adaptadores de formato (direwolf-csv, aprs-packet)
+  parser.js       detección de formato y parseo línea a línea
+  matcher.js      matching contra el maestro (exact / probable / ambiguous / unmatched)
+  stats.js        duplicados, cobertura, distancia horizontal
+  index.js        orquestador (parseo → matching → estadísticas)
 ```
 
 La física (`physics.js`) está separada de la representación (`balloon.js`). Ver `docs/PHYSICS.md`.
+
+Importador de logs (etapa 7): el log se lee con la File API y se procesa en el navegador (`js/importer/`, módulos puros que también corren en Node para `tests/importer.test.mjs`). El maestro nunca se modifica; la recepción local (`reception.js`) es independiente de `firstIgate`. Ver `docs/LOG_IMPORT.md`.
 
 Telemetría (etapa 6): `charts.js` crea los cuatro gráficos una sola vez a partir de `flight` y expone `sync()`, que `app.js` engancha a `playback.onChange`. Solo se mueve el cursor (un `<div>` superpuesto) y se resalta el punto de la transmisión vigente; el clic en un punto llama a `playback.seekToIndex` (sin Play). Chart.js 4.4.1 se carga por CDN con versión fijada. Ver `docs/TELEMETRY.md`.
 
