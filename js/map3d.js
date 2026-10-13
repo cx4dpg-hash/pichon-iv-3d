@@ -6,6 +6,7 @@ import { createBalloonAssembly, VISUAL_AID } from "./balloon.js";
 import { createBaseMap } from "./terrain.js";
 import { fitOverview, safeRect, mobileSafeRect, capPads } from "./overview.js";
 import { initBurstCamera } from "./burstcam.js";
+import { initImmersiveCamera } from "./immersive.js";
 
 const Cesium = window.Cesium;
 
@@ -347,8 +348,17 @@ export function createMap(containerId, data, playback, diameterModel, config = {
     applyOverview(duration);
   }
 
+  const immersive = initImmersiveCamera({ viewer, playback, flight });
+
   function setCameraMode(newMode) {
     mode = newMode;
+    if (newMode === "immersive") {
+      viewer.camera.cancelFlight();
+      viewer.trackedEntity = undefined;
+      immersive.enable();
+      return;
+    }
+    immersive.disable();
     if (newMode === "follow") {
       viewer.camera.cancelFlight();
       viewer.trackedEntity = balloon;

@@ -78,6 +78,7 @@ export function initUi({ data, playback, map, diameterModel, verticalSpeeds }) {
   const camButtons = {
     overview: $("btnOverview"),
     follow: $("btnFollow"),
+    immersive: $("btnImmersive"),
   };
   for (const [mode, button] of Object.entries(camButtons)) {
     button.addEventListener("click", () => {

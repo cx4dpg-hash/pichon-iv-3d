@@ -1463,23 +1463,28 @@ body {
 }
 
 #app[data-layout^="mobile"] #btnOverview {
-  grid-column: 1 / 5;
+  grid-column: 1 / 4;
   grid-row: 3;
 }
 
 #app[data-layout^="mobile"] #btnFollow {
-  grid-column: 5 / 9;
+  grid-column: 4 / 7;
+  grid-row: 3;
+}
+
+#app[data-layout^="mobile"] #btnImmersive {
+  grid-column: 7 / 10;
   grid-row: 3;
 }
 
 #app[data-layout^="mobile"] #btnClouds3d {
-  grid-column: 9 / 13;
+  grid-column: 10 / 13;
   grid-row: 3;
 }
 
 /* Horizontal: una sola fila de controles */
 #app[data-layout="mobile-landscape"] #controls {
-  grid-template-columns: auto auto auto auto minmax(80px, 1fr) auto auto auto auto;
+  grid-template-columns: auto auto auto auto minmax(80px, 1fr) auto auto auto auto auto;
   grid-template-rows: 40px;
   align-items: center;
 }
@@ -1492,7 +1497,8 @@ body {
 #app[data-layout="mobile-landscape"] #btnSpeedM { grid-column: 6; grid-row: 1; min-width: 48px; }
 #app[data-layout="mobile-landscape"] #btnOverview { grid-column: 7; grid-row: 1; padding: 0 10px; }
 #app[data-layout="mobile-landscape"] #btnFollow { grid-column: 8; grid-row: 1; padding: 0 10px; }
-#app[data-layout="mobile-landscape"] #btnClouds3d { grid-column: 9; grid-row: 1; padding: 0 10px; }
+#app[data-layout="mobile-landscape"] #btnImmersive { grid-column: 9; grid-row: 1; padding: 0 10px; }
+#app[data-layout="mobile-landscape"] #btnClouds3d { grid-column: 10; grid-row: 1; padding: 0 10px; }
 
 /* --- Ventana de información en móvil --- */
 #app[data-layout^="mobile"] .modal {
