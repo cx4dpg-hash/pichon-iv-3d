@@ -5,6 +5,7 @@ import { addStationEntities, describeFirstIgate } from "./stations.js";
 import { createBalloonAssembly, VISUAL_AID } from "./balloon.js";
 import { createBaseMap } from "./terrain.js";
 import { fitOverview, safeRect, mobileSafeRect, capPads } from "./overview.js";
+import { initBurstCamera } from "./burstcam.js";
 
 const Cesium = window.Cesium;
 
@@ -158,10 +159,13 @@ export function createMap(containerId, data, playback, diameterModel, config = {
   // un fotograma solo cuando cambió el instante o la fase final (no al cambiar velocidad/pausa).
   let lastOffset = Number.NaN;
   let lastFinal = null;
+  let lastSpeed = Number.NaN;
   playback.onChange((p) => {
-    if (p.offset === lastOffset && p.final === lastFinal) return;
+    // La velocidad también cuenta: fija la duración de la animación de rotura del globo.
+    if (p.offset === lastOffset && p.final === lastFinal && p.speed === lastSpeed) return;
     lastOffset = p.offset;
     lastFinal = p.final;
+    lastSpeed = p.speed;
     requestRender();
   });
   baseMap.ready.then(requestRender);
@@ -386,11 +390,15 @@ export function createMap(containerId, data, playback, diameterModel, config = {
   for (const type of ["pointerdown", "wheel", "touchstart"]) viewer.canvas.addEventListener(type, markMoved, { passive: true });
   document.getElementById("compass")?.addEventListener("click", markMoved);
 
+  // Seguir globo: encuadre temporal más abierto mientras el globo revienta (no afecta a Vista general).
+  const burstCamera = initBurstCamera({ viewer, playback, assembly, balloon });
+
   return {
     viewer,
     baseMap,
     balloon,
     assembly,
+    burstCamera,
     link,
     setCameraMode,
     get cameraMode() {

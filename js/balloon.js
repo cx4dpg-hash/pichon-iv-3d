@@ -26,8 +26,9 @@
 // La ayuda no es el tamaño físico y no altera posición, altitud ni trayectoria.
 // `estimatedBalloonDiameterM` nunca se modifica.
 
-import { visualPosition } from "./playback.js";
+import { visualPosition, positionAtTime } from "./playback.js";
 import { visualDiameterM } from "./physics.js";
+import { BURST, FRAGMENTS, SHARDS, burstPhase, burstWindowMs, expansionFactor, fragmentProgress, fragmentState, flashState } from "./burst.js";
 
 const Cesium = window.Cesium;
 
@@ -66,24 +67,69 @@ export function assemblyScale(distanceM) {
   return 1 + (VISUAL_AID.maxScale - 1) * t * t * (3 - 2 * t);
 }
 
+const eggCubeRoot = Math.cbrt(VISUAL_AID.eggElongation);
+
+/**
+ * Geometría vertical del globo sobre la carga: radios, cuello y línea de suspensión para un
+ * diámetro físico estimado (null = sin globo), la escala visual y un factor de expansión (1 =
+ * tamaño normal; > 1 solo durante la expansión súbita de la ruptura).
+ */
+function layoutBalloon(payloadTopAltM, diameterM, scale, expansion = 1) {
+  let radiusH = 0; // radio horizontal visual
+  let radiusV = 0; // radio vertical visual
+  let neckLength = 0;
+  let suspensionOffset = 0; // sin globo no hay línea de suspensión
+  if (diameterM !== null) {
+    const sphereRadius = (diameterM * scale * expansion) / 2;
+    radiusH = sphereRadius / eggCubeRoot; // mismo volumen que la esfera del diámetro estimado
+    radiusV = radiusH * VISUAL_AID.eggElongation;
+    neckLength = radiusH * VISUAL_AID.neckLengthFactor;
+    suspensionOffset =
+      clamp(VISUAL_AID.suspensionPerBalloonDiameter * diameterM, VISUAL_AID.suspensionMinM, VISUAL_AID.suspensionMaxM) * scale;
+  }
+  const neckBottomAlt = payloadTopAltM + suspensionOffset;
+  const neckTopAlt = neckBottomAlt + neckLength;
+  return { radiusH, radiusV, neckLength, suspensionOffset, neckBottomAlt, neckTopAlt, balloonBottomAlt: neckTopAlt, balloonCenterAlt: neckTopAlt + radiusV };
+}
+
 export function createBalloonAssembly(viewer, { flight, playback, diameterModel, payloadDimensionsM }) {
   const camera = viewer.camera;
+  const scene = viewer.scene;
   const payloadPhysical = payloadDimensionsM;
-  const eggCubeRoot = Math.cbrt(VISUAL_AID.eggElongation);
+
+  // Ruptura (visual): coincide con la transmisión de máxima altitud. Sin descenso no hay ruptura.
+  const transition = diameterModel.estimatedBurstTransition;
+  const burstMs = transition ? playback.times[transition.lastAscentIndex] : null;
+  const maxDiameterM = transition ? diameterModel.entries[transition.lastAscentIndex].diameterM : null;
+
+  // Estado reutilizable de la animación de rotura (se escribe en cada pose, no se reasigna).
+  const frags = FRAGMENTS.map(() => ({
+    show: false,
+    position: new Cesium.Cartesian3(),
+    width: 1,
+    height: 1,
+    rotation: 0,
+    color: new Cesium.Color(1, 1, 1, 1),
+  }));
+  const burstFrame = new Cesium.Matrix4();
+  const local = new Cesium.Cartesian3();
+  const fragOut = { x: 0, y: 0, z: 0, angle: 0, flip: 1, shade: 1, scale: 1, alpha: 1 };
+  const flashOut = { sizePx: 0, alpha: 0 };
 
   // Pose calculada para el instante de reproducción y la posición actual de la cámara. Las ~15
   // propiedades dinámicas de las entidades la piden en cada fotograma: se memoiza por
   // (instante, altitudes de render, fase final, posición de cámara); el objeto es de solo lectura.
   let cached = null;
-  const cachedKey = { offset: NaN, alt: null, final: null, x: NaN, y: NaN, z: NaN };
+  const cachedKey = { offset: NaN, speed: NaN, alt: null, final: null, x: NaN, y: NaN, z: NaN };
   function getPose() {
     const cam = camera.positionWC;
     const k = cachedKey;
-    if (cached && k.offset === playback.offset && k.alt === playback.displayAltM && k.final === playback.final && k.x === cam.x && k.y === cam.y && k.z === cam.z) {
+    if (cached && k.offset === playback.offset && k.speed === playback.speed && k.alt === playback.displayAltM && k.final === playback.final && k.x === cam.x && k.y === cam.y && k.z === cam.z) {
       return cached;
     }
     cached = computePose();
     k.offset = playback.offset;
+    k.speed = playback.speed; // la duración de la rotura depende de la velocidad elegida
     k.alt = playback.displayAltM;
     k.final = playback.final;
     k.x = cam.x;
@@ -119,29 +165,29 @@ export function createBalloonAssembly(viewer, { flight, playback, diameterModel,
     const payloadBottom = altM - payload.height / 2;
     const antennaOffset = VISUAL_AID.antennaOffsetM * scale;
 
-    // Globo: solo mientras la fase es de ascenso (después del máximo no se dibuja).
-    const physicalDiameterM = visualDiameterM(diameterModel, playback.index, playback.fraction);
-    const balloonVisible = physicalDiameterM !== null;
-    let radiusH = 0; // radio horizontal visual
-    let radiusV = 0; // radio vertical visual
-    let neckLength = 0;
-    let suspensionOffset = 0; // sin globo no hay línea de suspensión
-    if (balloonVisible) {
-      const sphereRadius = (physicalDiameterM * scale) / 2;
-      radiusH = sphereRadius / eggCubeRoot; // mismo volumen que la esfera del diámetro estimado
-      radiusV = radiusH * VISUAL_AID.eggElongation;
-      neckLength = radiusH * VISUAL_AID.neckLengthFactor;
-      suspensionOffset =
-        clamp(
-          VISUAL_AID.suspensionPerBalloonDiameter * physicalDiameterM,
-          VISUAL_AID.suspensionMinM,
-          VISUAL_AID.suspensionMaxM,
-        ) * scale;
+    // Globo: intacto en el ascenso; en la ruptura se expande y estalla (burst.js); después del
+    // estallido no se dibuja (los fragmentos se ven aparte).
+    const phase = burstPhase(playback.absoluteMs, burstMs, playback.speed);
+    let physicalDiameterM = null;
+    let expansion = 1;
+    if (phase.state === "intact") {
+      physicalDiameterM = visualDiameterM(diameterModel, playback.index, playback.fraction);
+    } else if (phase.state === "expanding") {
+      physicalDiameterM = maxDiameterM; // tamaño máximo estimado, inflándose
+      expansion = expansionFactor(phase.p);
     }
-    const neckBottomAlt = payloadTop + suspensionOffset;
-    const neckTopAlt = neckBottomAlt + neckLength;
-    const balloonBottomAlt = neckTopAlt;
-    const balloonCenterAlt = balloonBottomAlt + radiusV;
+    const balloonVisible = physicalDiameterM !== null;
+    const { radiusH, radiusV, neckLength, neckBottomAlt, balloonBottomAlt, balloonCenterAlt } = layoutBalloon(
+      payloadTop,
+      physicalDiameterM,
+      scale,
+      expansion,
+    );
+    const burst =
+      phase.state === "expanding" || phase.state === "fragments"
+        ? computeBurst(phase, scale, payload, at(balloonCenterAlt), p)
+        : null;
+    if (!burst) for (const f of frags) f.show = false;
 
     return {
       cameraDistanceM: d,
@@ -162,7 +208,60 @@ export function createBalloonAssembly(viewer, { flight, playback, diameterModel,
       balloonCenter: at(balloonCenterAlt),
       balloonCenterAltM: balloonCenterAlt,
       balloonBottomAltM: balloonBottomAlt,
+      burstState: phase.state,
+      burst, // null fuera de la rotura; { state, p, anchor, flash }
     };
+  }
+
+  /**
+   * Rotura en curso: durante la expansión el ancla es el globo (unido a la carga). Desde el
+   * estallido los fragmentos se desplazan con la carga (misma masa de aire: horizontalmente
+   * por completo y, en vertical, la fracción BURST.followVertical de su descenso) y se calculan
+   * como función pura del progreso (burst.js).
+   */
+  function computeBurst(phase, scale, payload, liveCenter, payloadPos) {
+    const hasFlash = flashState(phase.p, flashOut);
+    const out = {
+      state: phase.state,
+      p: phase.p,
+      anchor: liveCenter,
+      flash: hasFlash ? { sizePx: flashOut.sizePx, alpha: flashOut.alpha } : null,
+    };
+    if (phase.state !== "fragments") {
+      for (const f of frags) f.show = false;
+      return out;
+    }
+    // Dónde estaba el globo al estallar (fin de la expansión): se calcula con la misma geometría.
+    const tBurst = burstMs + BURST.expandFrac * burstWindowMs(playback.speed);
+    const at0 = positionAtTime(flight, playback.times, tBurst, playback.displayAltM);
+    const lay = layoutBalloon(at0.altM + payload.height / 2, maxDiameterM, scale, expansionFactor(BURST.expandFrac));
+    // Los restos caen en el mismo aire fino que la carga: acompañan la mayor parte de su descenso.
+    const sinceBurstM = payloadPos.altM - at0.altM;
+    const anchor = Cesium.Cartesian3.fromDegrees(
+      payloadPos.lon,
+      payloadPos.lat,
+      lay.balloonCenterAlt + BURST.followVertical * sinceBurstM,
+    );
+    const R = lay.radiusH;
+    out.anchor = anchor;
+    Cesium.Transforms.eastNorthUpToFixedFrame(anchor, undefined, burstFrame);
+    const q = fragmentProgress(phase.p);
+    FRAGMENTS.forEach((def, i) => {
+      const f = frags[i];
+      fragmentState(def, q, fragOut);
+      local.x = fragOut.x * R;
+      local.y = fragOut.y * R;
+      local.z = fragOut.z * R;
+      Cesium.Matrix4.multiplyByPoint(burstFrame, local, f.position);
+      // Lámina plana (sprite): el volteo estrecha el ancho y el giro la rota en pantalla.
+      f.width = def.width * R * fragOut.scale * fragOut.flip;
+      f.height = def.length * R * fragOut.scale;
+      f.rotation = fragOut.angle;
+      f.color.red = f.color.green = f.color.blue = fragOut.shade;
+      f.color.alpha = fragOut.alpha;
+      f.show = fragOut.alpha > 0;
+    });
+    return out;
   }
 
   const creamBalloon = Cesium.Color.fromCssColorString("#fff3d6").withAlpha(0.82);
@@ -232,5 +331,115 @@ export function createBalloonAssembly(viewer, { flight, playback, diameterModel,
     },
   });
 
-  return { getPose, scaleAt: assemblyScale, body, neck, suspensionLine, payloadBox, antennaLine };
+  // --- Rotura: trozos de látex y destello para la vista lejana ---
+  // Cada trozo es un sprite (billboard) con una silueta irregular dibujada una vez en un lienzo:
+  // mate, de dos tonos separados por un pliegue, sin brillos. Sin assets externos.
+  const SHARD_TONES = [
+    ["#f3eddf", "#d8d0bf"], // crema
+    ["#e9e4d8", "#c4c0b5"], // gris crema
+    ["#f6f3ec", "#dad6cc"], // blanco suave
+  ];
+  const shardImages = new Map();
+  function shardImage(shape, tone) {
+    const key = `${shape}-${tone}`;
+    if (shardImages.has(key)) return shardImages.get(key);
+    const size = 96;
+    const canvas = document.createElement("canvas");
+    canvas.width = canvas.height = size;
+    const g = canvas.getContext("2d");
+    const s = SHARDS[shape];
+    const [light, dark] = SHARD_TONES[tone];
+    const map = ([x, y]) => [size / 2 + x * (size - 8), size / 2 + y * (size - 8)];
+    const outline = () => {
+      g.beginPath();
+      s.pts.forEach((pt, k) => {
+        const [px, py] = map(pt);
+        if (k === 0) g.moveTo(px, py);
+        else g.lineTo(px, py);
+      });
+      g.closePath();
+    };
+    outline();
+    g.fillStyle = light;
+    g.fill();
+    // Segunda mitad, más oscura, a un lado del pliegue
+    g.save();
+    outline();
+    g.clip();
+    g.translate(size / 2, size / 2);
+    g.rotate(s.fold);
+    g.fillStyle = dark;
+    g.fillRect(0, -size, size, size * 2);
+    g.restore();
+    // Pliegue y borde finos (mate: sin degradados brillantes)
+    g.strokeStyle = "rgba(110,104,92,0.55)";
+    g.lineWidth = 1.2;
+    g.beginPath();
+    g.moveTo(size / 2 - Math.cos(s.fold + Math.PI / 2) * size * 0.45, size / 2 - Math.sin(s.fold + Math.PI / 2) * size * 0.45);
+    g.lineTo(size / 2 + Math.cos(s.fold + Math.PI / 2) * size * 0.45, size / 2 + Math.sin(s.fold + Math.PI / 2) * size * 0.45);
+    g.stroke();
+    outline();
+    g.stroke();
+    shardImages.set(key, canvas);
+    return canvas;
+  }
+
+  // Precalentamiento: Cesium crea el sprite, sube su textura y compila las variantes de shader
+  // (opaca/translúcida y con rotación) la primera vez que se usan, lo que causaba un único tirón
+  // (~100 ms) en el primer estallido. Durante unos fotogramas iniciales se "muestran" con tamaño de
+  // 1 cm sobre la carga (imperceptible, dentro del cuadro) para hacerlo antes.
+  let warmFrames = 4;
+  const stopWarm = scene.postRender.addEventListener(() => {
+    if (--warmFrames <= 0) stopWarm();
+  });
+  // Mitad opacos y mitad translúcidos: Cesium compila una variante de shader por cada pasada.
+  const warmOpaque = new Cesium.Color(1, 1, 1, 1);
+  const warmTranslucent = new Cesium.Color(1, 1, 1, 0.5);
+
+  const fragmentEntities = FRAGMENTS.map((def, i) =>
+    viewer.entities.add({
+      id: `balloon-fragment-${i}`,
+      position: new Cesium.CallbackProperty(() => (warmFrames > 0 ? getPose().payloadCenter : (getPose(), frags[i].position)), false),
+      billboard: {
+        image: shardImage(def.shape, def.tone),
+        sizeInMeters: true,
+        width: new Cesium.CallbackProperty(() => (warmFrames > 0 ? 0.01 : frags[i].width), false),
+        height: new Cesium.CallbackProperty(() => (warmFrames > 0 ? 0.01 : frags[i].height), false),
+        // Rotación no nula durante el precalentamiento: Cesium recompila el shader de la colección
+        // la primera vez que algún sprite rota (era el tirón de ~100 ms del primer estallido).
+        rotation: new Cesium.CallbackProperty(() => (warmFrames > 0 ? 0.3 : frags[i].rotation), false),
+        color: new Cesium.CallbackProperty(() => (warmFrames > 0 ? (i % 2 ? warmTranslucent : warmOpaque) : frags[i].color), false),
+        show: new Cesium.CallbackProperty(() => (getPose(), warmFrames > 0 || frags[i].show), false),
+      },
+    }),
+  );
+
+  // Destello: solo con la cámara lejos (donde el globo 3D no se distingue); desaparece en ~1 s.
+  const flashColor = new Cesium.Color(1, 0.953, 0.839, 1);
+  const flash = viewer.entities.add({
+    id: "balloon-burst-flash",
+    position: new Cesium.CallbackProperty(() => getPose().burst?.anchor, false),
+    point: {
+      pixelSize: new Cesium.CallbackProperty(() => getPose().burst?.flash?.sizePx ?? 1, false),
+      color: new Cesium.CallbackProperty(() => {
+        flashColor.alpha = getPose().burst?.flash?.alpha ?? 0;
+        return flashColor;
+      }, false),
+      disableDepthTestDistance: Number.POSITIVE_INFINITY,
+      distanceDisplayCondition: new Cesium.DistanceDisplayCondition(VISUAL_AID.farDistanceM, Number.MAX_VALUE),
+      show: new Cesium.CallbackProperty(() => Boolean(getPose().burst?.flash), false),
+    },
+  });
+
+  /**
+   * Extensión de la rotura respecto de la carga (m): hacia arriba y a los lados, para encuadrarla.
+   * Usa el tamaño máximo del globo con su expansión, a la escala visual dada.
+   */
+  function burstFraming(scale) {
+    if (maxDiameterM === null) return null;
+    const lay = layoutBalloon((payloadPhysical.height * scale) / 2, maxDiameterM, scale, 1 + BURST.expansion);
+    return { upM: lay.balloonCenterAlt + 3.4 * lay.radiusH, sideM: 5 * lay.radiusH };
+  }
+
+  return { getPose, scaleAt: assemblyScale, body, neck, suspensionLine, payloadBox, antennaLine, fragmentEntities, flash, burstMs, burstFraming };
 }
