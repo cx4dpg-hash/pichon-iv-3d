@@ -7,7 +7,7 @@
 //
 // TAMAÑO FÍSICO Y AYUDA DE VISIBILIDAD (solo a distancia)
 // De cerca, el conjunto se dibuja con dimensiones físicas/modeladas: el globo con su diámetro
-// estimado (estimatedBalloonDiameterM) y la carga con 0.45 × 0.25 × 0.18 m. NO se intenta
+// estimado (estimatedBalloonDiameterM) y la carga con 0.45 × 0.25 × 0.18 m (modelo procedural de payload.js: espuma, tapa, cordeles, antena). NO se intenta
 // mantener un tamaño angular constante en pantalla: al hacer zoom, el conjunto crece o
 // disminuye de forma natural junto con la escena.
 //
@@ -28,6 +28,8 @@
 
 import { visualPosition, positionAtTime } from "./playback.js";
 import { visualDiameterM } from "./physics.js";
+import { buildPayloadModel } from "./payload.js";
+import { foamCanvas, labelCanvas } from "./payloadtextures.js";
 import { BURST, FRAGMENTS, SHARDS, burstPhase, burstWindowMs, expansionFactor, fragmentProgress, fragmentState, flashState } from "./burst.js";
 
 const Cesium = window.Cesium;
@@ -45,8 +47,6 @@ export const VISUAL_AID = {
   suspensionPerBalloonDiameter: 0.6,
   suspensionMinM: 0.8,
   suspensionMaxM: 4,
-  // visualAntennaOffset = 0.8 m hacia abajo desde la base de la carga, × escala
-  antennaOffsetM: 0.8,
   // Forma del globo: elipsoide de revolución algo alargado (alto = 1.12 × ancho) con el mismo
   // volumen que la esfera del diámetro estimado, más un pequeño cuello inferior.
   eggElongation: 1.12,
@@ -95,7 +95,9 @@ function layoutBalloon(payloadTopAltM, diameterM, scale, expansion = 1) {
 export function createBalloonAssembly(viewer, { flight, playback, diameterModel, payloadDimensionsM }) {
   const camera = viewer.camera;
   const scene = viewer.scene;
-  const payloadPhysical = payloadDimensionsM;
+  const payloadModel = buildPayloadModel(payloadDimensionsM);
+  // La caja cuelga de canto: su altura vertical es el lado de 0,25 m (payloadModel.hanging).
+  const payloadPhysical = payloadModel.hanging;
 
   // Ruptura (visual): coincide con la transmisión de máxima altitud. Sin descenso no hay ruptura.
   const transition = diameterModel.estimatedBurstTransition;
@@ -162,8 +164,6 @@ export function createBalloonAssembly(viewer, { flight, playback, diameterModel,
       payloadCenter = at(altM);
     }
     const payloadTop = altM + payload.height / 2;
-    const payloadBottom = altM - payload.height / 2;
-    const antennaOffset = VISUAL_AID.antennaOffsetM * scale;
 
     // Globo: intacto en el ascenso; en la ruptura se expande y estalla (burst.js); después del
     // estallido no se dibuja (los fragmentos se ven aparte).
@@ -200,9 +200,8 @@ export function createBalloonAssembly(viewer, { flight, playback, diameterModel,
       neckLength,
       payloadCenter,
       payloadCenterAltM: altM,
-      payloadTop: at(payloadTop),
-      payloadBottom: at(payloadBottom),
-      antennaEnd: at(payloadBottom - antennaOffset),
+      // Vértice donde confluyen los cordeles de la carga: de aquí parte la línea de suspensión.
+      payloadTop: at(payloadTop + payloadModel.riseAboveTopM * scale),
       neckBottom: at(neckBottomAlt),
       neckCenter: at(neckBottomAlt + neckLength / 2),
       balloonCenter: at(balloonCenterAlt),
@@ -306,29 +305,145 @@ export function createBalloonAssembly(viewer, { flight, playback, diameterModel,
     },
   });
 
-  const payloadBox = viewer.entities.add({
-    id: "balloon-payload",
-    position: new Cesium.CallbackProperty(() => getPose().payloadCenter, false),
-    box: {
-      dimensions: new Cesium.CallbackProperty(() => {
-        const { payload } = getPose();
-        return new Cesium.Cartesian3(payload.length, payload.width, payload.height);
-      }, false),
-      material: polystyrene,
-      outline: true,
-      outlineColor: Cesium.Color.fromCssColorString("#3a3a3a"),
-    },
+  // Carga útil y antena: geometría procedural (payload.js) construida UNA vez en coordenadas
+  // locales; solo se mueve la matriz de modelo (ENU en la posición GPS × escala visual). Son 5
+  // objetos de dibujo (espuma con grano, cajas de color, aristas, etiqueta y una colección de
+  // líneas), sin entidades dinámicas.
+  const foamInstances = [];
+  const solidInstances = [];
+  const outlineInstances = [];
+  const colorAttr = (css, alpha = 1) =>
+    Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.fromCssColorString(css).withAlpha(alpha));
+  const texturedFormat = Cesium.MaterialAppearance.MaterialSupport.TEXTURED.vertexFormat;
+  for (const b of payloadModel.boxes) {
+    const dimensions = new Cesium.Cartesian3(...b.size);
+    const center = new Cesium.Cartesian3(...b.center);
+    const modelMatrix = Cesium.Matrix4.fromRotationTranslation(Cesium.Matrix3.fromRotationY(Cesium.Math.toRadians(b.rotY)), center);
+    if (b.foam) {
+      foamInstances.push(
+        new Cesium.GeometryInstance({ geometry: Cesium.BoxGeometry.fromDimensions({ dimensions, vertexFormat: texturedFormat }), modelMatrix }),
+      );
+    } else {
+      solidInstances.push(
+        new Cesium.GeometryInstance({
+          geometry: Cesium.BoxGeometry.fromDimensions({ dimensions, vertexFormat: Cesium.PerInstanceColorAppearance.VERTEX_FORMAT }),
+          modelMatrix,
+          attributes: { color: colorAttr(b.color) },
+        }),
+      );
+    }
+    if (b.outline) {
+      outlineInstances.push(
+        new Cesium.GeometryInstance({
+          geometry: Cesium.BoxOutlineGeometry.fromDimensions({ dimensions }),
+          modelMatrix,
+          attributes: { color: colorAttr("#b4b0a3") },
+        }),
+      );
+    }
+  }
+  const payloadFoam = scene.primitives.add(
+    new Cesium.Primitive({
+      geometryInstances: foamInstances,
+      appearance: new Cesium.MaterialAppearance({
+        material: Cesium.Material.fromType("Image", { image: foamCanvas(), repeat: new Cesium.Cartesian2(2, 1.4) }),
+        materialSupport: Cesium.MaterialAppearance.MaterialSupport.TEXTURED,
+        translucent: false,
+        closed: true,
+      }),
+      asynchronous: false,
+      allowPicking: false,
+    }),
+  );
+  const payloadSolids = scene.primitives.add(
+    new Cesium.Primitive({
+      geometryInstances: solidInstances,
+      appearance: new Cesium.PerInstanceColorAppearance({ translucent: false, closed: true }),
+      asynchronous: false,
+      allowPicking: false,
+    }),
+  );
+  const payloadOutlines = outlineInstances.length
+    ? scene.primitives.add(
+        new Cesium.Primitive({
+          geometryInstances: outlineInstances,
+          appearance: new Cesium.PerInstanceColorAppearance({ flat: true, translucent: false }),
+          asynchronous: false,
+          allowPicking: false,
+        }),
+      )
+    : null; // los cantos suaves de la espuma no llevan contorno dibujado
+  const payloadLines = scene.primitives.add(new Cesium.PolylineCollection());
+  for (const l of payloadModel.lines) {
+    payloadLines.add({
+      positions: l.points.map((pt) => new Cesium.Cartesian3(...pt)),
+      width: l.width,
+      material: Cesium.Material.fromType("Color", { color: Cesium.Color.fromCssColorString(l.color) }),
+    });
+  }
+
+  // Etiqueta: cuadrilátero con textura pegado a la cara lateral y < 0 (visto desde afuera, +x a la
+  // derecha). Se crea cuando cargan los logos; hasta entonces la cara queda de espuma lisa.
+  let payloadLabel = null;
+  const frameMatrix = new Cesium.Matrix4();
+  const lastMatrix = new Cesium.Matrix4();
+  labelCanvas().then((canvas) => {
+    const { center: c, width, height } = payloadModel.label;
+    const x0 = c[0] - width / 2;
+    const x1 = c[0] + width / 2;
+    const z0 = c[2] - height / 2;
+    const z1 = c[2] + height / 2;
+    const geometry = new Cesium.Geometry({
+      attributes: {
+        position: new Cesium.GeometryAttribute({
+          componentDatatype: Cesium.ComponentDatatype.DOUBLE,
+          componentsPerAttribute: 3,
+          values: [x0, c[1], z0, x1, c[1], z0, x1, c[1], z1, x0, c[1], z1],
+        }),
+        normal: new Cesium.GeometryAttribute({
+          componentDatatype: Cesium.ComponentDatatype.FLOAT,
+          componentsPerAttribute: 3,
+          values: [0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0],
+        }),
+        st: new Cesium.GeometryAttribute({
+          componentDatatype: Cesium.ComponentDatatype.FLOAT,
+          componentsPerAttribute: 2,
+          values: [0, 0, 1, 0, 1, 1, 0, 1],
+        }),
+      },
+      indices: new Uint16Array([0, 1, 2, 0, 2, 3]),
+      primitiveType: Cesium.PrimitiveType.TRIANGLES,
+      boundingSphere: Cesium.BoundingSphere.fromPoints([new Cesium.Cartesian3(x0, c[1], z0), new Cesium.Cartesian3(x1, c[1], z1)]),
+    });
+    payloadLabel = scene.primitives.add(
+      new Cesium.Primitive({
+        geometryInstances: new Cesium.GeometryInstance({ geometry }),
+        appearance: new Cesium.MaterialAppearance({
+          material: Cesium.Material.fromType("Image", { image: canvas }),
+          materialSupport: Cesium.MaterialAppearance.MaterialSupport.TEXTURED,
+          translucent: false,
+          closed: false,
+        }),
+        asynchronous: false,
+        allowPicking: false,
+      }),
+    );
+    Cesium.Matrix4.clone(Cesium.Matrix4.IDENTITY, lastMatrix); // fuerza asignar la matriz en el próximo fotograma
+    lastMatrix[0] = NaN;
+    scene.requestRender();
   });
 
-  // La antena cuelga desde la carga útil (no son tirantes estructurales).
-  const antennaLine = viewer.entities.add({
-    id: "balloon-antenna",
-    polyline: {
-      positions: new Cesium.CallbackProperty(() => [getPose().payloadBottom, getPose().antennaEnd], false),
-      width: 2,
-      material: Cesium.Color.fromCssColorString("#8fe36f"),
-      arcType: Cesium.ArcType.NONE,
-    },
+  // La matriz se actualiza en cada fotograma que Cesium dibuja (render bajo demanda: en pausa no
+  // hay trabajo). Solo se reasigna si cambió.
+  scene.preUpdate.addEventListener(() => {
+    const pose = getPose();
+    Cesium.Transforms.eastNorthUpToFixedFrame(pose.payloadCenter, undefined, frameMatrix);
+    Cesium.Matrix4.multiplyByUniformScale(frameMatrix, pose.assemblyScale, frameMatrix);
+    if (Cesium.Matrix4.equals(frameMatrix, lastMatrix)) return;
+    Cesium.Matrix4.clone(frameMatrix, lastMatrix);
+    for (const prim of [payloadFoam, payloadSolids, payloadOutlines, payloadLines, payloadLabel]) {
+      if (prim) Cesium.Matrix4.clone(frameMatrix, prim.modelMatrix);
+    }
   });
 
   // --- Rotura: trozos de látex y destello para la vista lejana ---
@@ -441,5 +556,5 @@ export function createBalloonAssembly(viewer, { flight, playback, diameterModel,
     return { upM: lay.balloonCenterAlt + 3.4 * lay.radiusH, sideM: 5 * lay.radiusH };
   }
 
-  return { getPose, scaleAt: assemblyScale, body, neck, suspensionLine, payloadBox, antennaLine, fragmentEntities, flash, burstMs, burstFraming };
+  return { getPose, scaleAt: assemblyScale, body, neck, suspensionLine, payloadModel, payloadFoam, payloadSolids, payloadOutlines, payloadLines, fragmentEntities, flash, burstMs, burstFraming };
 }
