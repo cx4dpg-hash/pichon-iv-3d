@@ -6,9 +6,18 @@
 // solo se piden los fotogramas que faltan para que el suavizado converja (después la escena queda
 // estática). Los saltos del tiempo (scrub, Anterior/Siguiente, clic en gráficos, fase) reponen la
 // cámara de inmediato en vez de arrastrar el suavizado desde la posición anterior.
+//
+// Interacción: el usuario puede orbitar (arrastrar con mouse o un dedo), inclinar (arrastrar
+// arriba/abajo) y acercar/alejar (rueda o pellizco). No se usa el controlador de Cesium (que
+// orbita alrededor del terreno y pelearía con la cámara de cada fotograma): los gestos se
+// convierten en un ajuste RELATIVO a la cámara automática (azimut, elevación y factor de
+// distancia respecto de la carga, ver manualCamera en chasecam.js). Ese ajuste se conserva al
+// reproducir, pausar o saltar en el tiempo, así que la cámara sigue viajando con la carga con la
+// nueva posición relativa. `enableInputs` queda activo (clic, brújula, etc.); solo se apagan los
+// movimientos de cámara del controlador mientras dura la vista.
 
 import { positionAtTime, finalPosition } from "./playback.js";
-import { CHASE, motionDirection, viewTarget, stepChase, cameraOffsetENU, isTimeJump, wrapPi } from "./chasecam.js";
+import { CHASE, motionDirection, viewTarget, stepChase, manualCamera, clampZoom, isTimeJump, wrapPi } from "./chasecam.js";
 
 const Cesium = window.Cesium;
 
@@ -22,6 +31,12 @@ export function initImmersiveCamera({ viewer, playback, flight }) {
   let prevOffset = null;
   let prevNow = 0;
   let prevHeading = null;
+  const manual = { az: 0, el: 0, zoom: 1 };
+  const GESTURE = { orbitRadPerPx: 0.005, tiltRadPerPx: 0.005, wheelPerPx: 0.0012 };
+  const CONTROLS = ["enableRotate", "enableTranslate", "enableZoom", "enableTilt", "enableLook"];
+  let savedControls = null;
+  const compass = document.getElementById("compass");
+  let savedCompass = null;
   const enu = new Cesium.Matrix4();
   const payload = new Cesium.Cartesian3();
   const eye = new Cesium.Cartesian3();
@@ -57,11 +72,12 @@ export function initImmersiveCamera({ viewer, playback, flight }) {
     const p = posAt(offset);
     Cesium.Cartesian3.fromDegrees(p.lon, p.lat, p.altM, undefined, payload);
     Cesium.Transforms.eastNorthUpToFixedFrame(payload, undefined, enu);
-    const o = cameraOffsetENU(state.heading, state.pitch, camera.frustum.fovy);
+    const m = manualCamera(state.heading, state.pitch, camera.frustum.fovy, manual);
+    const o = m.offset;
     Cesium.Cartesian3.fromElements(o.e, o.n, o.u, local);
     Cesium.Matrix4.multiplyByPoint(enu, local, eye);
     if (!Cesium.Matrix4.equals(camera.transform, Cesium.Matrix4.IDENTITY)) camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
-    camera.setView({ destination: eye, orientation: { heading: state.heading, pitch: state.pitch, roll: state.bank } });
+    camera.setView({ destination: eye, orientation: { heading: m.heading, pitch: m.pitch, roll: state.bank } });
 
     // Pausado: se piden fotogramas hasta que el suavizado converge; después la escena queda estática.
     const settled = Math.abs(wrapPi(target.heading - state.heading)) < 5e-4 && Math.abs(target.pitch - state.pitch) < 5e-4 && Math.abs(state.bank) < 5e-4;
@@ -69,6 +85,60 @@ export function initImmersiveCamera({ viewer, playback, flight }) {
   }
 
   scene.preRender.addEventListener(frame);
+
+  // --- Gestos: rueda, arrastre (orbitar/inclinar) y pellizco ---
+  const canvas = viewer.canvas;
+  const pointers = new Map();
+  let pinchDist = 0;
+  const pinchSpan = () => {
+    const [a, b] = [...pointers.values()];
+    return Math.hypot(a.x - b.x, a.y - b.y);
+  };
+  const changed = () => scene.requestRender();
+  canvas.addEventListener(
+    "wheel",
+    (e) => {
+      if (!active) return;
+      e.preventDefault();
+      const px = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * 400 : e.deltaY;
+      manual.zoom = clampZoom(manual.zoom * Math.exp(px * GESTURE.wheelPerPx));
+      changed();
+    },
+    { passive: false },
+  );
+  canvas.addEventListener("pointerdown", (e) => {
+    if (!active) return;
+    if (e.pointerType === "mouse" && e.button !== 0) return; // derecho y central no orbitan
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    try {
+      canvas.setPointerCapture(e.pointerId);
+    } catch {
+      /* puntero ya liberado */
+    }
+    if (pointers.size === 2) pinchDist = pinchSpan();
+  });
+  canvas.addEventListener("pointermove", (e) => {
+    const prev = pointers.get(e.pointerId);
+    if (!active || !prev) return;
+    const dx = e.clientX - prev.x;
+    const dy = e.clientY - prev.y;
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pointers.size >= 2) {
+      const span = pinchSpan();
+      if (pinchDist > 0 && span > 0) manual.zoom = clampZoom(manual.zoom * (pinchDist / span));
+      pinchDist = span;
+    } else {
+      manual.az += dx * GESTURE.orbitRadPerPx; // arrastrar a la derecha: la cámara gira hacia la izquierda de la escena
+      manual.el += dy * GESTURE.tiltRadPerPx; // arrastrar hacia abajo: la cámara sube
+      manual.el = Math.max(-1.4, Math.min(1.4, manual.el));
+    }
+    changed();
+  });
+  const release = (e) => {
+    pointers.delete(e.pointerId);
+    pinchDist = pointers.size === 2 ? pinchSpan() : 0;
+  };
+  for (const type of ["pointerup", "pointercancel"]) canvas.addEventListener(type, release);
 
   return {
     enable() {
@@ -79,13 +149,31 @@ export function initImmersiveCamera({ viewer, playback, flight }) {
       prevOffset = null;
       prevNow = 0;
       prevHeading = null;
-      controller.enableInputs = false; // la cámara la gobierna la trayectoria; los gestos no la pelean
+      manual.az = 0;
+      manual.el = 0;
+      manual.zoom = 1;
+      pointers.clear();
+      // Los movimientos de cámara del controlador de Cesium se apagan (los reemplazan los gestos de
+      // arriba); `enableInputs` global sigue activo.
+      savedControls = Object.fromEntries(CONTROLS.map((k) => [k, controller[k]]));
+      for (const k of CONTROLS) controller[k] = false;
+      // La brújula rotaría la cámara, pero la cámara automática la sobrescribe: se deshabilita.
+      if (compass) {
+        savedCompass = { disabled: compass.disabled };
+        compass.disabled = true; // el estilo atenuado sale de #compass:disabled
+      }
       scene.requestRender();
     },
     disable() {
       if (!active) return;
       active = false;
-      controller.enableInputs = true;
+      if (savedControls) for (const k of CONTROLS) controller[k] = savedControls[k];
+      savedControls = null;
+      if (compass && savedCompass) {
+        compass.disabled = savedCompass.disabled;
+      }
+      savedCompass = null;
+      pointers.clear();
     },
   };
 }

@@ -110,3 +110,34 @@ export function isTimeJump({ prevOffsetMs, offsetMs, dtRealMs, playing, speed })
   if (!playing || dtRealMs > 400 || d < 0) return true;
   return d > 2 * dtRealMs * speed + 1000;
 }
+
+/**
+ * Ajuste manual del usuario, relativo a la cámara automática: `az` (rad) orbita alrededor de la
+ * carga, `el` (rad) sube/baja la cámara, `zoom` multiplica la distancia. Con {0, 0, 1} el resultado
+ * es exactamente la cámara automática.
+ */
+export const MANUAL = { minZoom: 0.25, maxZoom: 6, minElDeg: -30, maxElDeg: 80 };
+
+export const clampZoom = (z) => Math.min(MANUAL.maxZoom, Math.max(MANUAL.minZoom, z));
+
+/**
+ * Cámara con el ajuste manual aplicado: posición relativa a la carga (ENU, m) y rumbo/pendiente de
+ * la vista. La cámara orbita sobre una esfera centrada en la carga y mira al mismo punto de
+ * referencia que la cámara automática (ligeramente por encima de la carga), así que el seguimiento
+ * no se pierde: la carga sigue siendo el centro del encuadre. La elevación queda acotada (nunca
+ * pasa por el cenit ni se hunde bajo el horizonte más allá de lo que ya pedía la cámara automática).
+ */
+export function manualCamera(heading, pitch, fovy, manual) {
+  const o0 = cameraOffsetENU(heading, pitch, fovy);
+  const f = viewVector(heading, pitch);
+  const d0 = Math.hypot(o0.e, o0.n, o0.u);
+  const ref = { e: o0.e + f.e * d0, n: o0.n + f.n * d0, u: o0.u + f.u * d0 }; // punto mirado, fijo respecto de la carga
+  const el0 = Math.atan2(o0.u, Math.hypot(o0.e, o0.n));
+  const elMin = Math.min(el0, MANUAL.minElDeg * DEG);
+  const el = Math.min(MANUAL.maxElDeg * DEG, Math.max(elMin, el0 + manual.el));
+  const az = Math.atan2(o0.e, o0.n) + manual.az;
+  const d = d0 * clampZoom(manual.zoom);
+  const offset = { e: d * Math.cos(el) * Math.sin(az), n: d * Math.cos(el) * Math.cos(az), u: d * Math.sin(el) };
+  const v = { e: ref.e - offset.e, n: ref.n - offset.n, u: ref.u - offset.u };
+  return { offset, heading: Math.atan2(v.e, v.n), pitch: Math.atan2(v.u, Math.hypot(v.e, v.n)) };
+}

@@ -73,3 +73,29 @@ test("saltos del tiempo", () => {
   assert.equal(isTimeJump({ ...base, prevOffsetMs: null, offsetMs: 0 }), true);
   assert.equal(isTimeJump({ ...base, dtRealMs: 2000, offsetMs: 10016 }), true); // pausa → play
 });
+
+import { manualCamera, MANUAL } from "../js/chasecam.js";
+
+test("ajuste manual nulo = cámara automática exacta", () => {
+  for (const [h, p] of [[1.2, 0.3], [-2.5, -0.35], [0, 0]]) {
+    const a = cameraOffsetENU(h, p, 1);
+    const m = manualCamera(h, p, 1, { az: 0, el: 0, zoom: 1 });
+    assert.ok(Math.abs(m.offset.e - a.e) < 1e-9 && Math.abs(m.offset.n - a.n) < 1e-9 && Math.abs(m.offset.u - a.u) < 1e-9);
+    assert.ok(Math.abs(wrapPi(m.heading - h)) < 1e-9 && Math.abs(m.pitch - p) < 1e-9);
+  }
+});
+
+test("ajuste manual: zoom y elevación acotados, la distancia escala", () => {
+  const base = manualCamera(1, 0.2, 1, { az: 0, el: 0, zoom: 1 });
+  const d0 = Math.hypot(base.offset.e, base.offset.n, base.offset.u);
+  const far = manualCamera(1, 0.2, 1, { az: 0, el: 0, zoom: 1e6 });
+  assert.ok(Math.abs(Math.hypot(far.offset.e, far.offset.n, far.offset.u) - d0 * MANUAL.maxZoom) < 1e-6);
+  const top = manualCamera(1, 0.2, 1, { az: 0, el: 10, zoom: 1 });
+  assert.ok(Math.abs(Math.asin(top.offset.u / d0) - MANUAL.maxElDeg * DEG) < 1e-9);
+});
+
+test("orbitar 180° pone la cámara delante y sigue mirando hacia la carga", () => {
+  const m = manualCamera(0, 0, 1, { az: Math.PI, el: 0, zoom: 1 });
+  assert.ok(m.offset.n > 0); // delante (rumbo 0 = norte)
+  assert.ok(Math.abs(wrapPi(m.heading - Math.PI)) < 0.3); // mira hacia atrás, a la carga
+});

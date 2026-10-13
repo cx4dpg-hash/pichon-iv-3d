@@ -546,7 +546,12 @@ button[aria-pressed="true"] {
   opacity: 0.85;
 }
 
-#compass:hover,
+#compass:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+#compass:hover:not(:disabled),
 #compass:focus-visible {
   opacity: 1;
   background: rgba(11, 16, 32, 0.8);
